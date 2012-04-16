@@ -4,6 +4,26 @@
  * Results of distance scan is sent via serial line
  */
 
+/** Wiring servo
+ * - Power, red, connect to 5v
+ * - Ground, black/brown, connect to ground
+ * - Signal, yellow, connect to pin 9
+ */
+ 
+/** Wiring SRF05 distance sensor
+ * http://www.robotstorehk.com/sensors/doc/srf05tech.pdf
+ * 
+ * left side
+ * 1, 5v
+ * 2, no connection
+ * 3, signal, pin 7
+ * 4, ground
+ * 5, ground
+ * right side, leave all unconnected
+ */
+ 
+
+
 #include <Servo.h> 
  
 Servo myservo;  // create servo object to control a servo 
@@ -70,6 +90,8 @@ long measureDistance() {
 void scan(int angle, int scanDelay) {
   myservo.write(angle);
   delay(scanDelay);
+  long distance = measureDistance();
+  sendScan(angle, distance);
 }
 
 void loop() 
