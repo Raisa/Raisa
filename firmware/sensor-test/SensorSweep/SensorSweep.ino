@@ -28,8 +28,11 @@
  
 Servo myservo;  // create servo object to control a servo 
                 // a maximum of eight servo objects can be created 
- 
-int pos = 0;    // variable to store the servo position 
+
+/* possible values for serialSpeed:
+ 9600, 14400, 19200, 28800, 38400, 57600, 115200
+*/
+int serialSpeed=115200;
 int minAngle = 0;
 int maxAngle = 180;
 int maxDelay = 400;
@@ -45,7 +48,7 @@ void setup()
 } 
  
 void initSerial() {
-  Serial.begin(9600);  
+  Serial.begin(serialSpeed);  
   Serial.println("SensorSweep starting");
 }
 
@@ -63,7 +66,7 @@ long microsecondsToCentimeters(long microseconds)
   // The speed of sound is 340 m/s or 29 microseconds per centimeter.
   // The ping travels out and back, so to find the distance of the
   // object we take half of the distance travelled.
-  return microseconds / 29 / 2;
+  return (long)microseconds / 29.0 / 2.0;
 }
 
 long measureDistance() {
@@ -96,11 +99,11 @@ void scan(int angle, int scanDelay) {
 
 void loop() 
 { 
-  for(int angle = minAngle; pos < maxAngle; pos += angleStep)
+  for(int angle = minAngle; angle < maxAngle; angle += angleStep)
   {                                   
     scan(angle, maxDelay);
   } 
-  for(int angle = maxAngle; pos>=minAngle; pos-=angleStep) 
+  for(int angle = maxAngle; angle > minAngle; angle-=angleStep) 
   {                                
     scan(angle, maxDelay);
   } 
