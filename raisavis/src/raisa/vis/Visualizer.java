@@ -2,14 +2,11 @@ package raisa.vis;
 
 import javax.swing.*;
 import java.awt.*;
-<<<<<<< HEAD
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-=======
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
->>>>>>> a279bf71c4b3017cf924e02d9181cacb485eb5f1
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Observable;
