@@ -9,8 +9,9 @@ public class Sample {
     public Sample(float x, float y, String sample) {
         this.x = x;
         this.y = y;
-        angle = (float)Math.toRadians(Integer.parseInt(sample.substring(1, 4).trim()));
-        distance = Integer.parseInt(sample.substring(5, 8).trim());
+        String[] sampleParts = sample.split("[,]");
+        angle = (float)Math.toRadians(Integer.parseInt(sampleParts[0].substring(1).trim()));
+        distance = Integer.parseInt(sampleParts[1].trim());
     }
 
     public Spot getSpot() {
