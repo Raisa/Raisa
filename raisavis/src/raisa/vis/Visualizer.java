@@ -14,7 +14,7 @@ import java.util.Observer;
 /**
  * See http://arduino.cc/playground/Interfacing/Java for RXTX library setup
  */
-public class Visualizer extends JPanel implements Observer {
+public class Visualizer extends JPanel {
     private float mx;
     private float my;
     public List<Spot> spots;
@@ -31,8 +31,9 @@ public class Visualizer extends JPanel implements Observer {
         });
     }
 
-    public void update(Observable o, Object arg) {
-        this.spots = (List<Spot>) arg;
+    public void update(List<Spot> arg) {
+        this.spots = arg;
+        System.out.println("Repainting..");
         repaint();
     }
 
@@ -89,6 +90,7 @@ public class Visualizer extends JPanel implements Observer {
 
 
     public static void main(String[] args) throws Exception {
+        Visualizer visualizer = new Visualizer();
         List<Spot> spots = new ArrayList<Spot>();
         if (args.length == 0) {
             List<Sample> samples = getExampleSamples();
@@ -100,7 +102,7 @@ public class Visualizer extends JPanel implements Observer {
         } else {
             String inputMode = args[0];
             if ("serial".equals(inputMode)) {
-                SerialWorld serialWorld = new SerialWorld();
+                SerialWorld serialWorld = new SerialWorld(visualizer);
                 serialWorld.initialize();
             } else if ("file".equals(inputMode)) {
                 if (args.length != 2) {
@@ -118,7 +120,6 @@ public class Visualizer extends JPanel implements Observer {
         JFrame frame = new JFrame();
         frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         frame.setSize(600, 400);
-        Visualizer visualizer = new Visualizer();
         visualizer.spots = spots;
         frame.add(visualizer);
         frame.setVisible(true);

@@ -1,7 +1,6 @@
 package raisa.vis;
 
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
+import java.io.InputStream;
 import gnu.io.CommPortIdentifier; 
 import gnu.io.SerialPort;
 import gnu.io.SerialPortEvent; 
@@ -11,26 +10,33 @@ import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.Observable;
+import java.util.Scanner;
 
-public class SerialWorld extends Observable implements SerialPortEventListener {
+public class SerialWorld implements SerialPortEventListener {
 	SerialPort serialPort;
         /** The port we're normally going to use. */
 	private static final String PORT_NAMES[] = { 
 			"/dev/tty.usbserial-A9007UX1", // Mac OS X
+			"/dev/tty.usbmodemfd111",
+			"/dev/ttys0",
+			"/dev/ttys000",
+			"/dev/tty001",			
 			"/dev/ttyUSB0", // Linux
 			"COM3", // Windows
 			};
 	/** Buffered input stream from the port */
-	private BufferedReader input;
+	private InputStream input;
 	/** Milliseconds to block while waiting for port open */
 	private static final int TIME_OUT = 2000;
 	/** Default bits per second for COM port. */
 	private static final int DATA_RATE = 9600;
 	/** Spots for drawing the picture */
 	private List<Spot> spots;
+	private Visualizer visualizer;
 	
-	public SerialWorld() {
+	public SerialWorld(Visualizer visualizer) {
 		this.spots = new ArrayList<Spot>();
+		this.visualizer = visualizer;
 	}
 	
 	public void initialize() {
@@ -65,7 +71,7 @@ public class SerialWorld extends Observable implements SerialPortEventListener {
 					SerialPort.PARITY_NONE);
 
 			// open the streams
-			input = new BufferedReader(new InputStreamReader(serialPort.getInputStream(),"ASCII"));
+			input = serialPort.getInputStream();
 
 			// add event listeners
 			serialPort.addEventListener(this);
@@ -90,25 +96,26 @@ public class SerialWorld extends Observable implements SerialPortEventListener {
 	 * Handle an event on the serial port. Read the data and print it.
 	 */
 	public synchronized void serialEvent(SerialPortEvent oEvent) {
+		System.out.println("Serial event: " + oEvent.getEventType());
 		if (oEvent.getEventType() == SerialPortEvent.DATA_AVAILABLE) {
 			try {
-				int i = 0;
-				String line = input.readLine();
+				Scanner scanner = new Scanner(input).useDelimiter("\n");
+				String line = scanner.next();
 				while (line!=null) {
-					System.out.print(new String(line));							
-					if (!line.matches("J\\d+,\\d+")) {
-						System.out.print("Invalid sample!");
+					System.out.println(new String(line));							
+					if (!line.matches("J\\d+,\\d+[\n\r]+")) {
+						System.out.println("Invalid sample!");
 					} else {
 						Sample s = new Sample(0,0,line);
 						this.spots.add(s.getSpot());
-						this.notifyObservers(spots);
+						this.visualizer.update(spots);
 					}
-					line = input.readLine();
+					line = scanner.next();
 				}
 			} catch (Exception e) {
 				System.err.println(e.toString());
 			}
-			this.notifyObservers(spots);
+			this.visualizer.update(spots);
 		}
 		// Ignore all the other eventTypes, but you should consider the other ones.
 	}
