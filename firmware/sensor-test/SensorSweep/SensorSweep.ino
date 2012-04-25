@@ -32,7 +32,7 @@ Servo myservo;  // create servo object to control a servo
 /* possible values for serialSpeed:
  9600, 14400, 19200, 28800, 38400, 57600, 115200
 */
-int serialSpeed=115200;
+int serialSpeed=9600;
 int minAngle = 0;
 int maxAngle = 180;
 int maxDelay = 400;
@@ -40,6 +40,8 @@ int angleStep = 20;
 const int servoPin = 9;
 const int pingPin = 7;
 long maxDistance = 540;
+int scanOffset = 0;
+
 
 void setup() 
 { 
@@ -99,11 +101,15 @@ void scan(int angle, int scanDelay) {
 
 void loop() 
 { 
-  for(int angle = minAngle; angle < maxAngle; angle += angleStep)
+  scanOffset ++;
+  if(scanOffset > angleStep) {
+    scanOffset = 0;
+  }
+  for(int angle = minAngle + scanOffset; angle + scanOffset < maxAngle; angle += angleStep)
   {                                   
     scan(angle, maxDelay);
   } 
-  for(int angle = maxAngle; angle > minAngle; angle-=angleStep) 
+  for(int angle = maxAngle - scanOffset; angle - scanOffset > minAngle; angle-=angleStep) 
   {                                
     scan(angle, maxDelay);
   } 
