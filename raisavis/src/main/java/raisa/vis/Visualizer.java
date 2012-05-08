@@ -1,21 +1,23 @@
 package raisa.vis;
 
-import javax.swing.*;
-import java.awt.*;
+import java.awt.Color;
+import java.awt.Graphics;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Observable;
-import java.util.Observer;
+
+import javax.swing.JFrame;
+import javax.swing.JPanel;
 
 /**
  * See http://arduino.cc/playground/Interfacing/Java for RXTX library setup
  */
 public class Visualizer extends JPanel {
-    private float mx;
+	private static final long serialVersionUID = 1L;
+	private float mx;
     private float my;
     public List<Spot> spots;
 

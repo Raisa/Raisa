@@ -1,15 +1,14 @@
 package raisa.vis;
 
-import java.io.InputStream;
-import gnu.io.CommPortIdentifier; 
+import gnu.io.CommPortIdentifier;
 import gnu.io.SerialPort;
-import gnu.io.SerialPortEvent; 
-import gnu.io.SerialPortEventListener; 
+import gnu.io.SerialPortEvent;
+import gnu.io.SerialPortEventListener;
 
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
-import java.util.Observable;
 import java.util.Scanner;
 
 public class SerialWorld implements SerialPortEventListener {
@@ -41,7 +40,7 @@ public class SerialWorld implements SerialPortEventListener {
 	
 	public void initialize() {
 		CommPortIdentifier portId = null;
-		Enumeration portEnum = CommPortIdentifier.getPortIdentifiers();
+		Enumeration<?> portEnum = CommPortIdentifier.getPortIdentifiers();
 
 		// iterate through, looking for the port
 		while (portEnum.hasMoreElements()) {
