@@ -31,9 +31,9 @@ public class SerialWorld implements SerialPortEventListener {
 	private static final int DATA_RATE = 9600;
 	/** Spots for drawing the picture */
 	private List<Spot> spots;
-	private Visualizer visualizer;
+	private VisualizerPanel visualizer;
 	
-	public SerialWorld(Visualizer visualizer) {
+	public SerialWorld(VisualizerPanel visualizer) {
 		this.spots = new ArrayList<Spot>();
 		this.visualizer = visualizer;
 	}
