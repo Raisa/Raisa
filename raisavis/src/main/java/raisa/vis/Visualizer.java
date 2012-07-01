@@ -1,28 +1,29 @@
 package raisa.vis;
 
-import java.awt.Color;
-import java.awt.Graphics;
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.util.ArrayList;
 import java.util.List;
-
-import javax.swing.JFrame;
-import javax.swing.JPanel;
+import java.util.Observable;
+import java.util.Observer;
 
 /**
  * See http://arduino.cc/playground/Interfacing/Java for RXTX library setup
  */
 public class Visualizer extends JPanel {
-	private static final long serialVersionUID = 1L;
-	private float mx;
+    private float mx;
     private float my;
     public List<Spot> spots;
 
     public Visualizer() {
         setBackground(Color.gray);
+        setFocusable(true);
         addMouseMotionListener(new MouseAdapter() {
             @Override
             public void mouseMoved(MouseEvent mouseEvent) {
@@ -30,6 +31,23 @@ public class Visualizer extends JPanel {
                 my = mouseEvent.getY();
                 repaint();
             }
+        });
+        addKeyListener(new KeyAdapter() {
+			@Override
+			public void keyReleased(KeyEvent arg0) {
+				if (arg0.getKeyCode() == KeyEvent.VK_C) {
+					System.out.println("Cleared");
+					spots.clear();
+				}
+				if (arg0.getKeyCode() == KeyEvent.VK_H) {
+					System.out.println("Removed old points");
+					int fromIndex = Math.max(0, spots.size() - 1000);
+					int toIndex = spots.size();
+					List<Spot> newSpots = new ArrayList<Spot>();
+					newSpots.addAll(spots.subList(fromIndex, toIndex));
+					spots = newSpots;
+				}
+			}       	
         });
     }
 
@@ -40,6 +58,7 @@ public class Visualizer extends JPanel {
     }
 
     public void paintComponent(Graphics g) {
+    	float scale = 2.0f;
         g.clearRect(0, 0, getBounds().width, getBounds().height);
         float cx = getBounds().width * 0.5f;
         float cy = getBounds().height * 0.5f;
@@ -47,16 +66,22 @@ public class Visualizer extends JPanel {
         for (Spot spot : spots) {
             float w = 3.0f;
             float h = 3.0f;
-            float x = cx + spot.x - 0.5f * w;
-            float y = cy + spot.y - 0.5f * h;
+            float x = cx + scale * spot.x - 0.5f * w;
+            float y = cy - scale * spot.y - 0.5f * h;
             g.fillRect((int) x, (int) y, (int) w, (int) h);
         }
         g.setColor(Color.blue);
-        g.drawLine((int) cx, (int) cy, (int) mx, (int) my);
-        float dx = cx - mx;
-        float dy = cy - my;
+        g.drawLine((int) cx, (int) cy, (int) (mx), (int)(my));
+        float dx = (cx - mx) / scale;
+        float dy = (cy - my) / scale;
         float l = (float) Math.sqrt(dx * dx + dy * dy);
         g.drawString(l + " cm", 0, 20);
+        
+        float lx = cx + scale * spots.get(spots.size()-1).x;
+        float ly = cy - scale * spots.get(spots.size()-1).y;
+        
+        g.setColor(Color.red);
+        g.drawLine((int)cx, (int)cy, (int)lx, (int)ly);
     }
 
     private static List<Sample> getExampleSamples() {
@@ -125,5 +150,6 @@ public class Visualizer extends JPanel {
         visualizer.spots = spots;
         frame.add(visualizer);
         frame.setVisible(true);
+        visualizer.requestFocusInWindow();
     }
 }
