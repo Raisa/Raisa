@@ -20,6 +20,7 @@ import javax.swing.JPanel;
  * See http://arduino.cc/playground/Interfacing/Java for RXTX library setup
  */
 public class Visualizer extends JPanel {
+	private static final long serialVersionUID = 1L;
 	private float rx;
 	private float ry;
 	private float cx;
