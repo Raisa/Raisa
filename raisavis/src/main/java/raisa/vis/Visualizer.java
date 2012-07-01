@@ -70,7 +70,9 @@ public class Visualizer {
 				List<Sample> samples = getFileSamples(filename);
 				spots = new ArrayList<Spot>();
 				for (Sample sample : samples) {
-					spots.add(sample.getSpot());
+					if (sample.isSpot()) {
+						spots.add(sample.getSpot());
+					}
 				}
 			}
 		}

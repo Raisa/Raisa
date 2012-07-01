@@ -13,7 +13,8 @@ public class ExampleWorld1 {
             distance = 150.0f / (float) Math.cos(Math.PI * 1.5f - angle);
         }
         float a = (float)Math.toDegrees(angle);
-        String sampleString = String.format("J%1$3d,%2$3d\n", (int)a, (int) distance);
+        //String sampleString = String.format("J%1$3d,%2$3d\n", (int)a, (int) distance);
+        String sampleString = String.format("STA;IR%d;ID%d;END\n", (int)a, (int) distance);
         //System.out.print(sampleString);
         return sampleString;
     }
