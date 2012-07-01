@@ -17,8 +17,11 @@ public class Visualizer {
 		float x = 0.0f;
 		float y = 0.0f;
 		List<String> sampleStrings = new ArrayList<String>();
-		for (int i = 0; i < 100; ++i) {
-			sampleStrings.add(world.sample(x, y, i / 50.0f * (float) Math.PI));
+		for (int o = 0; o < 50; ++o) {
+			for (int i = 0; i < 100; ++i) {
+				sampleStrings.add(world.sample(x, y, (float)(i + Math.random()) / 50.0f
+						* (float) Math.PI));
+			}
 		}
 		List<Sample> samples = new ArrayList<Sample>();
 		for (String str : sampleStrings) {
@@ -75,7 +78,7 @@ public class Visualizer {
 		JFrame frame = new JFrame("Raisa Visualizer");
 		frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		frame.setSize(600, 400);
-		visualizer.spots = spots;
+		visualizer.update(spots);
 		frame.add(visualizer);
 		frame.setVisible(true);
 		frame.setExtendedState(JFrame.MAXIMIZED_BOTH);
