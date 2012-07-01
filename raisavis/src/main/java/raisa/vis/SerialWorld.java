@@ -30,11 +30,11 @@ public class SerialWorld implements SerialPortEventListener {
 	/** Default bits per second for COM port. */
 	private static final int DATA_RATE = 9600;
 	/** Spots for drawing the picture */
-	private List<Spot> spots;
+	private List<Sample> samples;
 	private VisualizerPanel visualizer;
 	
 	public SerialWorld(VisualizerPanel visualizer) {
-		this.spots = new ArrayList<Spot>();
+		this.samples = new ArrayList<Sample>();
 		this.visualizer = visualizer;
 	}
 	
@@ -102,19 +102,19 @@ public class SerialWorld implements SerialPortEventListener {
 				String line = scanner.next();
 				while (line!=null) {
 					System.out.println(new String(line));							
-					if (!line.matches("J\\d+,\\d+[\n\r]+")) {
+					if (!line.matches("STA;\\d+END;[\n\r]+")) {
 						System.out.println("Invalid sample!");
 					} else {
 						Sample s = new Sample(0,0,line);
-						this.spots.add(s.getSpot());
-						this.visualizer.update(spots);
+						this.samples.add(s);
+						this.visualizer.update(samples);
 					}
 					line = scanner.next();
 				}
 			} catch (Exception e) {
 				System.err.println(e.toString());
 			}
-			this.visualizer.update(spots);
+			this.visualizer.update(samples);
 		}
 		// Ignore all the other eventTypes, but you should consider the other ones.
 	}

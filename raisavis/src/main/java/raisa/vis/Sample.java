@@ -1,5 +1,6 @@
 package raisa.vis;
 
+import java.awt.geom.Point2D;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -19,21 +20,42 @@ public class Sample {
         	} else if (part.startsWith("ID")) {
                 float distance = Integer.parseInt(part.substring(2));
         		data.put("id", distance);
+        	} else if (part.startsWith("SR")) {
+                float angle = (float)Math.toRadians(Integer.parseInt(part.substring(2)));
+            	data.put("sr", angle);
+        	} else if (part.startsWith("SD")) {
+                float distance = Integer.parseInt(part.substring(2));
+        		data.put("sd", distance);
         	} else {        		
         	}
         }
     }
 
 	public boolean isSpot() {
-		return data.containsKey("IR") && data.containsKey("ID");
+		return (data.containsKey("sr") && data.containsKey("sd")) ||
+			(data.containsKey("ir") && data.containsKey("id"));
 	}
 
     public Spot getSpot() {
     	float x = (Float)data.get("x");
     	float y = (Float)data.get("y");
-    	float angle = (Float)data.get("ir");
-    	float distance = (Float)data.get("id");
+    	float angle = 0.0f;
+    	float distance = 0.0f;
+    	if (data.containsKey("ir")) {
+    		angle = (Float)data.get("ir");
+    		distance = (Float)data.get("id");
+    	}
+    	if (data.containsKey("sr")) {
+    		angle = (Float)data.get("sr");
+    		distance = (Float)data.get("sd");
+    	}
         Spot spot = new Spot(x + (float)Math.cos(angle) * distance, y + (float)Math.sin(angle) * distance);
         return spot;
     }
+
+	public Point2D.Float getRobot() {
+    	float x = (Float)data.get("x");
+    	float y = (Float)data.get("y");
+		return new Point2D.Float(x, y);
+	}
 }

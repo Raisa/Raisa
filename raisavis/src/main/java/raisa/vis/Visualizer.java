@@ -49,14 +49,9 @@ public class Visualizer {
 
 	public static void main(String[] args) throws Exception {
 		VisualizerPanel visualizer = new VisualizerPanel();
-		List<Spot> spots = new ArrayList<Spot>();
+		List<Sample> samples = new ArrayList<Sample>();
 		if (args.length == 0) {
-			List<Sample> samples = getExampleSamples();
-			spots = new ArrayList<Spot>();
-			for (Sample sample : samples) {
-				spots.add(sample.getSpot());
-			}
-
+			samples = getExampleSamples();
 		} else {
 			String inputMode = args[0];
 			if ("serial".equals(inputMode)) {
@@ -67,20 +62,14 @@ public class Visualizer {
 					System.out.println("Missing filename");
 				}
 				String filename = args[1];
-				List<Sample> samples = getFileSamples(filename);
-				spots = new ArrayList<Spot>();
-				for (Sample sample : samples) {
-					if (sample.isSpot()) {
-						spots.add(sample.getSpot());
-					}
-				}
+				samples = getFileSamples(filename);
 			}
 		}
 
 		JFrame frame = new JFrame("Raisa Visualizer");
 		frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		frame.setSize(600, 400);
-		visualizer.update(spots);
+		visualizer.update(samples);
 		frame.add(visualizer);
 		frame.setVisible(true);
 		frame.setExtendedState(JFrame.MAXIMIZED_BOTH);
