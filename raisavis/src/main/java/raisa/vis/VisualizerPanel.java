@@ -87,11 +87,11 @@ public class VisualizerPanel extends JPanel {
 				g.setColor(new Color(0.0f, 0.6f, 0.6f, sr));
 				if (sr >= 1.0f) {
 					drawMeasurementLine(g, sample.getRobot(), spot);
-					g.setColor(new Color(0.0f, 0.6f, 0.6f, 0.05f));
-					// drawSector(g, robot, spot, sonarWidth);
+					//g.setColor(new Color(0.0f, 0.6f, 0.6f, 0.05f));
+					drawSector(g, robot, spot, sonarWidth);
 				} else {
-					g.setColor(new Color(0.0f, 0.6f, 0.6f, 0.05f));
-					// drawSector(g, robot, spot, sonarWidth);
+					//g.setColor(new Color(0.0f, 0.6f, 0.6f, 0.05f));
+					drawSector(g, robot, spot, sonarWidth);
 				}
 				g.setColor(new Color(0.0f, 0.6f, 0.6f, sr));
 				drawPoint(g, sample.getIrSpot());
@@ -129,7 +129,7 @@ public class VisualizerPanel extends JPanel {
 		float l = (float) Math.sqrt(dx * dx + dy * dy);
 		float a = (float) (Math.atan2(-dy, dx) / Math.PI * 180.0) - sector
 				* 0.5f;
-		g.fillArc((int) (p1.x - l), (int) (p1.y - l), (int) (2.0f * l),
+		g.drawArc((int) (p1.x - l), (int) (p1.y - l), (int) (2.0f * l),
 				(int) (2.0f * l), (int) a, (int) sector);
 	}
 
