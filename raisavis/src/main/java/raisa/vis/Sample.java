@@ -5,9 +5,11 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class Sample {
+	public String sampleString;
 	public Map<String, Object> data = new HashMap<String, Object>();
 
 	public Sample(float x, float y, float heading, String sample) {
+		sampleString = sample;
 		data.put("x", x);
 		data.put("y", y);
 		data.put("heading", heading);

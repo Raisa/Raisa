@@ -30,7 +30,20 @@ public class VisualizerPanel extends JPanel {
 	private List<Sample> latestIR = new ArrayList<Sample>();
 	private List<Sample> latestSR = new ArrayList<Sample>();
 	private Grid grid = new Grid();
-
+	
+	public void reset() {
+		heading = 0.0f;
+		robot = new Float();
+		camera = new Float();
+		mouse = new Float();
+		mouseDragStart = new Float();
+		scale = 1.0f;
+		samples = new ArrayList<Sample>();
+		latestIR = new ArrayList<Sample>();
+		latestSR = new ArrayList<Sample>();
+		grid = new Grid();
+	}
+	
 	public VisualizerPanel() {
 		setBackground(Color.gray);
 		setFocusable(true);
@@ -38,6 +51,7 @@ public class VisualizerPanel extends JPanel {
 		addMouseMotionListener(new MouseMotionHandler());
 		addMouseListener(new MouseHandler());
 		addKeyListener(new KeyboardHandler());
+		reset();
 	}
 
 	public void update(String message) {
@@ -256,4 +270,8 @@ public class VisualizerPanel extends JPanel {
 		}
 		return samples;
 	}
+
+	public List<Sample> getSamples() {
+		return samples;
+	}	
 }
