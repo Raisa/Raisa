@@ -144,8 +144,8 @@ public class VisualizerPanel extends JPanel {
 					g.setColor(new Color(1.0f, 0.0f, 0.0f, ir));
 					Stroke stroke = g2.getStroke();
 					g2.setStroke(dashed);
-					float dx = (float) Math.cos(sample.getIrDirection()) * 1000.0f;
-					float dy = -(float) Math.sin(sample.getIrDirection()) * 1000.0f;
+					float dx = (float) Math.cos(sample.getIrDirection()) * 250.0f;
+					float dy = -(float) Math.sin(sample.getIrDirection()) * 250.0f;
 					Float away = new Float(sample.getRobot().x + dx, sample.getRobot().y + dy);
 					drawMeasurementLine(g, sample.getRobot(), away, false);
 					g2.setStroke(stroke);
