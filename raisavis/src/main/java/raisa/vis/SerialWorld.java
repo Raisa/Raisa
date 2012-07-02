@@ -102,7 +102,7 @@ public class SerialWorld implements SerialPortEventListener {
 				String line = scanner.next();
 				while (line!=null) {
 					System.out.println(new String(line));							
-					if (!line.matches("STA;\\d+END;[\n\r]+")) {
+					if (!Sample.isValid(line)) {
 						System.out.println("Invalid sample!");
 					} else {
 						Sample s = new Sample(0,0,line);

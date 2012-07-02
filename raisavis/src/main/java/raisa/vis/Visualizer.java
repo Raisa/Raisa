@@ -37,7 +37,7 @@ public class Visualizer {
 		String line = fr.readLine();
 		while (line != null) {
 			System.out.println(line);
-			if (!line.matches("J\\d+,\\d+")) {
+			if (!!Sample.isValid(line)) {
 				System.out.println("Invalid sample!");
 			} else {
 				samples.add(new Sample(0, 0, line));

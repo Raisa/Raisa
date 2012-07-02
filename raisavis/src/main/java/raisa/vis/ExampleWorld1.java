@@ -14,7 +14,7 @@ public class ExampleWorld1 {
         }
         float a = (float)Math.toDegrees(angle);
         //String sampleString = String.format("J%1$3d,%2$3d\n", (int)a, (int) distance);
-        String sampleString = String.format("STA;IR%d;ID%d;END\n", (int)a, (int) distance);
+        String sampleString = String.format("STA;IR%d;ID%d;END;\n", (int)a, (int) distance);
         //System.out.print(sampleString);
         return sampleString;
     }
