@@ -52,18 +52,8 @@ long measureDistanceInfraRed() {
   return analogRead(irPin);
 }
 
-void scan(int angle, int scanDelay) {
-  if (servoOn) {
-    myservo.write(angle);
-  }
-  delay(scanDelay);
-  long distanceUltraSonic = measureDistanceUltraSonic();
-  long distanceInfraRed = measureDistanceInfraRed();
-  long soundValue1 = analogRead(soundPin1);
-  long soundValue2 = analogRead(soundPin2);
-
-  // TODO writing serial takes time
-  // organize code so that servo is turning while serial data is sent
+void sendDataToServer(int angle, long distanceUltraSonic, long distanceInfraRed, 
+    long soundValue1, long soundValue2, long compassDirection) {
   Serial.print("STA;");
   Serial.print("SR");  
   Serial.print(angle);
@@ -82,8 +72,26 @@ void scan(int angle, int scanDelay) {
   Serial.print(";");      
   Serial.print("SB");
   Serial.print(soundValue2);
-  Serial.print(";");    
-  Serial.println("END;");
+  Serial.print(";");
+  Serial.print("CD");
+  Serial.print(compassDirection);
+  Serial.print(";");
+  Serial.println("END;");  
+}
+
+void scan(int angle, int scanDelay) {
+  if (servoOn) {
+    myservo.write(angle);
+  }
+  delay(scanDelay);
+  long distanceUltraSonic = measureDistanceUltraSonic();
+  long distanceInfraRed = measureDistanceInfraRed();
+  long soundValue1 = analogRead(soundPin1);
+  long soundValue2 = analogRead(soundPin2);
+  long compassDirection = 42;
+  // TODO writing serial takes time
+  // organize code so that servo is turning while serial data is sent
+  sendDataToServer(angle, distanceUltraSonic, distanceInfraRed, soundValue1, soundValue2, compassDirection);
 }
 
 void loop() 
