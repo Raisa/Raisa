@@ -38,8 +38,7 @@ public class Sample {
 	}
 
 	public boolean isSpot() {
-		return (data.containsKey("sr") && data.containsKey("sd"))
-				|| (data.containsKey("ir") && data.containsKey("id"));
+		return (data.containsKey("ir") && data.containsKey("id"));
 	}
 
 	public Spot getSpot() {
@@ -51,6 +50,16 @@ public class Sample {
 			angle = (Float) data.get("ir");
 			distance = (Float) data.get("id");
 		}
+		Spot spot = new Spot(x + (float) Math.cos(angle) * distance, y
+				+ (float) Math.sin(angle) * distance);
+		return spot;
+	}
+
+	public Spot getSrSpot() {
+		float x = (Float) data.get("x");
+		float y = (Float) data.get("y");
+		float angle = 0.0f;
+		float distance = 0.0f;
 		if (data.containsKey("sr")) {
 			angle = (Float) data.get("sr");
 			distance = (Float) data.get("sd");

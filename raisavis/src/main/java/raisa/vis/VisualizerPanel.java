@@ -46,7 +46,7 @@ public class VisualizerPanel extends JPanel {
 				latestIR.add(sample);
 				latestIR = takeLast(latestIR, 10);
 			}
-			if (sample.data.containsKey("sr") && sample.isSpot()) {
+			if (sample.data.containsKey("sr") && sample.data.containsKey("sd")) {
 				latestSR.add(sample);
 				latestSR = takeLast(latestSR, 10);
 			}
@@ -77,6 +77,28 @@ public class VisualizerPanel extends JPanel {
 		g.setColor(measurementColor);
 		drawMeasurementLine(g, robot, toWorld(mouse));
 
+		if (!latestSR.isEmpty()) {
+			float sonarWidth = 25.0f;
+			List<Sample> srs = new ArrayList<Sample>(latestSR);
+			Collections.reverse(srs);
+			float sr = 1.0f;
+			for (Sample sample : srs) {
+				Spot spot = sample.getSrSpot();
+				g.setColor(new Color(0.0f, 0.6f, 0.6f, sr));
+				if (sr >= 1.0f) {
+					drawMeasurementLine(g, sample.getRobot(), sample.getSpot());						
+					g.setColor(new Color(0.0f, 0.6f, 0.6f, 0.05f));
+					drawSector(g, robot, spot, sonarWidth);
+				} else {
+					g.setColor(new Color(0.0f, 0.6f, 0.6f, 0.05f));
+					drawSector(g, robot, spot, sonarWidth);
+				}
+				g.setColor(new Color(0.0f, 0.6f, 0.6f, sr));
+				drawPoint(g, sample.getSpot());
+				sr *= 0.8f;
+			}
+		}
+
 		if (!latestIR.isEmpty()) {
 			List<Sample> irs = new ArrayList<Sample>(latestIR);
 			Collections.reverse(irs);
@@ -91,27 +113,6 @@ public class VisualizerPanel extends JPanel {
 					}
 					drawPoint(g, sample.getSpot());
 					ir *= 0.8f;
-				}
-			}
-		}
-		if (!latestSR.isEmpty()) {
-			float sonarWidth = 25.0f;
-			List<Sample> srs = new ArrayList<Sample>(latestSR);
-			Collections.reverse(srs);
-			float sr = 1.0f;		
-			for (Sample sample : srs) {
-				if (sample.isSpot()) {
-					Spot spot = sample.getSpot();
-					g.setColor(new Color(0.0f, 0.6f, 0.6f, sr));
-					if (sr >= 1.0f) {
-						drawMeasurementLine(g, sample.getRobot(), sample.getSpot());						
-						g.setColor(new Color(0.0f, 0.6f, 0.6f, 0.1f));
-						drawSector(g, robot, spot, sonarWidth);
-					} else {
-					}
-					g.setColor(new Color(0.0f, 0.6f, 0.6f, sr));
-					drawPoint(g, sample.getSpot());
-					sr *= 0.8f;
 				}
 			}
 		}
