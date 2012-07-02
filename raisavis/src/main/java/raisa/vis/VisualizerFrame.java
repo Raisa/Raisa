@@ -77,7 +77,7 @@ public class VisualizerFrame extends JFrame {
 		menuBar.add(mainMenu);
 
 		JFrame frame = new JFrame("Raisa Visualizer");
-		frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.setSize(600, 400);
 		frame.getContentPane().add(visualizer, BorderLayout.CENTER);
 		frame.setJMenuBar(menuBar);
@@ -92,8 +92,7 @@ public class VisualizerFrame extends JFrame {
 			chooser.addActionListener(new ActionListener() {
 				@Override
 				public void actionPerformed(ActionEvent arg0) {
-					String fileName = chooser.getSelectedFile()
-							.getAbsolutePath();
+					String fileName = chooser.getSelectedFile().getAbsolutePath();
 					try {
 						internalSave(fileName);
 					} catch (Exception e) {
@@ -117,8 +116,7 @@ public class VisualizerFrame extends JFrame {
 			chooser.addActionListener(new ActionListener() {
 				@Override
 				public void actionPerformed(ActionEvent arg0) {
-					String fileName = chooser.getSelectedFile()
-							.getAbsolutePath();
+					String fileName = chooser.getSelectedFile().getAbsolutePath();
 					try {
 						internalLoad(fileName, true);
 					} catch (Exception e) {
@@ -142,8 +140,7 @@ public class VisualizerFrame extends JFrame {
 			chooser.addActionListener(new ActionListener() {
 				@Override
 				public void actionPerformed(ActionEvent arg0) {
-					String fileName = chooser.getSelectedFile()
-							.getAbsolutePath();
+					String fileName = chooser.getSelectedFile().getAbsolutePath();
 					try {
 						internalLoad(fileName, false);
 					} catch (Exception e) {
@@ -169,9 +166,8 @@ public class VisualizerFrame extends JFrame {
 		}
 		writer.close();
 	}
-	
-	private void internalLoad(String fileName, boolean delayed)
-			throws FileNotFoundException, IOException {
+
+	private void internalLoad(String fileName, boolean delayed) throws FileNotFoundException, IOException {
 		BufferedReader fr = new BufferedReader(new FileReader(fileName));
 		List<String> sampleStrings = new ArrayList<String>();
 		String line = fr.readLine();
@@ -195,8 +191,29 @@ public class VisualizerFrame extends JFrame {
 		System.exit(0);
 	}
 
-	private void spawnSimulationThread(final List<String> samples,
-			final boolean delayed) {
+	public void spawnSampleSimulationThread(final List<Sample> samples, final boolean delayed) {
+		if (!samples.isEmpty()) {
+			new Thread(new Runnable() {
+				private int nextSample = 0;
+
+				@Override
+				public void run() {
+					while (nextSample < samples.size()) {
+						visualizer.update(samples.get(nextSample));
+						++nextSample;
+						if (delayed) {
+							try {
+								Thread.sleep(50);
+							} catch (InterruptedException e) {
+							}
+						}
+					}
+				}
+			}).start();
+		}
+	}
+
+	public void spawnSimulationThread(final List<String> samples, final boolean delayed) {
 		if (!samples.isEmpty()) {
 			new Thread(new Runnable() {
 				private int nextSample = 0;

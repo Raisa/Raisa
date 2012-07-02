@@ -44,10 +44,21 @@ public class Sample {
 		}
 	}
 
-	public boolean isSpot() {
+	public boolean isIrSpot() {
 		return (data.containsKey("ir") && data.containsKey("id"));
 	}
 
+	public float getX() {
+		return (Float) data.get("x");
+	}
+
+	public float getY() {
+		return (Float) data.get("y");
+	}
+	public float getHeading() {
+		return (Float) data.get("heading");
+	}
+	
 	public Spot getIrSpot() {
 		float x = (Float) data.get("x");
 		float y = (Float) data.get("y");
@@ -88,5 +99,9 @@ public class Sample {
 
 	public static boolean isValid(String sample) {
 		return sample.matches("STA;([A-Z0-9]+;)*END;[\n\r]*");
+	}
+
+	public float getIrDirection() {
+		return (Float) data.get("ir");
 	}
 }

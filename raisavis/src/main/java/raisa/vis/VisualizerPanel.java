@@ -1,8 +1,10 @@
 package raisa.vis;
 
+import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.Stroke;
 import java.awt.event.HierarchyBoundsListener;
 import java.awt.event.HierarchyEvent;
 import java.awt.event.KeyAdapter;
@@ -16,6 +18,7 @@ import java.util.Collections;
 import java.util.List;
 
 import javax.swing.JPanel;
+import javax.swing.plaf.basic.BasicArrowButton;
 
 public class VisualizerPanel extends JPanel {
 	private static final long serialVersionUID = 1L;
@@ -30,7 +33,8 @@ public class VisualizerPanel extends JPanel {
 	private List<Sample> latestIR = new ArrayList<Sample>();
 	private List<Sample> latestSR = new ArrayList<Sample>();
 	private Grid grid = new Grid();
-	
+	private Stroke dashed;
+
 	public void reset() {
 		heading = 0.0f;
 		robot = new Float();
@@ -43,7 +47,7 @@ public class VisualizerPanel extends JPanel {
 		latestSR = new ArrayList<Sample>();
 		grid = new Grid();
 	}
-	
+
 	public VisualizerPanel() {
 		setBackground(Color.gray);
 		setFocusable(true);
@@ -52,12 +56,17 @@ public class VisualizerPanel extends JPanel {
 		addMouseListener(new MouseHandler());
 		addKeyListener(new KeyboardHandler());
 		reset();
+		dashed = new BasicStroke(1.0f, BasicStroke.CAP_BUTT, BasicStroke.JOIN_MITER, 10.0f, new float[]{15.0f}, 0.0f);
 	}
 
-	public void update(String message) {
-		Sample sample = new Sample(robot.x, robot.y, heading, message);
-		if (sample.data.containsKey("ir") && sample.isSpot()) {
-			grid.addSpot(sample.getIrSpot());
+	public void update(Sample sample) {
+		robot.x = sample.getX();
+		robot.y = sample.getY();
+		heading = sample.getHeading();
+		if (sample.data.containsKey("ir")) {
+			if (sample.isIrSpot()) {
+				grid.addSpot(sample.getIrSpot());
+			}
 			latestIR.add(sample);
 			latestIR = takeLast(latestIR, 10);
 		}
@@ -68,7 +77,12 @@ public class VisualizerPanel extends JPanel {
 		synchronized (this.samples) {
 			this.samples.add(sample);
 		}
-		repaint();
+		repaint();		
+	}
+
+	public void update(String message) {
+		Sample sample = new Sample(robot.x, robot.y, heading, message);
+		update(sample);
 	}
 
 	public void paintComponent(Graphics g) {
@@ -77,10 +91,9 @@ public class VisualizerPanel extends JPanel {
 		int screenHeight = getBounds().height;
 		g.clearRect(0, 0, screenWidth, screenHeight);
 
-		Float tl = new Float(camera.x - screenWidth * 0.5f / scale, camera.y
-				- screenHeight * 0.5f / scale);
-		grid.draw(g2, new Rectangle2D.Float(tl.x * scale, tl.y * scale,
-				screenWidth * scale, screenHeight * scale), this);
+		Float tl = new Float(camera.x - screenWidth * 0.5f / scale, camera.y - screenHeight * 0.5f / scale);
+		grid.draw(g2, new Rectangle2D.Float(tl.x * scale, tl.y * scale, screenWidth * scale, screenHeight * scale),
+				this);
 
 		g.setColor(Color.black);
 		/*
@@ -101,10 +114,10 @@ public class VisualizerPanel extends JPanel {
 				g.setColor(new Color(0.0f, 0.6f, 0.6f, sr));
 				if (sr >= 1.0f) {
 					drawMeasurementLine(g, sample.getRobot(), spot);
-					//g.setColor(new Color(0.0f, 0.6f, 0.6f, 0.05f));
+					// g.setColor(new Color(0.0f, 0.6f, 0.6f, 0.05f));
 					drawSector(g, robot, spot, sonarWidth);
 				} else {
-					//g.setColor(new Color(0.0f, 0.6f, 0.6f, 0.05f));
+					// g.setColor(new Color(0.0f, 0.6f, 0.6f, 0.05f));
 					drawSector(g, robot, spot, sonarWidth);
 				}
 				g.setColor(new Color(0.0f, 0.6f, 0.6f, sr));
@@ -118,17 +131,24 @@ public class VisualizerPanel extends JPanel {
 			Collections.reverse(irs);
 			float ir = 1.0f;
 			for (Sample sample : irs) {
-				if (sample.isSpot()) {
+				if (sample.isIrSpot()) {
 					g.setColor(new Color(1.0f, 0.0f, 0.0f, ir));
 					if (ir >= 1.0f) {
-						drawMeasurementLine(g, sample.getRobot(),
-								sample.getIrSpot());
+						drawMeasurementLine(g, sample.getRobot(), sample.getIrSpot());
 					} else {
-						drawMeasurementLine(g, sample.getRobot(),
-								sample.getIrSpot(), false);
+						drawMeasurementLine(g, sample.getRobot(), sample.getIrSpot(), false);
 					}
 					drawPoint(g, sample.getIrSpot());
 					ir *= 0.8f;
+				} else {
+					g.setColor(new Color(1.0f, 0.0f, 0.0f, ir));
+					Stroke stroke = g2.getStroke();
+					g2.setStroke(dashed);
+					float dx = (float) Math.cos(sample.getIrDirection()) * 1000.0f;
+					float dy = -(float) Math.sin(sample.getIrDirection()) * 1000.0f;
+					Float away = new Float(sample.getRobot().x + dx, sample.getRobot().y + dy);
+					drawMeasurementLine(g, sample.getRobot(), away, false);
+					g2.setStroke(stroke);
 				}
 			}
 		}
@@ -141,26 +161,22 @@ public class VisualizerPanel extends JPanel {
 		float dx = (p2.x - p1.x);
 		float dy = (p2.y - p1.y);
 		float l = (float) Math.sqrt(dx * dx + dy * dy);
-		float a = (float) (Math.atan2(-dy, dx) / Math.PI * 180.0) - sector
-				* 0.5f;
-		g.drawArc((int) (p1.x - l), (int) (p1.y - l), (int) (2.0f * l),
-				(int) (2.0f * l), (int) a, (int) sector);
+		float a = (float) (Math.atan2(-dy, dx) / Math.PI * 180.0) - sector * 0.5f;
+		g.drawArc((int) (p1.x - l), (int) (p1.y - l), (int) (2.0f * l), (int) (2.0f * l), (int) a, (int) sector);
 	}
 
 	private void drawPoint(Graphics g, Float point) {
 		float w = 3.0f;
 		float h = 3.0f;
 		Float p = toScreen(point);
-		g.fillRect((int) (p.x - 0.5f * w), (int) (p.y - 0.5f * h), (int) w,
-				(int) h);
+		g.fillRect((int) (p.x - 0.5f * w), (int) (p.y - 0.5f * h), (int) w, (int) h);
 	}
 
 	private void drawMeasurementLine(Graphics g, Float from, Float to) {
 		drawMeasurementLine(g, from, to, true);
 	}
 
-	private void drawMeasurementLine(Graphics g, Float from, Float to,
-			boolean drawDistanceString) {
+	private void drawMeasurementLine(Graphics g, Float from, Float to, boolean drawDistanceString) {
 		Float p1 = toScreen(from);
 		Float p2 = toScreen(to);
 		g.drawLine((int) p1.x, (int) p1.y, (int) p2.x, (int) p2.y);
@@ -176,8 +192,8 @@ public class VisualizerPanel extends JPanel {
 	public Float toWorld(Float screen) {
 		int screenWidth = getBounds().width;
 		int screenHeight = getBounds().height;
-		return new Float(camera.x + (screen.x - screenWidth * 0.5f) / scale,
-				camera.y + (screen.y - screenHeight * 0.5f) / scale);
+		return new Float(camera.x + (screen.x - screenWidth * 0.5f) / scale, camera.y
+				+ (screen.y - screenHeight * 0.5f) / scale);
 	}
 
 	public float toScreen(float size) {
@@ -273,5 +289,5 @@ public class VisualizerPanel extends JPanel {
 
 	public List<Sample> getSamples() {
 		return samples;
-	}	
+	}
 }
