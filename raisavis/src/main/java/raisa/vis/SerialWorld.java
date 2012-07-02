@@ -6,9 +6,7 @@ import gnu.io.SerialPortEvent;
 import gnu.io.SerialPortEventListener;
 
 import java.io.InputStream;
-import java.util.ArrayList;
 import java.util.Enumeration;
-import java.util.List;
 import java.util.Scanner;
 
 public class SerialWorld implements SerialPortEventListener {
