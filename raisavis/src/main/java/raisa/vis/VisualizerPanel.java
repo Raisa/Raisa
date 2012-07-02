@@ -20,6 +20,7 @@ import javax.swing.JPanel;
 public class VisualizerPanel extends JPanel {
 	private static final long serialVersionUID = 1L;
 	private Color measurementColor = new Color(0.4f, 0.4f, 0.4f);
+	private float heading = 0.0f;
 	private Float robot = new Float();
 	private Float camera = new Float();
 	private Float mouse = new Float();
@@ -39,20 +40,19 @@ public class VisualizerPanel extends JPanel {
 		addKeyListener(new KeyboardHandler());
 	}
 
-	public void update(List<Sample> samples) {
-		for (Sample sample : samples) {
-			if (sample.data.containsKey("ir") && sample.isSpot()) {
-				grid.addSpot(sample.getSpot());
-				latestIR.add(sample);
-				latestIR = takeLast(latestIR, 10);
-			}
-			if (sample.data.containsKey("sr") && sample.data.containsKey("sd")) {
-				latestSR.add(sample);
-				latestSR = takeLast(latestSR, 10);
-			}
+	public void update(String message) {
+		Sample sample = new Sample(robot.x, robot.y, heading, message);
+		if (sample.data.containsKey("ir") && sample.isSpot()) {
+			grid.addSpot(sample.getIrSpot());
+			latestIR.add(sample);
+			latestIR = takeLast(latestIR, 10);
+		}
+		if (sample.data.containsKey("sr") && sample.data.containsKey("sd")) {
+			latestSR.add(sample);
+			latestSR = takeLast(latestSR, 10);
 		}
 		synchronized (this.samples) {
-			this.samples.addAll(samples);
+			this.samples.add(sample);
 		}
 		repaint();
 	}
@@ -78,7 +78,7 @@ public class VisualizerPanel extends JPanel {
 		drawMeasurementLine(g, robot, toWorld(mouse));
 
 		if (!latestSR.isEmpty()) {
-			float sonarWidth = 25.0f;
+			float sonarWidth = 42.0f;
 			List<Sample> srs = new ArrayList<Sample>(latestSR);
 			Collections.reverse(srs);
 			float sr = 1.0f;
@@ -86,15 +86,15 @@ public class VisualizerPanel extends JPanel {
 				Spot spot = sample.getSrSpot();
 				g.setColor(new Color(0.0f, 0.6f, 0.6f, sr));
 				if (sr >= 1.0f) {
-					drawMeasurementLine(g, sample.getRobot(), spot);						
+					drawMeasurementLine(g, sample.getRobot(), spot);
 					g.setColor(new Color(0.0f, 0.6f, 0.6f, 0.05f));
-					drawSector(g, robot, spot, sonarWidth);
+					// drawSector(g, robot, spot, sonarWidth);
 				} else {
 					g.setColor(new Color(0.0f, 0.6f, 0.6f, 0.05f));
-					drawSector(g, robot, spot, sonarWidth);
+					// drawSector(g, robot, spot, sonarWidth);
 				}
 				g.setColor(new Color(0.0f, 0.6f, 0.6f, sr));
-				drawPoint(g, sample.getSpot());
+				drawPoint(g, sample.getIrSpot());
 				sr *= 0.8f;
 			}
 		}
@@ -107,11 +107,13 @@ public class VisualizerPanel extends JPanel {
 				if (sample.isSpot()) {
 					g.setColor(new Color(1.0f, 0.0f, 0.0f, ir));
 					if (ir >= 1.0f) {
-						drawMeasurementLine(g, sample.getRobot(), sample.getSpot());						
+						drawMeasurementLine(g, sample.getRobot(),
+								sample.getIrSpot());
 					} else {
-						drawMeasurementLine(g, sample.getRobot(), sample.getSpot(), false);
+						drawMeasurementLine(g, sample.getRobot(),
+								sample.getIrSpot(), false);
 					}
-					drawPoint(g, sample.getSpot());
+					drawPoint(g, sample.getIrSpot());
 					ir *= 0.8f;
 				}
 			}
@@ -142,8 +144,9 @@ public class VisualizerPanel extends JPanel {
 	private void drawMeasurementLine(Graphics g, Float from, Float to) {
 		drawMeasurementLine(g, from, to, true);
 	}
-	
-	private void drawMeasurementLine(Graphics g, Float from, Float to, boolean drawDistanceString) {
+
+	private void drawMeasurementLine(Graphics g, Float from, Float to,
+			boolean drawDistanceString) {
 		Float p1 = toScreen(from);
 		Float p2 = toScreen(to);
 		g.drawLine((int) p1.x, (int) p1.y, (int) p2.x, (int) p2.y);

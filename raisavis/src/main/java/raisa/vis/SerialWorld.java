@@ -30,12 +30,9 @@ public class SerialWorld implements SerialPortEventListener {
 	private static final int TIME_OUT = 2000;
 	/** Default bits per second for COM port. */
 	private static final int DATA_RATE = 9600;
-	/** Spots for drawing the picture */
-	private List<Sample> samples;
 	private VisualizerPanel visualizer;
 	
 	public SerialWorld(VisualizerPanel visualizer) {
-		this.samples = new ArrayList<Sample>();
 		this.visualizer = visualizer;
 	}
 	
@@ -106,16 +103,13 @@ public class SerialWorld implements SerialPortEventListener {
 					if (!Sample.isValid(line)) {
 						System.out.println("Invalid sample!");
 					} else {
-						Sample s = new Sample(0,0,line);
-						this.samples.add(s);
-						this.visualizer.update(samples);
+						this.visualizer.update(line);
 					}
 					line = scanner.next();
 				}
 			} catch (Exception e) {
 				System.err.println(e.toString());
 			}
-			this.visualizer.update(samples);
 		}
 		// Ignore all the other eventTypes, but you should consider the other ones.
 	}

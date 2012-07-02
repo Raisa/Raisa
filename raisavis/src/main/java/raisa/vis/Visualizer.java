@@ -12,7 +12,7 @@ import javax.swing.JFrame;
  */
 public class Visualizer {
 
-	private static List<Sample> getExampleSamples() {
+	private static List<String> getExampleSamples() {
 		ExampleWorld1 world = new ExampleWorld1();
 		float x = 0.0f;
 		float y = 0.0f;
@@ -23,34 +23,30 @@ public class Visualizer {
 						* (float) Math.PI));
 			}
 		}
-		List<Sample> samples = new ArrayList<Sample>();
-		for (String str : sampleStrings) {
-			samples.add(new Sample(x, y, str));
-		}
-		return samples;
+		return sampleStrings;
 	}
 
-	private static List<Sample> getFileSamples(String filename)
+	private static List<String> getFileSamples(String filename)
 			throws Exception {
 		BufferedReader fr = new BufferedReader(new FileReader(filename));
-		List<Sample> samples = new ArrayList<Sample>();
+		List<String> sampleStrings = new ArrayList<String>();
 		String line = fr.readLine();
 		while (line != null) {
 			if (!Sample.isValid(line)) {
 				System.out.println("Invalid sample! \"" + line + "\"");
 			} else {
-				samples.add(new Sample(0, 0, line));
+				sampleStrings.add(line);
 			}
 			line = fr.readLine();
 		}
-		return samples;
+		return sampleStrings;
 	}
 
 	public static void main(String[] args) throws Exception {
-		VisualizerPanel visualizer = new VisualizerPanel();
-		List<Sample> samples = new ArrayList<Sample>();
+		final VisualizerPanel visualizer = new VisualizerPanel();
+		final List<String> samples = new ArrayList<String>();
 		if (args.length == 0) {
-			samples = getExampleSamples();
+			samples.addAll(getExampleSamples());
 		} else {
 			String inputMode = args[0];
 			if ("serial".equals(inputMode)) {
@@ -61,18 +57,33 @@ public class Visualizer {
 					System.out.println("Missing filename");
 				}
 				String filename = args[1];
-				samples = getFileSamples(filename);
+				samples.addAll(getFileSamples(filename));
 			}
 		}
 
 		JFrame frame = new JFrame("Raisa Visualizer");
 		frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		frame.setSize(600, 400);
-		visualizer.update(samples);
 		frame.add(visualizer);
 		frame.setVisible(true);
 		frame.setExtendedState(JFrame.MAXIMIZED_BOTH);
 		visualizer.requestFocusInWindow();
+		if (!samples.isEmpty()) {
+			new Thread(new Runnable() {
+				private int nextSample = 0;
+				@Override
+				public void run() {
+					while (nextSample < samples.size()) {
+						visualizer.update(samples.get(nextSample));
+						++nextSample;
+						try {
+							Thread.sleep(200);
+						} catch (InterruptedException e) {
+						}
+					}
+				}
+			}).start();
+		}
 	}
 
 }
