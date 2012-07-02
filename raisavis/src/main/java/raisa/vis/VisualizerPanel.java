@@ -86,7 +86,7 @@ public class VisualizerPanel extends JPanel {
 				Spot spot = sample.getSrSpot();
 				g.setColor(new Color(0.0f, 0.6f, 0.6f, sr));
 				if (sr >= 1.0f) {
-					drawMeasurementLine(g, sample.getRobot(), sample.getSpot());						
+					drawMeasurementLine(g, sample.getRobot(), spot);						
 					g.setColor(new Color(0.0f, 0.6f, 0.6f, 0.05f));
 					drawSector(g, robot, spot, sonarWidth);
 				} else {
