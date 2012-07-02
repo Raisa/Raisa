@@ -32,7 +32,7 @@ void setup()
     myservo.attach(servoPin);  // attaches the servo on pin 9 to the servo object
   } 
   pinMode(pingPin, INPUT);
-  Serial.println("SensorSweep starting");
+  Serial.println("RaisaSweep starting");
 } 
  
 
@@ -40,14 +40,16 @@ long measureDistanceUltraSonic() {
   //Used to read in the analog voltage output that is being sent by the MaxSonar device.
   //Scale factor is (Vcc/512) per inch. A 5V supply yields ~9.8mV/in
   //Arduino analog pin goes from 0 to 1024, so the value has to be divided by 2 to get the actual inches
-  return ( analogRead(pingPin)/2 ) * 2.54;
+  //return ( analogRead(pingPin)/2 ) * 2.54;
+  return analogRead(pingPin);
 }
 
 long measureDistanceInfraRed() {
-  irSensorValue = analogRead(irPin);
+  //irSensorValue = analogRead(irPin);
   // http://arduinomega.blogspot.fi/2011/05/infrared-long-range-sensor-gift-of.html
   //inches = 4192.936 * pow(sensorValue,-0.935) - 3.937;
-  return 10650.08 * pow(irSensorValue,-0.935) - 10; //cm
+  //return 10650.08 * pow(irSensorValue,-0.935) - 10; //cm
+  return analogRead(irPin);
 }
 
 void scan(int angle, int scanDelay) {
@@ -60,6 +62,8 @@ void scan(int angle, int scanDelay) {
   long soundValue1 = analogRead(soundPin1);
   long soundValue2 = analogRead(soundPin2);
 
+  // TODO writing serial takes time
+  // organize code so that servo is turning while serial data is sent
   Serial.print("STA;");
   Serial.print("SR");  
   Serial.print(angle);
