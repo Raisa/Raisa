@@ -36,9 +36,8 @@ public class Visualizer {
 		List<Sample> samples = new ArrayList<Sample>();
 		String line = fr.readLine();
 		while (line != null) {
-			System.out.println(line);
-			if (!!Sample.isValid(line)) {
-				System.out.println("Invalid sample!");
+			if (!Sample.isValid(line)) {
+				System.out.println("Invalid sample! \"" + line + "\"");
 			} else {
 				samples.add(new Sample(0, 0, line));
 			}

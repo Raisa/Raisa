@@ -67,6 +67,6 @@ public class Sample {
 	}
 
 	public static boolean isValid(String sample) {
-		return sample.matches("STA;([A-Z0-9]+;)*END;[\n\r]+");
+		return sample.matches("STA;([A-Z0-9]+;)*END;[\n\r]*");
 	}
 }
