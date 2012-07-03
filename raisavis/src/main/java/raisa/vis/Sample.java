@@ -21,21 +21,21 @@ public class Sample {
 				if ("STA".equals(part)) {
 				} else if ("END".equals(part)) {
 				} else if (part.startsWith("IR")) {
-					float angle = (float) Math.toRadians(Integer.parseInt(part
-							.substring(2)));
+					float angle = (float) Math.toRadians(Integer.parseInt(part.substring(2)));
 					data.put("ir", angle);
 				} else if (part.startsWith("ID")) {
-					float distance = Integer.parseInt(part.substring(2));
+					float irSensorValue = Integer.parseInt(part.substring(2));
+					float distance = 10650.08f * (float)Math.pow(irSensorValue, -0.935f) - 10.0f; // cm
 					data.put("id", distance);
 				} else if (part.startsWith("SR")) {
-					float angle = (float) Math.toRadians(Integer.parseInt(part
-							.substring(2)));
+					float angle = (float) Math.toRadians(Integer.parseInt(part.substring(2)));
 					data.put("sr", angle);
 				} else if (part.startsWith("SD")) {
-					float distance = Integer.parseInt(part.substring(2));
+					float srSensorValue = Integer.parseInt(part.substring(2));
+					float distance = (srSensorValue / 2.0f) * 2.54f; // cm
 					data.put("sd", distance);
 				} else if (part.startsWith("CD")) {
-					float compass = (float)Math.toRadians(Integer.parseInt(part.substring(2)));
+					float compass = (float) Math.toRadians(Integer.parseInt(part.substring(2)));
 					data.put("cd", compass);
 					data.put("heading", compass);
 				} else {
@@ -55,10 +55,11 @@ public class Sample {
 	public float getY() {
 		return (Float) data.get("y");
 	}
+
 	public float getHeading() {
 		return (Float) data.get("heading");
 	}
-	
+
 	public Spot getIrSpot() {
 		float x = (Float) data.get("x");
 		float y = (Float) data.get("y");
@@ -70,8 +71,7 @@ public class Sample {
 			distance = (Float) data.get("id");
 		}
 		angle += heading;
-		Spot spot = new Spot(x + (float) Math.cos(angle) * distance, y
-				- (float) Math.sin(angle) * distance);
+		Spot spot = new Spot(x + (float) Math.cos(angle) * distance, y - (float) Math.sin(angle) * distance);
 		return spot;
 	}
 
@@ -86,8 +86,7 @@ public class Sample {
 			distance = (Float) data.get("sd");
 		}
 		angle += heading;
-		Spot spot = new Spot(x + (float) Math.cos(angle) * distance, y
-				- (float) Math.sin(angle) * distance);
+		Spot spot = new Spot(x + (float) Math.cos(angle) * distance, y - (float) Math.sin(angle) * distance);
 		return spot;
 	}
 
