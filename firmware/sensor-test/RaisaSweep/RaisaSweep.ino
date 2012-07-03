@@ -53,8 +53,8 @@ void setup()
 
 void handleMessage(int leftSpeed, int leftDirection, int rightSpeed, int rightDirection) {
   // drive motors
-  int leftForward = (leftDirection == 'B' ? LOW : HIGH);
-  int rightForward = (rightDirection == 'B' ? LOW: HIGH);
+  int leftForward = (leftDirection == 'B' ? HIGH : LOW);
+  int rightForward = (rightDirection == 'B' ? HIGH: LOW);
     
   analogWrite(motorLeftSpeedPin, leftSpeed);
   digitalWrite(motorLeftDirectionPin, leftForward);
