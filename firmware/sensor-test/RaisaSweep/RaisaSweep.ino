@@ -21,9 +21,18 @@ const int pingPin = 3;
 const int irPin = 2;
 float irSensorValue;    //Must be of type float for pow()
 
+// motors
+const int motorRightSpeedPin = 5;
+const int motorRightDirectionPin = 7;
+
+const int motorLeftSpeedPin = 6;
+const int motorLeftDirectionPin = 8;
+
 // sound sensors
 const int soundPin1 = 6;
 const int soundPin2 = 7;
+
+// motors
 
 void setup() 
 { 
@@ -32,9 +41,55 @@ void setup()
     myservo.attach(servoPin);  // attaches the servo on pin 9 to the servo object
   } 
   pinMode(pingPin, INPUT);
+  pinMode(irPin, INPUT);
+  
+  pinMode(motorLeftSpeedPin, OUTPUT);
+  pinMode(motorLeftDirectionPin, OUTPUT);
+  pinMode(motorRightSpeedPin, OUTPUT);
+  pinMode(motorRightDirectionPin, OUTPUT);
+  
   Serial.println("RaisaSweep starting");
 } 
- 
+
+void handleMessage(int leftSpeed, int leftDirection, int rightSpeed, int rightDirection) {
+  // drive motors
+  int leftForward = (leftDirection == 'B' ? LOW : HIGH);
+  int rightForward = (rightDirection == 'B' ? LOW: HIGH);
+    
+  analogWrite(motorLeftSpeedPin, leftSpeed);
+  digitalWrite(motorLeftDirectionPin, leftForward);
+  analogWrite(motorRightSpeedPin, rightSpeed);
+  digitalWrite(motorRightDirectionPin, rightForward);
+}
+
+char receiveBuffer[10];
+char receiveIndex = 0;
+char receiveValue = -1;
+// include 2 start bytes
+const int startBytes = 2;
+const int lastCommandIndex = startBytes+4;
+
+void receiveMessage() {
+  while(Serial.available() > 0) {
+    receiveValue = Serial.read();
+    receiveBuffer[receiveIndex] = receiveValue;
+    if((receiveIndex == 0 && receiveValue == 'R')
+        ||(receiveIndex == 1 && receiveValue == 'a')
+        ||(receiveIndex > 1 && receiveIndex <= lastCommandIndex)) {
+      receiveIndex ++;
+      receiveBuffer[receiveIndex] = '\0';
+    } else if (receiveIndex == lastCommandIndex + 1 
+                && receiveValue == 'i') {
+      // end of message
+      handleMessage(receiveBuffer[startBytes], receiveBuffer[startBytes + 1], 
+                    receiveBuffer[startBytes + 2], receiveBuffer[startBytes + 3] );
+      receiveIndex = 0;
+    } else {
+      // out of sync or message ended
+      receiveIndex = 0; 
+    }
+  }  
+}
 
 long measureDistanceUltraSonic() {
   //Used to read in the analog voltage output that is being sent by the MaxSonar device.
