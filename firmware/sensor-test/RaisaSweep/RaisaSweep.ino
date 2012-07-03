@@ -67,7 +67,7 @@ char receiveIndex = 0;
 char receiveValue = -1;
 // include 2 start bytes
 const int startBytes = 2;
-const int lastCommandIndex = startBytes+4;
+const int lastCommandIndex = startBytes+4-1;
 
 void receiveMessage() {
   while(Serial.available() > 0) {
