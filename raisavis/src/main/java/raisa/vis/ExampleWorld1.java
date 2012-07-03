@@ -2,14 +2,12 @@ package raisa.vis;
 
 import java.awt.Shape;
 import java.awt.geom.Ellipse2D;
-import java.awt.geom.Line2D;
-import java.awt.geom.PathIterator;
 import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
 import java.util.List;
 
 public class ExampleWorld1 {
-	public String sample(float x, float y, float angle) {
+	public String sample(float x, float y, float heading, float angle) {
 		List<Shape> scene = new ArrayList<Shape>();
 		scene.add(new Rectangle2D.Float(-150, -150, 100, 100));
 		scene.add(new Rectangle2D.Float(-50, 100, 300, 100));
@@ -20,27 +18,37 @@ public class ExampleWorld1 {
 
 		float shortestDistance = Float.MAX_VALUE;
 		for (Shape shape : scene) {
-			float distance = trace(x, y, angle, shape, 250.0f);
+			float distance = trace(x, y, heading + angle, shape, 250.0f);
 			if (distance < 250.0f) {
 				shortestDistance = Math.min(shortestDistance, distance);
 			}
 		}
+		shortestDistance = Math.min(250.0f, shortestDistance);
 
+		float encodedDistance = 1.0f / (float)Math.pow((shortestDistance + 10.0f) / 10650.08f, 1.0f / 0.935f);
+		
 		String ir = "IR%d;";
 		if (shortestDistance < 250.0f) {
 			ir += "ID%d;";			
 		}
-		
+				
 		float a = (float) Math.toDegrees(angle);
+		a += 90;
+		while (a < 0) {
+			a += 360.0f;			
+		}
+		while (a > 360.0f) {
+			a -= 360.0f;
+		}
 		// String sampleString = String.format("J%1$3d,%2$3d\n", (int)a, (int)
 		// distance);
-		String sampleString = String.format("STA;" + ir + "END;\n", (int) a,
-				(int) shortestDistance);
+		String sampleString = String.format("STA;" + ir + "END;\n", (int) a, (int) encodedDistance);
 		// System.out.print(sampleString);
 		return sampleString;
 	}
 
 	private float trace(float x, float y, float angle, Shape shape, float maxDistance) {
+		angle = angle - (float)Math.PI * 0.5f;
 		float dx = (float)Math.cos(angle);
 		float dy = (float)Math.sin(angle);
 		
