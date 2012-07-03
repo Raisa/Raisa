@@ -25,7 +25,7 @@ public class Visualizer {
 				if (o % 2 == 1) {
 					angle = 4.0f * (float) Math.PI - angle;
 				}
-				samples.add(new Sample(x, y, heading, world.sample(x, y, angle)));
+				samples.add(new Sample(x, y, heading, world.sample(x, y, heading, angle)));
 			}
 		}
 	}
@@ -33,17 +33,17 @@ public class Visualizer {
 	private static void scenario2(ExampleWorld1 world, List<Sample> samples) {
 		float x = 0.0f;
 		float y = 0.0f;
-		float heading = 0.0f;
+		float heading = (float)Math.toRadians(90.0f);
 		// float heading = 3.0f * (float)Math.PI / 2.0f;
 		for (int o = 0; o < 80; ++o) {
 			for (int i = 0; i < 25; ++i) {
 				x = -200 + (o * 25 + i) * 0.2f;
-				float angle = (3.0f * (float) Math.PI / 2.0f + i / 25.0f * (float) Math.PI) % (2.0f * (float) Math.PI);
+				float angleDegrees = -90.0f + (o % 7) + (i / 24.0f) * 180.0f;
 				if (o % 2 == 1) {
-					angle = 4.0f * (float) Math.PI - angle;
+					angleDegrees = 0.0f - angleDegrees;
 				}
-				angle = angle + heading;
-				samples.add(new Sample(x, y, heading, world.sample(x, y, angle)));
+				float angle = (float)Math.toRadians(angleDegrees);
+				samples.add(new Sample(x, y, heading, world.sample(x, y, heading, angle)));
 			}
 		}
 	}
@@ -65,7 +65,7 @@ public class Visualizer {
 					System.out.println("Missing filename");
 				}
 				String filename = args[1];
-				frame.loadData(filename);
+				frame.loadSimulation(filename);
 			}
 		}
 	}
