@@ -9,10 +9,10 @@ int serialSpeed=9600;
 const int servoPin = 2;
 int minAngle = 0;
 int maxAngle = 180;
-int maxDelay = 1000;
+int maxDelay = 400;
 int angleStep = 20;
 int scanOffset = 0;
-boolean servoOn = false;
+boolean servoOn = true;
 
 // ultrasonic sensor
 const int pingPin = 3;
@@ -25,13 +25,28 @@ float irSensorValue;    //Must be of type float for pow()
 const int soundPin1 = 6;
 const int soundPin2 = 7;
 
+// motors
+boolean motorsOn = false;
+//Rear motors
+int E3 = 6; //M1 Speed Control 
+int E4 = 5; //M2 Speed Control 
+int M3 = 8; //M1 Direction Control 
+int M4 = 7; //M2 Direction Control 
+
 void setup() 
 { 
   Serial.begin(serialSpeed);  
   if (servoOn) {
     myservo.attach(servoPin);  // attaches the servo on pin 9 to the servo object
   } 
-  pinMode(pingPin, INPUT);
+  if (motorsOn) {
+    for(int i=5;i<=8;i++) 
+      pinMode(i, OUTPUT);   
+    analogWrite (E3,255);
+    digitalWrite(M3,LOW); 
+    analogWrite (E4,255); 
+    digitalWrite(M4,LOW); 
+  }  
   Serial.println("SensorSweep starting");
 } 
  
