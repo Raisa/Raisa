@@ -99,10 +99,15 @@ public class VisualizerFrame extends JFrame {
 		viewMenu.add(zoomOut);
 		menuBar.add(viewMenu);
 
+		Communicator communicator = new Communicator();
+		
+		ControlPanel controlPanel = new ControlPanel(visualizer, communicator);
+		
 		JFrame frame = new JFrame("Raisa Visualizer");
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.setSize(600, 400);
 		frame.getContentPane().add(visualizer, BorderLayout.CENTER);
+		frame.getContentPane().add(controlPanel, BorderLayout.WEST);
 		frame.setJMenuBar(menuBar);
 		frame.setVisible(true);
 		frame.setExtendedState(JFrame.MAXIMIZED_BOTH);
