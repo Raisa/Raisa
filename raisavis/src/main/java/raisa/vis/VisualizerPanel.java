@@ -318,11 +318,9 @@ public class VisualizerPanel extends JPanel {
 				samples = takeLast(samples, 1000);
 				repaint();
 			} else if (keyCode == KeyEvent.VK_PLUS) {
-				scale *= 1.25f;
-				repaint();
+				zoomIn();
 			} else if (keyCode == KeyEvent.VK_MINUS) {
-				scale *= 0.8f;
-				repaint();
+				zoomOut();
 			}
 		}
 	}
@@ -340,5 +338,15 @@ public class VisualizerPanel extends JPanel {
 
 	public List<Sample> getSamples() {
 		return samples;
+	}
+
+	public void zoomIn() {
+		scale *= 1.25f;
+		repaint();
+	}
+
+	public void zoomOut() {
+		scale *= 0.8f;
+		repaint();
 	}
 }

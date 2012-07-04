@@ -76,6 +76,29 @@ public class VisualizerFrame extends JFrame {
 		mainMenu.add(exit);
 		menuBar.add(mainMenu);
 
+		JMenu viewMenu = new JMenu("View");
+		mainMenu.setMnemonic('m');
+		JMenuItem zoomIn = new JMenuItem("Zoom in");
+		zoomIn.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				visualizer.zoomIn();
+			}
+		});
+		zoomIn.setMnemonic('i');
+		JMenuItem zoomOut = new JMenuItem("Zoom out");
+		zoomOut.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				visualizer.zoomOut();
+			}
+		});
+		zoomOut.setMnemonic('o');
+		
+		viewMenu.add(zoomIn);
+		viewMenu.add(zoomOut);
+		menuBar.add(viewMenu);
+
 		JFrame frame = new JFrame("Raisa Visualizer");
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.setSize(600, 400);
