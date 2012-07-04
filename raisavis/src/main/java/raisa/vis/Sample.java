@@ -68,7 +68,7 @@ public class Sample {
 		float heading = (Float) data.get("heading");
 		float angle = 0.0f;
 		float distance = 0.0f;
-		if (data.containsKey("ir")) {
+		if (data.containsKey("ir") && data.containsKey("id")) {
 			angle = (Float) data.get("ir");
 			distance = (Float) data.get("id");
 		}

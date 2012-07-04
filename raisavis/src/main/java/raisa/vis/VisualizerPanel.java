@@ -11,14 +11,15 @@ import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D.Float;
+import java.awt.geom.Path2D;
 import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
 import javax.swing.JPanel;
-import javax.swing.plaf.basic.BasicArrowButton;
 
 public class VisualizerPanel extends JPanel {
 	private static final long serialVersionUID = 1L;
@@ -34,6 +35,7 @@ public class VisualizerPanel extends JPanel {
 	private List<Sample> latestSR = new ArrayList<Sample>();
 	private Grid grid = new Grid();
 	private Stroke dashed;
+	private Stroke arrow;
 
 	public void reset() {
 		heading = 0.0f;
@@ -57,6 +59,7 @@ public class VisualizerPanel extends JPanel {
 		addKeyListener(new KeyboardHandler());
 		reset();
 		dashed = new BasicStroke(1.0f, BasicStroke.CAP_BUTT, BasicStroke.JOIN_MITER, 10.0f, new float[]{15.0f}, 0.0f);
+		arrow = new BasicStroke(2.0f, BasicStroke.CAP_BUTT, BasicStroke.JOIN_MITER, 10.0f);
 	}
 
 	public void update(Sample sample) {
@@ -95,12 +98,9 @@ public class VisualizerPanel extends JPanel {
 		grid.draw(g2, new Rectangle2D.Float(tl.x * scale, tl.y * scale, screenWidth * scale, screenHeight * scale),
 				this);
 
-		g.setColor(Color.black);
-		/*
-		 * synchronized (samples) { for (Sample sample : samples) { if
-		 * (sample.isSpot()) { drawPoint(g, sample.getSpot()); } } }
-		 */
-
+		drawRobot(g2);
+		drawArrow(g2);
+		
 		g.setColor(measurementColor);
 		drawMeasurementLine(g, robot, toWorld(mouse));
 
@@ -153,6 +153,44 @@ public class VisualizerPanel extends JPanel {
 				}
 			}
 		}
+	}
+
+	private void drawRobot(Graphics2D g2) {
+		g2.setColor(Color.gray);
+		Float robotScreen = toScreen(robot);
+		float widthScreen = toScreen(11.0f);
+		float heightScreen = toScreen(20.0f);
+		float turretScreen = toScreen(5.4f);
+		Path2D.Float p = new Path2D.Float();
+		double x1 = - widthScreen * 0.5f;
+		double x2 = + widthScreen * 0.5f;
+		double y1 = - (heightScreen - turretScreen);
+		double y2 = + turretScreen;
+		p.moveTo(x1, y1);
+		p.lineTo(x2, y1);
+		p.lineTo(x2, y2);
+		p.lineTo(x1, y2);
+		p.closePath();
+		p.transform(AffineTransform.getRotateInstance(heading));
+		p.transform(AffineTransform.getTranslateInstance(robotScreen.x, robotScreen.y));
+		g2.fill(p);
+	}
+	
+	private void drawArrow(Graphics2D g2) {
+		g2.setColor(Color.black);
+		Float robotScreen = toScreen(robot);
+		Path2D.Float p = new Path2D.Float();
+		p.moveTo(0, 0);
+		p.lineTo(0, toScreen(-30.0f));
+		p.lineTo(- toScreen(4.0f), - toScreen(25.0f));
+		p.moveTo(0, toScreen(-30.0f));
+		p.lineTo(+ toScreen(4.0f), - toScreen(25.0f));
+		p.transform(AffineTransform.getRotateInstance(heading));
+		p.transform(AffineTransform.getTranslateInstance(robotScreen.x, robotScreen.y));
+		Stroke old = g2.getStroke();
+		g2.setStroke(arrow);
+		g2.draw(p);
+		g2.setStroke(old);
 	}
 
 	private void drawSector(Graphics g, Float from, Float to, float sector) {
