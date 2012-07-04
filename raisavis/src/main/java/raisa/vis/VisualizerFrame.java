@@ -5,6 +5,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
@@ -21,7 +22,8 @@ import javax.swing.JMenuItem;
 public class VisualizerFrame extends JFrame {
 	private static final long serialVersionUID = 1L;
 	private VisualizerPanel visualizer;
-
+	private File defaultDirectory = null;
+	
 	public VisualizerFrame() {
 		visualizer = new VisualizerPanel();
 		JMenuBar menuBar = new JMenuBar();
@@ -88,12 +90,13 @@ public class VisualizerFrame extends JFrame {
 
 	public void save(String fileName) {
 		if (fileName == null) {
-			final JFileChooser chooser = new JFileChooser();
+			final JFileChooser chooser = new JFileChooser(defaultDirectory);
 			chooser.addActionListener(new ActionListener() {
 				@Override
 				public void actionPerformed(ActionEvent arg0) {
 					String fileName = chooser.getSelectedFile().getAbsolutePath();
 					try {
+						saveDefaultDirectory(fileName);
 						internalSave(fileName);
 					} catch (Exception e) {
 						e.printStackTrace();
@@ -112,12 +115,13 @@ public class VisualizerFrame extends JFrame {
 
 	public void loadSimulation(String fileName) {
 		if (fileName == null) {
-			final JFileChooser chooser = new JFileChooser();
+			final JFileChooser chooser = new JFileChooser(defaultDirectory);
 			chooser.addActionListener(new ActionListener() {
 				@Override
 				public void actionPerformed(ActionEvent arg0) {
 					String fileName = chooser.getSelectedFile().getAbsolutePath();
 					try {
+						saveDefaultDirectory(fileName);
 						internalLoad(fileName, true);
 					} catch (Exception e) {
 						e.printStackTrace();
@@ -136,12 +140,13 @@ public class VisualizerFrame extends JFrame {
 
 	public void loadData(String fileName) {
 		if (fileName == null) {
-			final JFileChooser chooser = new JFileChooser();
+			final JFileChooser chooser = new JFileChooser(defaultDirectory);
 			chooser.addActionListener(new ActionListener() {
 				@Override
 				public void actionPerformed(ActionEvent arg0) {
 					String fileName = chooser.getSelectedFile().getAbsolutePath();
 					try {
+						saveDefaultDirectory(fileName);
 						internalLoad(fileName, false);
 					} catch (Exception e) {
 						e.printStackTrace();
@@ -237,5 +242,9 @@ public class VisualizerFrame extends JFrame {
 
 	public VisualizerPanel getVisualizer() {
 		return visualizer;
+	}
+	
+	private void saveDefaultDirectory(String filename) {
+		defaultDirectory = new File(filename).getParentFile();
 	}
 }
