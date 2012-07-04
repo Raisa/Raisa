@@ -42,8 +42,8 @@ void configureCompass() {
   
   // Calibration values. Use the Calibrate example program to get the values for
   // your compass.
-  compass.m_min.x = -520; compass.m_min.y = -570; compass.m_min.z = -770;
-  compass.m_max.x = +540; compass.m_max.y = +500; compass.m_max.z = 180;  
+  compass.m_min.x = -507; compass.m_min.y = -858; compass.m_min.z = -566;
+  compass.m_max.x = +389; compass.m_max.y = +114; compass.m_max.z = 402;  
 }
 
 void setup() 
