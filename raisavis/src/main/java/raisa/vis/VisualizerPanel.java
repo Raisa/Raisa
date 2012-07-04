@@ -58,7 +58,7 @@ public class VisualizerPanel extends JPanel {
 		addMouseListener(new MouseHandler());
 		addKeyListener(new KeyboardHandler());
 		reset();
-		dashed = new BasicStroke(1.0f, BasicStroke.CAP_BUTT, BasicStroke.JOIN_MITER, 10.0f, new float[]{15.0f}, 0.0f);
+		dashed = new BasicStroke(1.0f, BasicStroke.CAP_BUTT, BasicStroke.JOIN_MITER, 10.0f, new float[] { 15.0f }, 0.0f);
 		arrow = new BasicStroke(2.0f, BasicStroke.CAP_BUTT, BasicStroke.JOIN_MITER, 10.0f);
 	}
 
@@ -80,7 +80,7 @@ public class VisualizerPanel extends JPanel {
 		synchronized (this.samples) {
 			this.samples.add(sample);
 		}
-		repaint();		
+		repaint();
 	}
 
 	public void update(String message) {
@@ -90,20 +90,59 @@ public class VisualizerPanel extends JPanel {
 
 	public void paintComponent(Graphics g) {
 		Graphics2D g2 = (Graphics2D) g;
+		clearScreen(g);
+		drawGrid(g2);
+		drawRobot(g2);
+		drawArrow(g2);
+		drawMeasurementLine(g, robot, toWorld(mouse));
+		drawUltrasoundResults(g);
+		drawIrResults(g, g2);
+	}
+
+	private void clearScreen(Graphics g) {
 		int screenWidth = getBounds().width;
 		int screenHeight = getBounds().height;
 		g.clearRect(0, 0, screenWidth, screenHeight);
+	}
 
+	private void drawGrid(Graphics2D g2) {
+		int screenWidth = getBounds().width;
+		int screenHeight = getBounds().height;
 		Float tl = new Float(camera.x - screenWidth * 0.5f / scale, camera.y - screenHeight * 0.5f / scale);
-		grid.draw(g2, new Rectangle2D.Float(tl.x * scale, tl.y * scale, screenWidth * scale, screenHeight * scale),
-				this);
+		grid.draw(g2, new Rectangle2D.Float(tl.x * scale, tl.y * scale, screenWidth * scale, screenHeight * scale), this);
+	}
 
-		drawRobot(g2);
-		drawArrow(g2);
-		
-		g.setColor(measurementColor);
-		drawMeasurementLine(g, robot, toWorld(mouse));
+	private void drawIrResults(Graphics g, Graphics2D g2) {
+		if (!latestIR.isEmpty()) {
+			List<Sample> irs = new ArrayList<Sample>(latestIR);
+			Collections.reverse(irs);
+			float ir = 1.0f;
+			for (Sample sample : irs) {
+				if (sample.isIrSpot()) {
+					g.setColor(new Color(1.0f, 0.0f, 0.0f, ir));
+					if (ir >= 1.0f) {
+						drawMeasurementLine(g, sample.getRobot(), sample.getIrSpot());
+					} else {
+						drawMeasurementLine(g, sample.getRobot(), sample.getIrSpot(), false);
+					}
+					drawPoint(g, sample.getIrSpot());
+					ir *= 0.8f;
+				} else {
+					g.setColor(new Color(1.0f, 0.0f, 0.0f, ir));
+					Stroke stroke = g2.getStroke();
+					g2.setStroke(dashed);
+					float angle = sample.getHeading() + sample.getIrDirection() - (float) Math.PI * 0.5f;
+					float dx = (float) Math.cos(angle) * 250.0f;
+					float dy = (float) Math.sin(angle) * 250.0f;
+					Float away = new Float(sample.getRobot().x + dx, sample.getRobot().y + dy);
+					drawMeasurementLine(g, sample.getRobot(), away, false);
+					g2.setStroke(stroke);
+				}
+			}
+		}
+	}
 
+	private void drawUltrasoundResults(Graphics g) {
 		if (!latestSR.isEmpty()) {
 			float sonarWidth = 42.0f;
 			List<Sample> srs = new ArrayList<Sample>(latestSR);
@@ -125,34 +164,6 @@ public class VisualizerPanel extends JPanel {
 				sr *= 0.8f;
 			}
 		}
-
-		if (!latestIR.isEmpty()) {
-			List<Sample> irs = new ArrayList<Sample>(latestIR);
-			Collections.reverse(irs);
-			float ir = 1.0f;
-			for (Sample sample : irs) {
-				if (sample.isIrSpot()) {
-					g.setColor(new Color(1.0f, 0.0f, 0.0f, ir));
-					if (ir >= 1.0f) {
-						drawMeasurementLine(g, sample.getRobot(), sample.getIrSpot());
-					} else {
-						drawMeasurementLine(g, sample.getRobot(), sample.getIrSpot(), false);
-					}
-					drawPoint(g, sample.getIrSpot());
-					ir *= 0.8f;
-				} else {
-					g.setColor(new Color(1.0f, 0.0f, 0.0f, ir));
-					Stroke stroke = g2.getStroke();
-					g2.setStroke(dashed);
-					float angle = sample.getHeading() + sample.getIrDirection() - (float)Math.PI * 0.5f;
-					float dx = (float) Math.cos(angle) * 250.0f;
-					float dy = (float) Math.sin(angle) * 250.0f;
-					Float away = new Float(sample.getRobot().x + dx, sample.getRobot().y + dy);
-					drawMeasurementLine(g, sample.getRobot(), away, false);
-					g2.setStroke(stroke);
-				}
-			}
-		}
 	}
 
 	private void drawRobot(Graphics2D g2) {
@@ -162,10 +173,10 @@ public class VisualizerPanel extends JPanel {
 		float heightScreen = toScreen(20.0f);
 		float turretScreen = toScreen(5.4f);
 		Path2D.Float p = new Path2D.Float();
-		double x1 = - widthScreen * 0.5f;
-		double x2 = + widthScreen * 0.5f;
-		double y1 = - (heightScreen - turretScreen);
-		double y2 = + turretScreen;
+		double x1 = -widthScreen * 0.5f;
+		double x2 = +widthScreen * 0.5f;
+		double y1 = -(heightScreen - turretScreen);
+		double y2 = +turretScreen;
 		p.moveTo(x1, y1);
 		p.lineTo(x2, y1);
 		p.lineTo(x2, y2);
@@ -175,16 +186,16 @@ public class VisualizerPanel extends JPanel {
 		p.transform(AffineTransform.getTranslateInstance(robotScreen.x, robotScreen.y));
 		g2.fill(p);
 	}
-	
+
 	private void drawArrow(Graphics2D g2) {
 		g2.setColor(Color.black);
 		Float robotScreen = toScreen(robot);
 		Path2D.Float p = new Path2D.Float();
 		p.moveTo(0, 0);
 		p.lineTo(0, toScreen(-30.0f));
-		p.lineTo(- toScreen(4.0f), - toScreen(25.0f));
+		p.lineTo(-toScreen(4.0f), -toScreen(25.0f));
 		p.moveTo(0, toScreen(-30.0f));
-		p.lineTo(+ toScreen(4.0f), - toScreen(25.0f));
+		p.lineTo(+toScreen(4.0f), -toScreen(25.0f));
 		p.transform(AffineTransform.getRotateInstance(heading));
 		p.transform(AffineTransform.getTranslateInstance(robotScreen.x, robotScreen.y));
 		Stroke old = g2.getStroke();
@@ -216,6 +227,7 @@ public class VisualizerPanel extends JPanel {
 	}
 
 	private void drawMeasurementLine(Graphics g, Float from, Float to, boolean drawDistanceString) {
+		g.setColor(measurementColor);
 		Float p1 = toScreen(from);
 		Float p2 = toScreen(to);
 		g.drawLine((int) p1.x, (int) p1.y, (int) p2.x, (int) p2.y);
