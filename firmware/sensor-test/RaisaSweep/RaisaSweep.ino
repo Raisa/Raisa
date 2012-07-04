@@ -1,6 +1,7 @@
-
 #include <Servo.h> 
- 
+#include <Wire.h>
+#include <LSM303.h>
+
 Servo myservo;  
 
 int serialSpeed=9600;
@@ -32,9 +33,23 @@ const int motorLeftDirectionPin = 8;
 const int soundPin1 = 6;
 const int soundPin2 = 7;
 
+// compass and accelometer
+LSM303 compass;
+
+void configureCompass() {
+  compass.init();
+  compass.enableDefault();
+  
+  // Calibration values. Use the Calibrate example program to get the values for
+  // your compass.
+  compass.m_min.x = -520; compass.m_min.y = -570; compass.m_min.z = -770;
+  compass.m_max.x = +540; compass.m_max.y = +500; compass.m_max.z = 180;  
+}
+
 void setup() 
 { 
-  Serial.begin(serialSpeed);  
+  Serial.begin(serialSpeed);
+  Wire.begin();  
   if (servoOn) {
     myservo.attach(servoPin);  // attaches the servo on pin 9 to the servo object
   } 
@@ -43,7 +58,9 @@ void setup()
   pinMode(motorLeftDirectionPin, OUTPUT);
   pinMode(motorRightSpeedPin, OUTPUT);
   pinMode(motorRightDirectionPin, OUTPUT);
-  
+
+  configureCompass();
+
   Serial.println("RaisaSweep starting");
 } 
 
@@ -103,6 +120,11 @@ long measureDistanceInfraRed() {
   return analogRead(irPin);
 }
 
+int measureCompassHeading() {
+  compass.read();
+  int heading = compass.heading((LSM303::vector){0,-1,0});
+}
+
 void sendDataToServer(int angle, long distanceUltraSonic, long distanceInfraRed, 
     long soundValue1, long soundValue2, long compassDirection) {
   Serial.print("STA;");
@@ -141,7 +163,7 @@ void scan(int angle, int scanDelay) {
   long distanceInfraRed = measureDistanceInfraRed();
   long soundValue1 = analogRead(soundPin1);
   long soundValue2 = analogRead(soundPin2);
-  long compassDirection = 42;
+  long compassDirection = measureCompassHeading();
   // TODO writing serial takes time
   // organize code so that servo is turning while serial data is sent
   receiveMessage();
