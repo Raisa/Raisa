@@ -21,17 +21,16 @@ const int pingPin = 3;
 const int irPin = 2;
 float irSensorValue;    //Must be of type float for pow()
 
+// motors
+const int motorRightSpeedPin = 5;
+const int motorRightDirectionPin = 7;
+
+const int motorLeftSpeedPin = 6;
+const int motorLeftDirectionPin = 8;
+
 // sound sensors
 const int soundPin1 = 6;
 const int soundPin2 = 7;
-
-// motors
-boolean motorsOn = false;
-//Rear motors
-int E3 = 6; //M1 Speed Control 
-int E4 = 5; //M2 Speed Control 
-int M3 = 8; //M1 Direction Control 
-int M4 = 7; //M2 Direction Control 
 
 void setup() 
 { 
@@ -39,18 +38,54 @@ void setup()
   if (servoOn) {
     myservo.attach(servoPin);  // attaches the servo on pin 9 to the servo object
   } 
-  if (motorsOn) {
-    for(int i=5;i<=8;i++) 
-      pinMode(i, OUTPUT);   
-    analogWrite (E3,255);
-    digitalWrite(M3,LOW); 
-    analogWrite (E4,255); 
-    digitalWrite(M4,LOW); 
-  }  
-  pinMode(pingPin, INPUT);
+  
+  pinMode(motorLeftSpeedPin, OUTPUT);
+  pinMode(motorLeftDirectionPin, OUTPUT);
+  pinMode(motorRightSpeedPin, OUTPUT);
+  pinMode(motorRightDirectionPin, OUTPUT);
+  
   Serial.println("RaisaSweep starting");
 } 
- 
+
+void handleMessage(int leftSpeed, int leftDirection, int rightSpeed, int rightDirection) {
+  // drive motors
+  int leftForward = (leftDirection == 'B' ? HIGH : LOW);
+  int rightForward = (rightDirection == 'B' ? HIGH: LOW);
+    
+  analogWrite(motorLeftSpeedPin, leftSpeed);
+  digitalWrite(motorLeftDirectionPin, leftForward);
+  analogWrite(motorRightSpeedPin, rightSpeed);
+  digitalWrite(motorRightDirectionPin, rightForward);
+}
+
+char receiveBuffer[10];
+char receiveIndex = 0;
+char receiveValue = -1;
+// include 2 start bytes
+const int startBytes = 2;
+const int lastCommandIndex = startBytes+4-1;
+
+void receiveMessage() {
+  while(Serial.available() > 0) {
+    receiveValue = Serial.read();
+    receiveBuffer[receiveIndex] = receiveValue;
+    if((receiveIndex == 0 && receiveValue == 'R')
+        ||(receiveIndex == 1 && receiveValue == 'a')
+        ||(receiveIndex > 1 && receiveIndex <= lastCommandIndex)) {
+      receiveIndex ++;
+      receiveBuffer[receiveIndex] = '\0';
+    } else if (receiveIndex == lastCommandIndex + 1 
+                && receiveValue == 'i') {
+      // end of message
+      handleMessage(receiveBuffer[startBytes], receiveBuffer[startBytes + 1], 
+                    receiveBuffer[startBytes + 2], receiveBuffer[startBytes + 3] );
+      receiveIndex = 0;
+    } else {
+      // out of sync or message ended
+      receiveIndex = 0; 
+    }
+  }  
+}
 
 long measureDistanceUltraSonic() {
   //Used to read in the analog voltage output that is being sent by the MaxSonar device.
@@ -80,7 +115,7 @@ void sendDataToServer(int angle, long distanceUltraSonic, long distanceInfraRed,
   Serial.print("IR");  
   Serial.print(angle);
   Serial.print(";");
-  Serial.print("ID");  
+  Serial.print("ID");
   Serial.print(distanceInfraRed);
   Serial.print(";");  
   Serial.print("SA");
@@ -99,7 +134,9 @@ void scan(int angle, int scanDelay) {
   if (servoOn) {
     myservo.write(angle);
   }
+  receiveMessage();
   delay(scanDelay);
+  receiveMessage();
   long distanceUltraSonic = measureDistanceUltraSonic();
   long distanceInfraRed = measureDistanceInfraRed();
   long soundValue1 = analogRead(soundPin1);
@@ -107,6 +144,7 @@ void scan(int angle, int scanDelay) {
   long compassDirection = 42;
   // TODO writing serial takes time
   // organize code so that servo is turning while serial data is sent
+  receiveMessage();
   sendDataToServer(angle, distanceUltraSonic, distanceInfraRed, soundValue1, soundValue2, compassDirection);
 }
 
