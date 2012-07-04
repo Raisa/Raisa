@@ -126,7 +126,8 @@ int measureCompassHeading() {
 }
 
 void sendDataToServer(int angle, long distanceUltraSonic, long distanceInfraRed, 
-    long soundValue1, long soundValue2, long compassDirection) {
+    long soundValue1, long soundValue2, long compassDirection, long timeSinceStart) {
+  static long messageNumber = 0;
   Serial.print("STA;");
   Serial.print("SR");  
   Serial.print(angle);
@@ -149,6 +150,12 @@ void sendDataToServer(int angle, long distanceUltraSonic, long distanceInfraRed,
   Serial.print("CD");
   Serial.print(compassDirection);
   Serial.print(";");
+  Serial.print("TI");
+  Serial.print(timeSinceStart);
+  Serial.print(";");
+  Serial.print("NO");
+  Serial.print(++messageNumber);
+  Serial.print(";");
   Serial.println("END;");  
 }
 
@@ -167,7 +174,7 @@ void scan(int angle, int scanDelay) {
   // TODO writing serial takes time
   // organize code so that servo is turning while serial data is sent
   receiveMessage();
-  sendDataToServer(angle, distanceUltraSonic, distanceInfraRed, soundValue1, soundValue2, compassDirection);
+  sendDataToServer(angle, distanceUltraSonic, distanceInfraRed, soundValue1, soundValue2, compassDirection, millis());
 }
 
 void loop() 
