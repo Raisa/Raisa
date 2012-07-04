@@ -3,6 +3,8 @@ package raisa.vis;
 import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.FileNotFoundException;
@@ -23,6 +25,7 @@ public class VisualizerFrame extends JFrame {
 	private VisualizerPanel visualizer;
 
 	public VisualizerFrame() {
+		super("Raisa Visualizer");
 		visualizer = new VisualizerPanel();
 		JMenuBar menuBar = new JMenuBar();
 		JMenu mainMenu = new JMenu("Main");
@@ -103,15 +106,15 @@ public class VisualizerFrame extends JFrame {
 		
 		ControlPanel controlPanel = new ControlPanel(visualizer, communicator);
 		
-		JFrame frame = new JFrame("Raisa Visualizer");
-		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		frame.setSize(600, 400);
-		frame.getContentPane().add(visualizer, BorderLayout.CENTER);
-		frame.getContentPane().add(controlPanel, BorderLayout.WEST);
-		frame.setJMenuBar(menuBar);
-		frame.setVisible(true);
-		frame.setExtendedState(JFrame.MAXIMIZED_BOTH);
-		visualizer.requestFocusInWindow();
+		addKeyListener(new KeyboardHandler());
+		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		setSize(600, 400);
+		getContentPane().add(visualizer, BorderLayout.CENTER);
+		getContentPane().add(controlPanel, BorderLayout.WEST);
+		setJMenuBar(menuBar);
+		setVisible(true);
+		setLocationRelativeTo(null);
+		setExtendedState(JFrame.MAXIMIZED_BOTH);
 	}
 
 	public void save(String fileName) {
@@ -265,5 +268,21 @@ public class VisualizerFrame extends JFrame {
 
 	public VisualizerPanel getVisualizer() {
 		return visualizer;
+	}
+	
+	private final class KeyboardHandler extends KeyAdapter {
+		@Override
+		public void keyReleased(KeyEvent arg0) {
+			int keyCode = arg0.getKeyCode();
+			if (keyCode == KeyEvent.VK_C) {
+				visualizer.clear();
+			} else if (keyCode == KeyEvent.VK_H) {
+				visualizer.removeOldSamples();
+			} else if (keyCode == KeyEvent.VK_PLUS) {
+				visualizer.zoomIn();
+			} else if (keyCode == KeyEvent.VK_MINUS) {
+				visualizer.zoomOut();
+			}
+		}
 	}
 }

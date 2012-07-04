@@ -56,7 +56,6 @@ public class VisualizerPanel extends JPanel {
 		addHierarchyBoundsListener(new PanelSizeHandler());
 		addMouseMotionListener(new MouseMotionHandler());
 		addMouseListener(new MouseHandler());
-		addKeyListener(new KeyboardHandler());
 		reset();
 		dashed = new BasicStroke(1.0f, BasicStroke.CAP_BUTT, BasicStroke.JOIN_MITER, 10.0f, new float[] { 15.0f }, 0.0f);
 		arrow = new BasicStroke(2.0f, BasicStroke.CAP_BUTT, BasicStroke.JOIN_MITER, 10.0f);
@@ -305,26 +304,6 @@ public class VisualizerPanel extends JPanel {
 		}
 	}
 
-	private final class KeyboardHandler extends KeyAdapter {
-		@Override
-		public void keyReleased(KeyEvent arg0) {
-			int keyCode = arg0.getKeyCode();
-			if (keyCode == KeyEvent.VK_C) {
-				System.out.println("Cleared samples");
-				samples.clear();
-				repaint();
-			} else if (keyCode == KeyEvent.VK_H) {
-				System.out.println("Removed old samples");
-				samples = takeLast(samples, 1000);
-				repaint();
-			} else if (keyCode == KeyEvent.VK_PLUS) {
-				zoomIn();
-			} else if (keyCode == KeyEvent.VK_MINUS) {
-				zoomOut();
-			}
-		}
-	}
-
 	private List<Sample> takeLast(List<Sample> samples, int length) {
 		if (samples.size() > length) {
 			int fromIndex = Math.max(0, samples.size() - length);
@@ -347,6 +326,16 @@ public class VisualizerPanel extends JPanel {
 
 	public void zoomOut() {
 		scale *= 0.8f;
+		repaint();
+	}
+	
+	public void clear() {
+		samples.clear();
+		repaint();
+	}
+
+	public void removeOldSamples() {
+		samples = takeLast(samples, 1000);
 		repaint();
 	}
 }
