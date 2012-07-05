@@ -1,6 +1,7 @@
-
 #include <Servo.h> 
- 
+#include <Wire.h>
+#include <LSM303.h>
+
 Servo myservo;  
 
 int serialSpeed=9600;
@@ -9,10 +10,10 @@ int serialSpeed=9600;
 const int servoPin = 2;
 int minAngle = 0;
 int maxAngle = 180;
-int maxDelay = 1000;
+int maxDelay = 400;
 int angleStep = 20;
 int scanOffset = 0;
-boolean servoOn = false;
+boolean servoOn = true;
 
 // ultrasonic sensor
 const int pingPin = 3;
@@ -21,20 +22,87 @@ const int pingPin = 3;
 const int irPin = 2;
 float irSensorValue;    //Must be of type float for pow()
 
+// motors
+const int motorRightSpeedPin = 5;
+const int motorRightDirectionPin = 7;
+
+const int motorLeftSpeedPin = 6;
+const int motorLeftDirectionPin = 8;
+
 // sound sensors
 const int soundPin1 = 6;
 const int soundPin2 = 7;
 
+// compass and accelometer
+LSM303 compass;
+
+void configureCompass() {
+  compass.init();
+  compass.enableDefault();
+  
+  // Calibration values. Use the Calibrate example program to get the values for
+  // your compass.
+  compass.m_min.x = -507; compass.m_min.y = -858; compass.m_min.z = -566;
+  compass.m_max.x = +389; compass.m_max.y = +114; compass.m_max.z = 402;  
+}
+
 void setup() 
 { 
-  Serial.begin(serialSpeed);  
+  Serial.begin(serialSpeed);
+  Wire.begin();  
   if (servoOn) {
     myservo.attach(servoPin);  // attaches the servo on pin 9 to the servo object
   } 
-  pinMode(pingPin, INPUT);
+  
+  pinMode(motorLeftSpeedPin, OUTPUT);
+  pinMode(motorLeftDirectionPin, OUTPUT);
+  pinMode(motorRightSpeedPin, OUTPUT);
+  pinMode(motorRightDirectionPin, OUTPUT);
+
+  configureCompass();
+
   Serial.println("RaisaSweep starting");
 } 
- 
+
+void handleMessage(int leftSpeed, int leftDirection, int rightSpeed, int rightDirection) {
+  // drive motors
+  int leftForward = (leftDirection == 'B' ? HIGH : LOW);
+  int rightForward = (rightDirection == 'B' ? HIGH: LOW);
+    
+  analogWrite(motorLeftSpeedPin, leftSpeed);
+  digitalWrite(motorLeftDirectionPin, leftForward);
+  analogWrite(motorRightSpeedPin, rightSpeed);
+  digitalWrite(motorRightDirectionPin, rightForward);
+}
+
+char receiveBuffer[10];
+char receiveIndex = 0;
+char receiveValue = -1;
+// include 2 start bytes
+const int startBytes = 2;
+const int lastCommandIndex = startBytes+4-1;
+
+void receiveMessage() {
+  while(Serial.available() > 0) {
+    receiveValue = Serial.read();
+    receiveBuffer[receiveIndex] = receiveValue;
+    if((receiveIndex == 0 && receiveValue == 'R')
+        ||(receiveIndex == 1 && receiveValue == 'a')
+        ||(receiveIndex > 1 && receiveIndex <= lastCommandIndex)) {
+      receiveIndex ++;
+      receiveBuffer[receiveIndex] = '\0';
+    } else if (receiveIndex == lastCommandIndex + 1 
+                && receiveValue == 'i') {
+      // end of message
+      handleMessage(receiveBuffer[startBytes], receiveBuffer[startBytes + 1], 
+                    receiveBuffer[startBytes + 2], receiveBuffer[startBytes + 3] );
+      receiveIndex = 0;
+    } else {
+      // out of sync or message ended
+      receiveIndex = 0; 
+    }
+  }  
+}
 
 long measureDistanceUltraSonic() {
   //Used to read in the analog voltage output that is being sent by the MaxSonar device.
@@ -52,8 +120,14 @@ long measureDistanceInfraRed() {
   return analogRead(irPin);
 }
 
+int measureCompassHeading() {
+  compass.read();
+  int heading = compass.heading((LSM303::vector){0,-1,0});
+}
+
 void sendDataToServer(int angle, long distanceUltraSonic, long distanceInfraRed, 
-    long soundValue1, long soundValue2, long compassDirection) {
+    long soundValue1, long soundValue2, long compassDirection, long timeSinceStart) {
+  static long messageNumber = 0;
   Serial.print("STA;");
   Serial.print("SR");  
   Serial.print(angle);
@@ -64,7 +138,7 @@ void sendDataToServer(int angle, long distanceUltraSonic, long distanceInfraRed,
   Serial.print("IR");  
   Serial.print(angle);
   Serial.print(";");
-  Serial.print("ID");  
+  Serial.print("ID");
   Serial.print(distanceInfraRed);
   Serial.print(";");  
   Serial.print("SA");
@@ -76,6 +150,12 @@ void sendDataToServer(int angle, long distanceUltraSonic, long distanceInfraRed,
   Serial.print("CD");
   Serial.print(compassDirection);
   Serial.print(";");
+  Serial.print("TI");
+  Serial.print(timeSinceStart);
+  Serial.print(";");
+  Serial.print("NO");
+  Serial.print(++messageNumber);
+  Serial.print(";");
   Serial.println("END;");  
 }
 
@@ -83,15 +163,18 @@ void scan(int angle, int scanDelay) {
   if (servoOn) {
     myservo.write(angle);
   }
+  receiveMessage();
   delay(scanDelay);
+  receiveMessage();
   long distanceUltraSonic = measureDistanceUltraSonic();
   long distanceInfraRed = measureDistanceInfraRed();
   long soundValue1 = analogRead(soundPin1);
   long soundValue2 = analogRead(soundPin2);
-  long compassDirection = 42;
+  long compassDirection = measureCompassHeading();
   // TODO writing serial takes time
   // organize code so that servo is turning while serial data is sent
-  sendDataToServer(angle, distanceUltraSonic, distanceInfraRed, soundValue1, soundValue2, compassDirection);
+  receiveMessage();
+  sendDataToServer(angle, distanceUltraSonic, distanceInfraRed, soundValue1, soundValue2, compassDirection, millis());
 }
 
 void loop() 
