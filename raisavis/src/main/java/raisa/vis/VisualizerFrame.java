@@ -106,7 +106,7 @@ public class VisualizerFrame extends JFrame {
 		
 		ControlPanel controlPanel = new ControlPanel(visualizer, communicator);
 		
-		addKeyListener(new KeyboardHandler());
+		visualizer.addKeyListener(new KeyboardHandler());
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setSize(600, 400);
 		getContentPane().add(visualizer, BorderLayout.CENTER);
