@@ -4,7 +4,7 @@
 
 Servo myservo;  
 
-int serialSpeed=9600;
+const long serialSpeed=111111L;
 
 // servo
 const int servoPin = 2;
@@ -14,6 +14,9 @@ int maxDelay = 400;
 int angleStep = 20;
 int scanOffset = 0;
 boolean servoOn = true;
+
+// cool blue leds
+const int blueLedPin = 12;
 
 // ultrasonic sensor
 const int pingPin = 3;
@@ -62,6 +65,9 @@ void setup()
   configureCompass();
 
   Serial.println("RaisaSweep starting");
+  
+  pinMode(blueLedPin, OUTPUT); 
+  digitalWrite(blueLedPin, HIGH); 
 } 
 
 void handleMessage(int leftSpeed, int leftDirection, int rightSpeed, int rightDirection) {
