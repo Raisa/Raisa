@@ -32,6 +32,10 @@ const int motorRightDirectionPin = 7;
 const int motorLeftSpeedPin = 6;
 const int motorLeftDirectionPin = 8;
 
+// encoders
+const int encoderRightPin = 0;
+const int encoderLeftPin = 1;
+
 // sound sensors
 const int soundPin1 = 6;
 const int soundPin2 = 7;
