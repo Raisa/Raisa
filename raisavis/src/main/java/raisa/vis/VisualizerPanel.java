@@ -7,13 +7,11 @@ import java.awt.Graphics2D;
 import java.awt.Stroke;
 import java.awt.event.HierarchyBoundsListener;
 import java.awt.event.HierarchyEvent;
-import java.awt.event.KeyAdapter;
-import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.geom.AffineTransform;
-import java.awt.geom.Point2D.Float;
 import java.awt.geom.Path2D;
+import java.awt.geom.Point2D.Float;
 import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -24,8 +22,7 @@ import javax.swing.JPanel;
 public class VisualizerPanel extends JPanel {
 	private static final long serialVersionUID = 1L;
 	private Color measurementColor = new Color(0.4f, 0.4f, 0.4f);
-	private float heading = 0.0f;
-	private Float robot = new Float();
+	private Robot robot = new Robot();
 	private Float camera = new Float();
 	private Float mouse = new Float();
 	private Float mouseDragStart = new Float();
@@ -38,8 +35,8 @@ public class VisualizerPanel extends JPanel {
 	private Stroke arrow;
 
 	public void reset() {
-		heading = 0.0f;
-		robot = new Float();
+		robot.heading = 0.0f;
+		robot.position = new Float();
 		camera = new Float();
 		mouse = new Float();
 		mouseDragStart = new Float();
@@ -62,9 +59,9 @@ public class VisualizerPanel extends JPanel {
 	}
 
 	public void update(Sample sample) {
-		robot.x = sample.getX();
-		robot.y = sample.getY();
-		heading = sample.getHeading();
+		robot.position.x = sample.getX();
+		robot.position.y = sample.getY();
+		robot.heading = sample.getHeading();
 		if (sample.data.containsKey("ir")) {
 			if (sample.isIrSpot()) {
 				grid.addSpot(sample.getIrSpot());
@@ -83,7 +80,7 @@ public class VisualizerPanel extends JPanel {
 	}
 
 	public void update(String message) {
-		Sample sample = new Sample(robot.x, robot.y, heading, message);
+		Sample sample = new Sample(robot.position.x, robot.position.y, robot.heading, message);
 		update(sample);
 	}
 
@@ -93,7 +90,7 @@ public class VisualizerPanel extends JPanel {
 		drawGrid(g2);
 		drawRobot(g2);
 		drawArrow(g2);
-		drawMeasurementLine(g, robot, toWorld(mouse));
+		drawMeasurementLine(g, robot.position, toWorld(mouse));
 		drawUltrasoundResults(g);
 		drawIrResults(g, g2);
 	}
@@ -153,10 +150,10 @@ public class VisualizerPanel extends JPanel {
 				if (sr >= 1.0f) {
 					drawMeasurementLine(g, sample.getRobot(), spot);
 					// g.setColor(new Color(0.0f, 0.6f, 0.6f, 0.05f));
-					drawSector(g, robot, spot, sonarWidth);
+					drawSector(g, robot.position, spot, sonarWidth);
 				} else {
 					// g.setColor(new Color(0.0f, 0.6f, 0.6f, 0.05f));
-					drawSector(g, robot, spot, sonarWidth);
+					drawSector(g, robot.position, spot, sonarWidth);
 				}
 				g.setColor(new Color(0.0f, 0.6f, 0.6f, sr));
 				drawPoint(g, sample.getIrSpot());
@@ -167,7 +164,7 @@ public class VisualizerPanel extends JPanel {
 
 	private void drawRobot(Graphics2D g2) {
 		g2.setColor(Color.gray);
-		Float robotScreen = toScreen(robot);
+		Float robotScreen = toScreen(robot.position);
 		float widthScreen = toScreen(11.0f);
 		float heightScreen = toScreen(20.0f);
 		float turretScreen = toScreen(5.4f);
@@ -181,21 +178,21 @@ public class VisualizerPanel extends JPanel {
 		p.lineTo(x2, y2);
 		p.lineTo(x1, y2);
 		p.closePath();
-		p.transform(AffineTransform.getRotateInstance(heading));
+		p.transform(AffineTransform.getRotateInstance(robot.heading));
 		p.transform(AffineTransform.getTranslateInstance(robotScreen.x, robotScreen.y));
 		g2.fill(p);
 	}
 
 	private void drawArrow(Graphics2D g2) {
 		g2.setColor(Color.black);
-		Float robotScreen = toScreen(robot);
+		Float robotScreen = toScreen(robot.position);
 		Path2D.Float p = new Path2D.Float();
 		p.moveTo(0, 0);
 		p.lineTo(0, toScreen(-30.0f));
 		p.lineTo(-toScreen(4.0f), -toScreen(25.0f));
 		p.moveTo(0, toScreen(-30.0f));
 		p.lineTo(+toScreen(4.0f), -toScreen(25.0f));
-		p.transform(AffineTransform.getRotateInstance(heading));
+		p.transform(AffineTransform.getRotateInstance(robot.heading));
 		p.transform(AffineTransform.getTranslateInstance(robotScreen.x, robotScreen.y));
 		Stroke old = g2.getStroke();
 		g2.setStroke(arrow);
