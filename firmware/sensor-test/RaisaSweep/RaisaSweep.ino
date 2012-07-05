@@ -142,37 +142,30 @@ int measureCompassHeading() {
   int heading = compass.heading((LSM303::vector){0,-1,0});
 }
 
+void readIncomingData() {
+  receiveMessage();  
+}
+
+void sendFieldToServer(char * field, long value) {
+  Serial.print(field);
+  Serial.print(value);
+  Serial.print(";");
+  readIncomingData();
+}
+  
 void sendDataToServer(int angle, long distanceUltraSonic, long distanceInfraRed, 
     long soundValue1, long soundValue2, long compassDirection, long timeSinceStart) {
   static long messageNumber = 0;
   Serial.print("STA;");
-  Serial.print("SR");  
-  Serial.print(angle);
-  Serial.print(";");
-  Serial.print("SD");  
-  Serial.print(distanceUltraSonic);
-  Serial.print(";");
-  Serial.print("IR");  
-  Serial.print(angle);
-  Serial.print(";");
-  Serial.print("ID");
-  Serial.print(distanceInfraRed);
-  Serial.print(";");  
-  Serial.print("SA");
-  Serial.print(soundValue1);
-  Serial.print(";");      
-  Serial.print("SB");
-  Serial.print(soundValue2);
-  Serial.print(";");
-  Serial.print("CD");
-  Serial.print(compassDirection);
-  Serial.print(";");
-  Serial.print("TI");
-  Serial.print(timeSinceStart);
-  Serial.print(";");
-  Serial.print("NO");
-  Serial.print(++messageNumber);
-  Serial.print(";");
+  sendFieldToServer("SR", angle);
+  sendFieldToServer("SD", distanceUltraSonic);
+  sendFieldToServer("IR", angle);
+  sendFieldToServer("ID", distanceInfraRed);
+  sendFieldToServer("SA", soundValue1);
+  sendFieldToServer("SB", soundValue2);
+  sendFieldToServer("CD", compassDirection);
+  sendFieldToServer("TI", timeSinceStart);
+  sendFieldToServer("NO", ++messageNumber);
   Serial.println("END;");  
 }
 
@@ -180,9 +173,9 @@ void scan(int angle, int scanDelay) {
   if (servoOn) {
     myservo.write(angle);
   }
-  receiveMessage();
+  readIncomingData();
   delay(scanDelay);
-  receiveMessage();
+  readIncomingData();
   long distanceUltraSonic = measureDistanceUltraSonic();
   long distanceInfraRed = measureDistanceInfraRed();
   long soundValue1 = analogRead(soundPin1);
@@ -190,7 +183,7 @@ void scan(int angle, int scanDelay) {
   long compassDirection = measureCompassHeading();
   // TODO writing serial takes time
   // organize code so that servo is turning while serial data is sent
-  receiveMessage();
+  readIncomingData();
   sendDataToServer(angle, distanceUltraSonic, distanceInfraRed, soundValue1, soundValue2, compassDirection, millis());
 }
 
