@@ -120,6 +120,7 @@ public class SerialCommunicator implements SerialPortEventListener, Communicator
 	public void sendPackage(byte[] bytes) {
 		try {
 			serialPort.getOutputStream().write(bytes);
+			serialPort.getOutputStream().flush();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
