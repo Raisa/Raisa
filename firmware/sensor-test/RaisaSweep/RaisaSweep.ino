@@ -64,13 +64,12 @@ void setup()
 
   configureCompass();
 
+  pinMode(blueLedPin, OUTPUT);
+  digitalWrite(blueLedPin, HIGH);
   Serial.println("RaisaSweep starting");
-  
-  pinMode(blueLedPin, OUTPUT); 
-  digitalWrite(blueLedPin, HIGH); 
 } 
 
-void handleMessage(int leftSpeed, int leftDirection, int rightSpeed, int rightDirection) {
+void handleMessage(int leftSpeed, int leftDirection, int rightSpeed, int rightDirection, int control) {
   // drive motors
   int leftForward = (leftDirection == 'B' ? HIGH : LOW);
   int rightForward = (rightDirection == 'B' ? HIGH: LOW);
@@ -79,6 +78,16 @@ void handleMessage(int leftSpeed, int leftDirection, int rightSpeed, int rightDi
   digitalWrite(motorLeftDirectionPin, leftForward);
   analogWrite(motorRightSpeedPin, rightSpeed);
   digitalWrite(motorRightDirectionPin, rightForward);
+  
+  // turn lights on/off
+  int lightBits = (control & 3);
+  switch(lightBits) {
+    case 1: digitalWrite(blueLedPin, LOW);
+            break;
+    case 2: digitalWrite(blueLedPin, HIGH);
+            break;
+    default: ;// no change
+  }
 }
 
 char receiveBuffer[10];
@@ -86,7 +95,8 @@ char receiveIndex = 0;
 char receiveValue = -1;
 // include 2 start bytes
 const int startBytes = 2;
-const int lastCommandIndex = startBytes+4-1;
+const int messagePayloadLength = 5;
+const int lastCommandIndex = startBytes + messagePayloadLength - 1;
 
 void receiveMessage() {
   while(Serial.available() > 0) {
@@ -101,7 +111,8 @@ void receiveMessage() {
                 && receiveValue == 'i') {
       // end of message
       handleMessage(receiveBuffer[startBytes], receiveBuffer[startBytes + 1], 
-                    receiveBuffer[startBytes + 2], receiveBuffer[startBytes + 3] );
+                    receiveBuffer[startBytes + 2], receiveBuffer[startBytes + 3],
+                    receiveBuffer[startBytes + 4]);
       receiveIndex = 0;
     } else {
       // out of sync or message ended
