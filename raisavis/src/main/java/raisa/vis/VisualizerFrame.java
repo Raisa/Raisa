@@ -15,11 +15,14 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.swing.AbstractAction;
+import javax.swing.JComponent;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
+import javax.swing.KeyStroke;
 
 public class VisualizerFrame extends JFrame {
 	private static final long serialVersionUID = 1L;
@@ -108,7 +111,40 @@ public class VisualizerFrame extends JFrame {
 		
 		ControlPanel controlPanel = new ControlPanel(visualizer, communicator);
 		
-		visualizer.addKeyListener(new KeyboardHandler());
+		final int ZOOM_IN_ACTION_KEY = 1;
+		final int ZOOM_OUT_ACTION_KEY = 2;
+		final int CLEAR_HISTORY_ACTION_KEY = 3;
+		final int LIMIT_HISTORY_ACTION_KEY = 4;
+		
+		visualizer.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke('+'), ZOOM_IN_ACTION_KEY);
+		visualizer.getActionMap().put(ZOOM_IN_ACTION_KEY, new AbstractAction() {
+			@Override
+			public void actionPerformed(ActionEvent event) {
+				visualizer.zoomIn();
+			}
+		});
+		visualizer.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke('-'), ZOOM_OUT_ACTION_KEY);
+		visualizer.getActionMap().put(ZOOM_OUT_ACTION_KEY, new AbstractAction() {
+			@Override
+			public void actionPerformed(ActionEvent event) {
+				visualizer.zoomOut();
+			}
+		});
+		visualizer.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke('-'), CLEAR_HISTORY_ACTION_KEY);
+		visualizer.getActionMap().put(CLEAR_HISTORY_ACTION_KEY, new AbstractAction() {
+			@Override
+			public void actionPerformed(ActionEvent event) {
+				visualizer.clear();
+			}
+		});
+		visualizer.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke('-'), LIMIT_HISTORY_ACTION_KEY);
+		visualizer.getActionMap().put(LIMIT_HISTORY_ACTION_KEY, new AbstractAction() {
+			@Override
+			public void actionPerformed(ActionEvent event) {
+				visualizer.removeOldSamples();
+			}
+		});
+
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setSize(600, 400);
 		getContentPane().add(visualizer, BorderLayout.CENTER);
@@ -275,22 +311,6 @@ public class VisualizerFrame extends JFrame {
 		return visualizer;
 	}
 	
-	private final class KeyboardHandler extends KeyAdapter {
-		@Override
-		public void keyReleased(KeyEvent arg0) {
-			int keyCode = arg0.getKeyCode();
-			if (keyCode == KeyEvent.VK_C) {
-				visualizer.clear();
-			} else if (keyCode == KeyEvent.VK_H) {
-				visualizer.removeOldSamples();
-			} else if (keyCode == KeyEvent.VK_PLUS) {
-				visualizer.zoomIn();
-			} else if (keyCode == KeyEvent.VK_MINUS) {
-				visualizer.zoomOut();
-			}
-		}
-	}
-
 	private void saveDefaultDirectory(String filename) {
 		defaultDirectory = new File(filename).getParentFile();
 	}
