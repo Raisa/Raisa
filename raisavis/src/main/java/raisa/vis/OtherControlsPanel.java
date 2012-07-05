@@ -11,6 +11,13 @@ public class OtherControlsPanel extends JPanel {
 	public OtherControlsPanel(BasicController controller) {
 		setBorder(new TitledBorder("Other"));
 		setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
-		add(new JToggleButton("Lights"));
+		final JToggleButton lightsButton = new JToggleButton("Lights");
+		add(lightsButton);
+		controller.addContolListener(new ControlListener() {
+			@Override
+			public void controlsChanged(BasicController basicController) {
+				lightsButton.setSelected(basicController.getLights());
+			}			
+		});
 	}
 }

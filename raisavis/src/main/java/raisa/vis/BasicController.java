@@ -17,6 +17,7 @@ public class BasicController {
 	
 	private int leftSpeed;
 	private int rightSpeed;
+	private boolean lights;
 	
 	private List<ControlListener> controlListeners = new ArrayList<ControlListener>();
 	
@@ -42,7 +43,7 @@ public class BasicController {
 				(byte)(leftSpeed >= 0 ? 'F' : 'B'),
 				speedPowerMap[Math.abs(rightSpeed)],
 				(byte)(rightSpeed >= 0 ? 'F' : 'B'),
-				// control byte
+				//(byte)(lights ? 2 : 1),
 				'i',
 				's',
 		};
@@ -85,6 +86,12 @@ public class BasicController {
 		communicator.sendPackage(createPackage());
 		notifyControlListeners();
 	}
+	
+	public void sendLights() {
+		lights = !lights;
+		communicator.sendPackage(createPackage());
+		notifyControlListeners();
+	}
 
 	private void notifyControlListeners() {
 		for (ControlListener listener : controlListeners) {
@@ -102,5 +109,9 @@ public class BasicController {
 
 	public int getRightSpeed() {
 		return rightSpeed;
+	}
+
+	public boolean getLights() {
+		return lights;
 	}
 }
