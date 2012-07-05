@@ -123,6 +123,7 @@ public class VisualizerFrame extends JFrame {
 		final int RIGHT_ACTION_KEY = ++nextFreeActionKey;
 		final int FORWARD_ACTION_KEY = ++nextFreeActionKey;
 		final int BACK_ACTION_KEY = ++nextFreeActionKey;
+		final int LIGHTS_ACTION_KEY = ++nextFreeActionKey;		
 		
 		visualizer.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke('+'), ZOOM_IN_ACTION_KEY);
 		visualizer.getActionMap().put(ZOOM_IN_ACTION_KEY, new AbstractAction() {
@@ -208,7 +209,15 @@ public class VisualizerFrame extends JFrame {
 			}
 		});
 
+		visualizer.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke('l'), LIGHTS_ACTION_KEY);
+		visualizer.getActionMap().put(LIGHTS_ACTION_KEY, new AbstractAction() {
+			private static final long serialVersionUID = 1L;
 
+			@Override
+			public void actionPerformed(ActionEvent event) {
+				controller.sendLights();
+			}
+		});
 
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setSize(600, 400);

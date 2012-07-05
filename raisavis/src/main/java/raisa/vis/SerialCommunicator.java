@@ -15,7 +15,7 @@ public class SerialCommunicator implements SerialPortEventListener, Communicator
 	private SerialPort serialPort;
 	private static final String PORT_NAMES[] = { 
 			"/dev/tty.usbserial-A9007UX1", // Mac OS X
-			"/dev/tty.usbmodemfa131",
+		//	"/dev/tty.usbmodemfa131",
 			"/dev/tty.usbmodemfd111",
 			"/dev/ttys0",
 			"/dev/ttys000",

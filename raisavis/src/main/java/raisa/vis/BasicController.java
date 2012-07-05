@@ -43,7 +43,7 @@ public class BasicController {
 				(byte)(leftSpeed >= 0 ? 'F' : 'B'),
 				speedPowerMap[Math.abs(rightSpeed)],
 				(byte)(rightSpeed >= 0 ? 'F' : 'B'),
-				//(byte)(lights ? 2 : 1),
+				(byte)(lights ? 2 : 1),
 				'i',
 				's',
 		};
