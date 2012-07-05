@@ -3,7 +3,6 @@ package raisa.vis;
 import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -107,17 +106,28 @@ public class VisualizerFrame extends JFrame {
 		viewMenu.add(zoomOut);
 		menuBar.add(viewMenu);
 
-		Communicator communicator = new Communicator();
+		FailoverCommunicator communicator = new FailoverCommunicator(new SerialCommunicator(visualizer), new ConsoleCommunicator());;
+		communicator.connect();
+
+		final BasicController controller = new BasicController(communicator);
 		
-		ControlPanel controlPanel = new ControlPanel(visualizer, communicator);
+		ControlPanel controlPanel = new ControlPanel(visualizer, controller, communicator);
 		
-		final int ZOOM_IN_ACTION_KEY = 1;
-		final int ZOOM_OUT_ACTION_KEY = 2;
-		final int CLEAR_HISTORY_ACTION_KEY = 3;
-		final int LIMIT_HISTORY_ACTION_KEY = 4;
+		int nextFreeActionKey = 0;
+		final int ZOOM_IN_ACTION_KEY = ++nextFreeActionKey;
+		final int ZOOM_OUT_ACTION_KEY = ++nextFreeActionKey;
+		final int CLEAR_HISTORY_ACTION_KEY = ++nextFreeActionKey;
+		final int LIMIT_HISTORY_ACTION_KEY = ++nextFreeActionKey;
+		final int STOP_ACTION_KEY = ++nextFreeActionKey;
+		final int LEFT_ACTION_KEY = ++nextFreeActionKey;
+		final int RIGHT_ACTION_KEY = ++nextFreeActionKey;
+		final int FORWARD_ACTION_KEY = ++nextFreeActionKey;
+		final int BACK_ACTION_KEY = ++nextFreeActionKey;
 		
 		visualizer.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke('+'), ZOOM_IN_ACTION_KEY);
 		visualizer.getActionMap().put(ZOOM_IN_ACTION_KEY, new AbstractAction() {
+			private static final long serialVersionUID = 1L;
+
 			@Override
 			public void actionPerformed(ActionEvent event) {
 				visualizer.zoomIn();
@@ -125,6 +135,8 @@ public class VisualizerFrame extends JFrame {
 		});
 		visualizer.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke('-'), ZOOM_OUT_ACTION_KEY);
 		visualizer.getActionMap().put(ZOOM_OUT_ACTION_KEY, new AbstractAction() {
+			private static final long serialVersionUID = 1L;
+
 			@Override
 			public void actionPerformed(ActionEvent event) {
 				visualizer.zoomOut();
@@ -132,6 +144,8 @@ public class VisualizerFrame extends JFrame {
 		});
 		visualizer.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke('-'), CLEAR_HISTORY_ACTION_KEY);
 		visualizer.getActionMap().put(CLEAR_HISTORY_ACTION_KEY, new AbstractAction() {
+			private static final long serialVersionUID = 1L;
+
 			@Override
 			public void actionPerformed(ActionEvent event) {
 				visualizer.clear();
@@ -139,11 +153,62 @@ public class VisualizerFrame extends JFrame {
 		});
 		visualizer.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke('-'), LIMIT_HISTORY_ACTION_KEY);
 		visualizer.getActionMap().put(LIMIT_HISTORY_ACTION_KEY, new AbstractAction() {
+			private static final long serialVersionUID = 1L;
+
 			@Override
 			public void actionPerformed(ActionEvent event) {
 				visualizer.removeOldSamples();
 			}
 		});
+		visualizer.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_LEFT, 0), LEFT_ACTION_KEY);
+		visualizer.getActionMap().put(LEFT_ACTION_KEY, new AbstractAction() {
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public void actionPerformed(ActionEvent event) {
+				controller.sendLeft();
+			}
+		});
+		visualizer.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_RIGHT, 0), RIGHT_ACTION_KEY);
+		visualizer.getActionMap().put(RIGHT_ACTION_KEY, new AbstractAction() {
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public void actionPerformed(ActionEvent event) {
+				controller.sendRight();
+			}
+		});
+		visualizer.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_SPACE, 0), STOP_ACTION_KEY);
+		visualizer.getActionMap().put(STOP_ACTION_KEY, new AbstractAction() {
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public void actionPerformed(ActionEvent event) {
+				controller.sendStop();
+			}
+		});
+
+		visualizer.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_UP, 0), FORWARD_ACTION_KEY);
+		visualizer.getActionMap().put(FORWARD_ACTION_KEY, new AbstractAction() {
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public void actionPerformed(ActionEvent event) {
+				controller.sendForward();
+			}
+		});
+
+		visualizer.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_DOWN, 0), BACK_ACTION_KEY);
+		visualizer.getActionMap().put(BACK_ACTION_KEY, new AbstractAction() {
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public void actionPerformed(ActionEvent event) {
+				controller.sendBack();
+			}
+		});
+
+
 
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setSize(600, 400);

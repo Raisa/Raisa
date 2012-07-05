@@ -55,10 +55,7 @@ public class Visualizer {
 		if (args.length == 0) {
 		} else {
 			String inputMode = args[0];
-			if ("serial".equals(inputMode)) {
-				SerialWorld serialWorld = new SerialWorld(frame.getVisualizer());
-				serialWorld.initialize();
-			} else if ("example".equals(inputMode)) {
+			if ("example".equals(inputMode)) {
 				frame.spawnSampleSimulationThread(getExampleSamples(), true);
 			} else if ("file".equals(inputMode)) {
 				if (args.length != 2) {

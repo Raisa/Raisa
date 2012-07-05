@@ -1,19 +1,8 @@
 package raisa.vis;
 
-public class Communicator {
+public interface Communicator {
 
-	public void sendForward() {
-	}
+	void sendPackage(byte[] bytes);
 
-	public void sendStop() {
-	}
-
-	public void sendBack() {
-	}
-
-	public void sendRight() {
-	}
-
-	public void sendLeft() {
-	}
+	boolean connect();
 }

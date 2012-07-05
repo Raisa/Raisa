@@ -8,15 +8,17 @@ import java.awt.event.ActionListener;
 import javax.swing.JButton;
 import javax.swing.JPanel;
 import javax.swing.JSeparator;
+import javax.swing.border.TitledBorder;
 
 public class MovementPanel extends JPanel {
 	private static final long serialVersionUID = 1L;
 
-	private Communicator communicator;
+	private BasicController communicator;
 	
-	public MovementPanel(final Communicator communicator) {
+	public MovementPanel(final BasicController communicator) {
 		this.communicator = communicator;
 
+		setBorder(new TitledBorder("Movement"));
 		JButton forwardButton = new JButton("F");
 		forwardButton.addActionListener(new ActionListener() {
 			@Override
