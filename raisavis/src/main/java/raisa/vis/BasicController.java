@@ -1,5 +1,8 @@
 package raisa.vis;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class BasicController {
 	private byte [] speedPowerMap = new byte[] {
 			(byte)0,
@@ -14,6 +17,8 @@ public class BasicController {
 	
 	private int leftSpeed;
 	private int rightSpeed;
+	
+	private List<ControlListener> controlListeners = new ArrayList<ControlListener>();
 	
 	public BasicController(Communicator communicator) {
 		this.communicator = communicator;
@@ -49,6 +54,7 @@ public class BasicController {
 		rightSpeed = checkSpeed(rightSpeed + 1);
 		
 		communicator.sendPackage(createPackage());
+		notifyControlListeners();
 	}
 
 	public void sendStop() {
@@ -56,23 +62,45 @@ public class BasicController {
 		rightSpeed = 0;
 		
 		communicator.sendPackage(createPackage());
+		notifyControlListeners();
 	}
 
 	public void sendBack() {
 		leftSpeed = checkSpeed(leftSpeed - 1);
 		rightSpeed = checkSpeed(rightSpeed - 1);
 		communicator.sendPackage(createPackage());
+		notifyControlListeners();
 	}
 
 	public void sendRight() {
 		leftSpeed = checkSpeed(leftSpeed + 1);
 		rightSpeed = checkSpeed(rightSpeed - 1);
 		communicator.sendPackage(createPackage());
+		notifyControlListeners();
 	}
 
 	public void sendLeft() {
 		leftSpeed = checkSpeed(leftSpeed - 1);
 		rightSpeed = checkSpeed(rightSpeed + 1);
 		communicator.sendPackage(createPackage());
+		notifyControlListeners();
+	}
+
+	private void notifyControlListeners() {
+		for (ControlListener listener : controlListeners) {
+			listener.controlsChanged(this);
+		}
+	}
+
+	public void addContolListener(ControlListener controlListener) {
+		controlListeners.add(controlListener);
+	}
+
+	public int getLeftSpeed() {
+		return leftSpeed;
+	}
+
+	public int getRightSpeed() {
+		return rightSpeed;
 	}
 }

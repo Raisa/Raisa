@@ -6,6 +6,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 import javax.swing.JButton;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSeparator;
 import javax.swing.border.TitledBorder;
@@ -13,52 +14,54 @@ import javax.swing.border.TitledBorder;
 public class MovementPanel extends JPanel {
 	private static final long serialVersionUID = 1L;
 
-	private BasicController communicator;
+	private BasicController controller;
 	
-	public MovementPanel(final BasicController communicator) {
-		this.communicator = communicator;
+	public MovementPanel(final BasicController controller) {
+		this.controller = controller;
 
 		setBorder(new TitledBorder("Movement"));
 		JButton forwardButton = new JButton("F");
 		forwardButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				communicator.sendForward();
+				controller.sendForward();
 			}			
 		});
 		JButton stopButton = new JButton("S");
 		stopButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				communicator.sendStop();
+				controller.sendStop();
 			}			
 		});
 		JButton backButton = new JButton("B");
 		backButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				communicator.sendBack();
+				controller.sendBack();
 			}			
 		});
 		JButton leftButton = new JButton("L");
 		leftButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				communicator.sendLeft();
+				controller.sendLeft();
 			}			
 		});
 		JButton rightButton = new JButton("R");
 		rightButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				communicator.sendRight();
+				controller.sendRight();
 			}			
 		});
 		
 		setLayout(new GridLayout(3, 3));
-		add(new JSeparator());
+		final JLabel leftSpeedLabel = new JLabel("0", JLabel.CENTER);
+		final JLabel rightSpeedLabel = new JLabel("0", JLabel.CENTER);
+		add(leftSpeedLabel);
 		add(forwardButton);
-		add(new JSeparator());
+		add(rightSpeedLabel);
 		add(leftButton);
 		add(stopButton);
 		add(rightButton);
@@ -68,6 +71,15 @@ public class MovementPanel extends JPanel {
 		
 		setPreferredSize(new Dimension(150, 150));
 		setMaximumSize(new Dimension(150, 150));
-	}
+		
+		controller.addContolListener(new ControlListener() {
 
+			@Override
+			public void controlsChanged(BasicController basicController) {
+				leftSpeedLabel.setText(""+basicController.getLeftSpeed());
+				rightSpeedLabel.setText(""+basicController.getRightSpeed());
+			}
+			
+		});
+	}
 }
