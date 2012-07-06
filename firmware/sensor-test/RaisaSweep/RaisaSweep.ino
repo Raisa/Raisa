@@ -190,14 +190,16 @@ long measureDistanceInfraRed() {
   return analogRead(irPin);
 }
 
-int measureCompassHeading() {
+int measureCompassAndAccelerometer() {
+  // TODO set and handle timeouts 
+  // accelorometer readings are available in compass.a.{x,y,z}
   compass.read();
   int heading = compass.heading((LSM303::vector){0,-1,0});
 }
 
 // results are available in gyro.g.x, gyro.g.y, gyro.g.z
 void measureGyro() {
-    gyro.read();
+  gyro.read();
 }
 
 void readIncomingData() {
@@ -230,6 +232,9 @@ void sendDataToServer(int angle, long distanceUltraSonic, long distanceInfraRed,
   sendFieldToServer("GX", (long)gyro.g.x);
   sendFieldToServer("GY", (long)gyro.g.y);
   sendFieldToServer("GZ", (long)gyro.g.z);
+  sendFieldToServer("AX", (long)compass.a.x);
+  sendFieldToServer("AY", (long)compass.a.y);
+  sendFieldToServer("AZ", (long)compass.a.z);
   Serial.println("END;");  
 }
 
@@ -242,9 +247,9 @@ void scan(int angle, int scanDelay) {
   while (scanDelay > (millis() - timeMillisBefore)) {
     t.update();
   }
+  long compassDirection = measureCompassAndAccelerometer();
   long soundValue1 = analogRead(soundPin1);
   long soundValue2 = analogRead(soundPin2);
-  long compassDirection = measureCompassHeading();
 
   int tmpEncoderLeftCount = encoderLeftCount;
   encoderLeftCount = 0;
