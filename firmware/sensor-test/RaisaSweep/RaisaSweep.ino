@@ -242,18 +242,24 @@ void scan(int angle, int scanDelay) {
   while (scanDelay > (millis() - timeMillisBefore)) {
     t.update();
   }
-  long distanceUltraSonic = measureDistanceUltraSonic();
-  long distanceInfraRed = measureDistanceInfraRed();
   long soundValue1 = analogRead(soundPin1);
   long soundValue2 = analogRead(soundPin2);
   long compassDirection = measureCompassHeading();
+
   int tmpEncoderLeftCount = encoderLeftCount;
   encoderLeftCount = 0;
   int tmpEncoderRightCount = encoderRightCount;
   encoderRightCount = 0;
+
+  measureGyro();  
+  t.update();
+  long distanceUltraSonic = measureDistanceUltraSonic();
+  t.update();
+  long distanceInfraRed = measureDistanceInfraRed();
+  t.update();
+  
   // TODO writing serial takes time
   // organize code so that servo is turning while serial data is sent
-  t.update();
   sendDataToServer(angle, distanceUltraSonic, distanceInfraRed, 
     soundValue1, soundValue2, compassDirection, millis(),
     tmpEncoderLeftCount, tmpEncoderRightCount);
