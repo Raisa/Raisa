@@ -1,6 +1,7 @@
 #include <Servo.h> 
 #include <Wire.h>
 #include <LSM303.h>
+#include <L3G4200D.h>
 #include <Timer.h>
 
 Servo myservo;  
@@ -48,6 +49,9 @@ const int soundPin2 = 7;
 // compass and accelometer
 LSM303 compass;
 
+// Gyroscope
+L3G4200D gyro;
+
 // dummy timer (no real interrupts)
 Timer t;
 int encoderEvent;
@@ -64,6 +68,10 @@ void configureCompass() {
   compass.m_max.x = +389; compass.m_max.y = +114; compass.m_max.z = 402;  
 }
 
+void configureGyro() {
+  gyro.enableDefault();
+}
+
 void setup() 
 { 
   Serial.begin(serialSpeed);
@@ -78,7 +86,8 @@ void setup()
   pinMode(motorRightDirectionPin, OUTPUT);
 
   configureCompass();
-
+  configureGyro();
+  
   encoderEvent = t.every(20, doEncoderRead);
   readIncomingDataEvent = t.every(20, readIncomingData);
   
@@ -186,6 +195,11 @@ int measureCompassHeading() {
   int heading = compass.heading((LSM303::vector){0,-1,0});
 }
 
+// results are available in gyro.g.x, gyro.g.y, gyro.g.z
+void measureGyro() {
+    gyro.read();
+}
+
 void readIncomingData() {
   receiveMessage();  
 }
@@ -212,7 +226,10 @@ void sendDataToServer(int angle, long distanceUltraSonic, long distanceInfraRed,
   sendFieldToServer("TI", timeSinceStart);
   sendFieldToServer("NO", ++messageNumber);
   sendFieldToServer("RL", tmpEncoderLeftCount);  
-  sendFieldToServer("RR", tmpEncoderRightCount);    
+  sendFieldToServer("RR", tmpEncoderRightCount);
+  sendFieldToServer("GX", (long)gyro.g.x);
+  sendFieldToServer("GY", (long)gyro.g.y);
+  sendFieldToServer("GZ", (long)gyro.g.z);
   Serial.println("END;");  
 }
 
