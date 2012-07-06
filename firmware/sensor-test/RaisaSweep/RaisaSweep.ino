@@ -1,6 +1,7 @@
 #include <Servo.h> 
 #include <Wire.h>
 #include <LSM303.h>
+#include <Timer.h>
 
 Servo myservo;  
 
@@ -33,8 +34,12 @@ const int motorLeftSpeedPin = 6;
 const int motorLeftDirectionPin = 8;
 
 // encoders
-const int encoderRightPin = 0;
-const int encoderLeftPin = 1;
+const int encoderRightPin = 1;
+int encoderRightCount = 0;
+int encoderRightLastValue = 0;
+const int encoderLeftPin = 0;
+int encoderLeftCount = 0;
+int encoderLeftLastValue = 0;
 
 // sound sensors
 const int soundPin1 = 6;
@@ -42,6 +47,12 @@ const int soundPin2 = 7;
 
 // compass and accelometer
 LSM303 compass;
+
+// dummy timer (no real interrupts)
+Timer t;
+int encoderEvent;
+int readIncomingDataEvent;
+long timeMillisBefore;
 
 void configureCompass() {
   compass.init();
@@ -58,7 +69,7 @@ void setup()
   Serial.begin(serialSpeed);
   Wire.begin();  
   if (servoOn) {
-    myservo.attach(servoPin);  // attaches the servo on pin 9 to the servo object
+    myservo.attach(servoPin);  
   } 
   
   pinMode(motorLeftSpeedPin, OUTPUT);
@@ -68,10 +79,33 @@ void setup()
 
   configureCompass();
 
+  encoderEvent = t.every(20, doEncoderRead);
+  readIncomingDataEvent = t.every(20, readIncomingData);
+  
   pinMode(blueLedPin, OUTPUT);
   digitalWrite(blueLedPin, HIGH);
   Serial.println("RaisaSweep starting");
 } 
+
+void doEncoderRead() {
+  //Min value is 400 and max value is 800, so state chance can be done at 600.
+  if (analogRead(encoderRightPin) < 600) { 
+    if (encoderRightLastValue == 0) {
+      encoderRightCount++;
+      encoderRightLastValue = 1;
+    } 
+  } else {
+    encoderRightLastValue = 0;
+  }  
+  if (analogRead(encoderLeftPin) < 600) { 
+    if (encoderLeftLastValue == 0) {
+      encoderLeftCount++;
+      encoderLeftLastValue = 1;
+    } 
+  } else {
+    encoderLeftLastValue = 0;
+  }
+}
 
 void handleMessage(int leftSpeed, int leftDirection, int rightSpeed, int rightDirection, int control) {
   // drive motors
@@ -154,11 +188,12 @@ void sendFieldToServer(char * field, long value) {
   Serial.print(field);
   Serial.print(value);
   Serial.print(";");
-  readIncomingData();
+  t.update();
 }
   
 void sendDataToServer(int angle, long distanceUltraSonic, long distanceInfraRed, 
-    long soundValue1, long soundValue2, long compassDirection, long timeSinceStart) {
+    long soundValue1, long soundValue2, long compassDirection, long timeSinceStart,
+    int tmpEncoderLeftCount, int tmpEncoderRightCount) {
   static long messageNumber = 0;
   Serial.print("STA;");
   sendFieldToServer("SR", angle);
@@ -170,6 +205,8 @@ void sendDataToServer(int angle, long distanceUltraSonic, long distanceInfraRed,
   sendFieldToServer("CD", compassDirection);
   sendFieldToServer("TI", timeSinceStart);
   sendFieldToServer("NO", ++messageNumber);
+  sendFieldToServer("RL", tmpEncoderLeftCount);  
+  sendFieldToServer("RR", tmpEncoderRightCount);    
   Serial.println("END;");  
 }
 
@@ -177,18 +214,26 @@ void scan(int angle, int scanDelay) {
   if (servoOn) {
     myservo.write(angle);
   }
-  readIncomingData();
-  delay(scanDelay);
-  readIncomingData();
+  
+  timeMillisBefore = millis();
+  while (scanDelay > (millis() - timeMillisBefore)) {
+    t.update();
+  }
   long distanceUltraSonic = measureDistanceUltraSonic();
   long distanceInfraRed = measureDistanceInfraRed();
   long soundValue1 = analogRead(soundPin1);
   long soundValue2 = analogRead(soundPin2);
   long compassDirection = measureCompassHeading();
+  int tmpEncoderLeftCount = encoderLeftCount;
+  encoderLeftCount = 0;
+  int tmpEncoderRightCount = encoderRightCount;
+  encoderRightCount = 0;
   // TODO writing serial takes time
   // organize code so that servo is turning while serial data is sent
-  readIncomingData();
-  sendDataToServer(angle, distanceUltraSonic, distanceInfraRed, soundValue1, soundValue2, compassDirection, millis());
+  t.update();
+  sendDataToServer(angle, distanceUltraSonic, distanceInfraRed, 
+    soundValue1, soundValue2, compassDirection, millis(),
+    tmpEncoderLeftCount, tmpEncoderRightCount);
 }
 
 void loop() 
