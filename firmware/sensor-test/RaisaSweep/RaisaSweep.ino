@@ -95,7 +95,10 @@ void doEncoderRead() {
       encoderRightLastValue = 1;
     } 
   } else {
-    encoderRightLastValue = 0;
+    if (encoderRightLastValue == 1) {
+      encoderRightCount++;
+      encoderRightLastValue = 0;
+    }
   }  
   if (analogRead(encoderLeftPin) < 600) { 
     if (encoderLeftLastValue == 0) {
@@ -103,7 +106,10 @@ void doEncoderRead() {
       encoderLeftLastValue = 1;
     } 
   } else {
-    encoderLeftLastValue = 0;
+    if (encoderLeftLastValue == 1) {
+      encoderLeftCount++;
+      encoderLeftLastValue = 0;
+    }
   }
 }
 
