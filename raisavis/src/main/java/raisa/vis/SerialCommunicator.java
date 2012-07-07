@@ -15,7 +15,7 @@ public class SerialCommunicator implements SerialPortEventListener, Communicator
 	private SerialPort serialPort;
 	private static final String PORT_NAMES[] = { 
 			"/dev/tty.usbserial-A9007UX1", // Mac OS X
-		//	"/dev/tty.usbmodemfa131",
+			"/dev/tty.usbmodemfa131",
 			"/dev/tty.usbmodemfd111",
 			"/dev/ttys0",
 			"/dev/ttys000",
@@ -29,10 +29,10 @@ public class SerialCommunicator implements SerialPortEventListener, Communicator
 	private static final int TIME_OUT = 2000;
 	/** Default bits per second for COM port. */
 	private static final int DATA_RATE = 111111;
-	private VisualizerPanel visualizer;
+	private WorldModel worldModel;
 	
-	public SerialCommunicator(VisualizerPanel visualizer) {
-		this.visualizer = visualizer;
+	public SerialCommunicator(WorldModel worldModel) {
+		this.worldModel = worldModel;
 	}
 	
 	public boolean connect() {
@@ -105,7 +105,7 @@ public class SerialCommunicator implements SerialPortEventListener, Communicator
 					if (!Sample.isValid(line)) {
 						System.out.println("Invalid sample!");
 					} else {
-						this.visualizer.update(line);
+						this.worldModel.addSample(line);
 					}
 					line = scanner.next();
 				}

@@ -1,6 +1,7 @@
 package raisa.vis;
 
 import java.awt.BorderLayout;
+import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
@@ -27,10 +28,13 @@ public class VisualizerFrame extends JFrame {
 	private static final long serialVersionUID = 1L;
 	private VisualizerPanel visualizer;
 	private File defaultDirectory = null;
+	private final WorldModel worldModel;
 	
-	public VisualizerFrame() {
+	public VisualizerFrame(WorldModel worldModel) {
 		super("Raisa Visualizer");
-		visualizer = new VisualizerPanel();
+		visualizer = new VisualizerPanel(worldModel);
+		MeasurementsPanel measurementsPanel = new MeasurementsPanel(worldModel);
+		this.worldModel = worldModel;
 		JMenuBar menuBar = new JMenuBar();
 		JMenu mainMenu = new JMenu("Main");
 		mainMenu.setMnemonic('m');
@@ -106,7 +110,7 @@ public class VisualizerFrame extends JFrame {
 		viewMenu.add(zoomOut);
 		menuBar.add(viewMenu);
 
-		FailoverCommunicator communicator = new FailoverCommunicator(new SerialCommunicator(visualizer), new ConsoleCommunicator());;
+		FailoverCommunicator communicator = new FailoverCommunicator(new SerialCommunicator(worldModel), new ConsoleCommunicator());;
 		communicator.connect();
 
 		final BasicController controller = new BasicController(communicator);
@@ -223,6 +227,7 @@ public class VisualizerFrame extends JFrame {
 		setSize(600, 400);
 		getContentPane().add(visualizer, BorderLayout.CENTER);
 		getContentPane().add(controlPanel, BorderLayout.WEST);
+		getContentPane().add(measurementsPanel, BorderLayout.EAST);
 		setJMenuBar(menuBar);
 		setVisible(true);
 		setLocationRelativeTo(null);
@@ -306,7 +311,7 @@ public class VisualizerFrame extends JFrame {
 
 	private void internalSave(String fileName) throws Exception {
 		BufferedWriter writer = new BufferedWriter(new FileWriter(fileName));
-		for (Sample sample : visualizer.getSamples()) {
+		for (Sample sample : worldModel.getSamples()) {
 			writer.write(sample.sampleString);
 			writer.newLine();
 		}
@@ -345,7 +350,7 @@ public class VisualizerFrame extends JFrame {
 				@Override
 				public void run() {
 					while (nextSample < samples.size()) {
-						visualizer.update(samples.get(nextSample));
+						worldModel.addSample(samples.get(nextSample));
 						++nextSample;
 						if (delayed) {
 							try {
@@ -367,7 +372,7 @@ public class VisualizerFrame extends JFrame {
 				@Override
 				public void run() {
 					while (nextSample < samples.size()) {
-						visualizer.update(samples.get(nextSample));
+						worldModel.addSample(samples.get(nextSample));
 						++nextSample;
 						if (delayed) {
 							try {

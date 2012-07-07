@@ -16,38 +16,39 @@ import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Observable;
+import java.util.Observer;
 
 import javax.swing.JPanel;
 
-public class VisualizerPanel extends JPanel {
+public class VisualizerPanel extends JPanel implements Observer {
 	private static final long serialVersionUID = 1L;
 	private Color measurementColor = new Color(0.4f, 0.4f, 0.4f);
-	private Robot robot = new Robot();
 	private Float camera = new Float();
 	private Float mouse = new Float();
 	private Float mouseDragStart = new Float();
 	private float scale = 1.0f;
-	private List<Sample> samples = new ArrayList<Sample>();
 	private List<Sample> latestIR = new ArrayList<Sample>();
 	private List<Sample> latestSR = new ArrayList<Sample>();
 	private Grid grid = new Grid();
 	private Stroke dashed;
 	private Stroke arrow;
+	private WorldModel worldModel;
 
 	public void reset() {
-		robot.heading = 0.0f;
-		robot.position = new Float();
+		worldModel.reset();
 		camera = new Float();
 		mouse = new Float();
 		mouseDragStart = new Float();
 		scale = 1.0f;
-		samples = new ArrayList<Sample>();
 		latestIR = new ArrayList<Sample>();
 		latestSR = new ArrayList<Sample>();
 		grid = new Grid();
 	}
 
-	public VisualizerPanel() {
+	public VisualizerPanel(WorldModel worldModel) {
+		this.worldModel = worldModel;
+		worldModel.addObserver(this);
 		setBackground(Color.gray);
 		setFocusable(true);
 		addHierarchyBoundsListener(new PanelSizeHandler());
@@ -58,33 +59,24 @@ public class VisualizerPanel extends JPanel {
 		arrow = new BasicStroke(2.0f, BasicStroke.CAP_BUTT, BasicStroke.JOIN_MITER, 10.0f);
 	}
 
-	public void update(Sample sample) {
-		robot.position.x = sample.getX();
-		robot.position.y = sample.getY();
-		robot.heading = sample.getHeading();
+	public void update(Observable model, Object s) {
+		Sample sample = (Sample)s;
 		if (sample.data.containsKey("ir")) {
 			if (sample.isIrSpot()) {
 				grid.addSpot(sample.getIrSpot());
 			}
 			latestIR.add(sample);
-			latestIR = takeLast(latestIR, 10);
+			latestIR = WorldModel.takeLast(latestIR, 10);
 		}
 		if (sample.data.containsKey("sr") && sample.data.containsKey("sd")) {
 			latestSR.add(sample);
-			latestSR = takeLast(latestSR, 10);
-		}
-		synchronized (this.samples) {
-			this.samples.add(sample);
+			latestSR = WorldModel.takeLast(latestSR, 10);
 		}
 		repaint();
 	}
 
-	public void update(String message) {
-		Sample sample = new Sample(robot.position.x, robot.position.y, robot.heading, message);
-		update(sample);
-	}
-
 	public void paintComponent(Graphics g) {
+		Robot robot = worldModel.getRobot();
 		Graphics2D g2 = (Graphics2D) g;
 		clearScreen(g);
 		drawGrid(g2);
@@ -107,7 +99,7 @@ public class VisualizerPanel extends JPanel {
 		Float tl = new Float(camera.x - screenWidth * 0.5f / scale, camera.y - screenHeight * 0.5f / scale);
 		grid.draw(g2, new Rectangle2D.Float(tl.x * scale, tl.y * scale, screenWidth * scale, screenHeight * scale), this);
 	}
-
+	
 	private void drawIrResults(Graphics g, Graphics2D g2) {
 		if (!latestIR.isEmpty()) {
 			List<Sample> irs = new ArrayList<Sample>(latestIR);
@@ -139,6 +131,7 @@ public class VisualizerPanel extends JPanel {
 	}
 
 	private void drawUltrasoundResults(Graphics g) {
+		Robot robot = worldModel.getRobot();
 		if (!latestSR.isEmpty()) {
 			float sonarWidth = 42.0f;
 			List<Sample> srs = new ArrayList<Sample>(latestSR);
@@ -163,6 +156,7 @@ public class VisualizerPanel extends JPanel {
 	}
 
 	private void drawRobot(Graphics2D g2) {
+		Robot robot = worldModel.getRobot();
 		g2.setColor(Color.gray);
 		Float robotScreen = toScreen(robot.position);
 		float widthScreen = toScreen(11.0f);
@@ -184,6 +178,7 @@ public class VisualizerPanel extends JPanel {
 	}
 
 	private void drawArrow(Graphics2D g2) {
+		Robot robot = worldModel.getRobot();
 		g2.setColor(Color.black);
 		Float robotScreen = toScreen(robot.position);
 		Path2D.Float p = new Path2D.Float();
@@ -301,21 +296,6 @@ public class VisualizerPanel extends JPanel {
 		}
 	}
 
-	private List<Sample> takeLast(List<Sample> samples, int length) {
-		if (samples.size() > length) {
-			int fromIndex = Math.max(0, samples.size() - length);
-			int toIndex = samples.size();
-			List<Sample> newSamples = new ArrayList<Sample>();
-			newSamples.addAll(samples.subList(fromIndex, toIndex));
-			return newSamples;
-		}
-		return samples;
-	}
-
-	public List<Sample> getSamples() {
-		return samples;
-	}
-
 	public void zoomIn() {
 		scale *= 1.25f;
 		repaint();
@@ -327,12 +307,12 @@ public class VisualizerPanel extends JPanel {
 	}
 	
 	public void clear() {
-		samples.clear();
+		worldModel.clearSamples();
 		repaint();
 	}
 
 	public void removeOldSamples() {
-		samples = takeLast(samples, 1000);
+		worldModel.removeOldSamples(1000);
 		repaint();
 	}
 }

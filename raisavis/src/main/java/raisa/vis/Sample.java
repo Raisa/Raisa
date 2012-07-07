@@ -7,6 +7,7 @@ import java.util.Map;
 public class Sample {
 	public String sampleString;
 	public Map<String, Object> data = new HashMap<String, Object>();
+	private final static float G = 9.80665f;
 
 	public Sample(float x, float y, float heading, String sample) {
 		sampleString = sample;
@@ -40,6 +41,24 @@ public class Sample {
 					float compass = (float) Math.toRadians(Integer.parseInt(part.substring(2)));
 					data.put("cd", compass);
 					data.put("heading", compass);
+				} else if (part.startsWith("AX")) {
+					int accelerationX = Integer.parseInt(part.substring(2));
+					data.put("ax", accelerationX);
+				} else if (part.startsWith("AY")) {
+					int accelerationY = Integer.parseInt(part.substring(2));
+					data.put("ay", accelerationY);
+				} else if (part.startsWith("AZ")) {
+					int accelerationZ = Integer.parseInt(part.substring(2));
+					data.put("az", accelerationZ);
+				} else if (part.startsWith("GX")) {
+					int gyroX = Integer.parseInt(part.substring(2));
+					data.put("gx", gyroX);
+				} else if (part.startsWith("GY")) {
+					int gyroY = Integer.parseInt(part.substring(2));
+					data.put("gy", gyroY);
+				} else if (part.startsWith("GZ")) {
+					int gyroZ = Integer.parseInt(part.substring(2));
+					data.put("gz", gyroZ);					
 				} else {
 				}
 			}
@@ -105,4 +124,19 @@ public class Sample {
 	public float getIrDirection() {
 		return (Float) data.get("ir");
 	}
+	
+	public Vector3D getAcceleration() {
+		int x = (Integer) (data.get("ax")==null?0:data.get("ax"));
+		int y = (Integer) (data.get("ay")==null?0:data.get("ay"));
+		int z = (Integer) (data.get("az")==null?0:data.get("az"));
+		return new Vector3D(x, y, z);
+	}
+	
+	public Vector3D getAngularAcceleration() {
+		int x = (Integer) (data.get("gx")==null?0:data.get("gx"));
+		int y = (Integer) (data.get("gy")==null?0:data.get("gy"));
+		int z = (Integer) (data.get("gz")==null?0:data.get("gz"));
+		return new Vector3D(x, y, z);
+	}	
+	
 }

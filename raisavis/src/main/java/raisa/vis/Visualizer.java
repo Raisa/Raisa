@@ -49,7 +49,8 @@ public class Visualizer {
 	}
 
 	public static void main(String[] args) throws Exception {
-		final VisualizerFrame frame = new VisualizerFrame();
+		final WorldModel worldModel = new WorldModel();
+		final VisualizerFrame frame = new VisualizerFrame(worldModel);
 
 		final List<String> samples = new ArrayList<String>();
 		if (args.length == 0) {
