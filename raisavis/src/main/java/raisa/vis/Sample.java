@@ -42,22 +42,22 @@ public class Sample {
 					data.put("cd", compass);
 					data.put("heading", compass);
 				} else if (part.startsWith("AX")) {
-					int accelerationX = Integer.parseInt(part.substring(2));
+					float accelerationX = (G * ((-Float.parseFloat(part.substring(2))) - 24)) / 1000 ;
 					data.put("ax", accelerationX);
 				} else if (part.startsWith("AY")) {
-					int accelerationY = Integer.parseInt(part.substring(2));
-					data.put("ay", accelerationY);
+					float accelerationY = (G * ((Float.parseFloat(part.substring(2)) - 59))) / 1000;
+					data.put("az", accelerationY);
 				} else if (part.startsWith("AZ")) {
-					int accelerationZ = Integer.parseInt(part.substring(2));
-					data.put("az", accelerationZ);
+					float accelerationZ = (G * ((-Float.parseFloat(part.substring(2))) - 1008)) / 1000;
+					data.put("ay", accelerationZ);
 				} else if (part.startsWith("GX")) {
-					int gyroX = Integer.parseInt(part.substring(2));
+					float gyroX = Float.parseFloat(part.substring(2));
 					data.put("gx", gyroX);
 				} else if (part.startsWith("GY")) {
-					int gyroY = Integer.parseInt(part.substring(2));
+					float gyroY = Float.parseFloat(part.substring(2));
 					data.put("gy", gyroY);
 				} else if (part.startsWith("GZ")) {
-					int gyroZ = Integer.parseInt(part.substring(2));
+					float gyroZ = Float.parseFloat(part.substring(2));
 					data.put("gz", gyroZ);					
 				} else {
 				}
@@ -126,16 +126,16 @@ public class Sample {
 	}
 	
 	public Vector3D getAcceleration() {
-		int x = (Integer) (data.get("ax")==null?0:data.get("ax"));
-		int y = (Integer) (data.get("ay")==null?0:data.get("ay"));
-		int z = (Integer) (data.get("az")==null?0:data.get("az"));
+		float x = (Float) (data.get("ax")==null?0:data.get("ax"));
+		float y = (Float) (data.get("ay")==null?0:data.get("ay"));
+		float z = (Float) (data.get("az")==null?0:data.get("az"));
 		return new Vector3D(x, y, z);
 	}
 	
 	public Vector3D getAngularAcceleration() {
-		int x = (Integer) (data.get("gx")==null?0:data.get("gx"));
-		int y = (Integer) (data.get("gy")==null?0:data.get("gy"));
-		int z = (Integer) (data.get("gz")==null?0:data.get("gz"));
+		float x = (Float) (data.get("gx")==null?0:data.get("gx"));
+		float y = (Float) (data.get("gy")==null?0:data.get("gy"));
+		float z = (Float) (data.get("gz")==null?0:data.get("gz"));
 		return new Vector3D(x, y, z);
 	}	
 	

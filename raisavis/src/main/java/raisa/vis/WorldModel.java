@@ -47,6 +47,10 @@ public class WorldModel extends Observable {
 		samples = new ArrayList<Sample>();		
 	}
 	
+	public List<Sample> getLastSamples(int numberOfSamples) {
+		return takeLast(samples, numberOfSamples);
+	}
+	
 	public static List<Sample> takeLast(List<Sample> samples, int length) {
 		if (samples.size() > length) {
 			int fromIndex = Math.max(0, samples.size() - length);

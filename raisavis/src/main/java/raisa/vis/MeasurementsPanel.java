@@ -3,6 +3,8 @@ package raisa.vis;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
+import java.text.DecimalFormat;
+import java.util.List;
 import java.util.Observable;
 import java.util.Observer;
 
@@ -45,7 +47,7 @@ public class MeasurementsPanel extends JPanel implements Observer {
 			this.setMinimumSize(new Dimension(200,80));
 			this.setPreferredSize(new Dimension(200,80));
 			this.setMaximumSize(new Dimension(Short.MAX_VALUE, 80));
-			TitledBorder border = new TitledBorder("Acceleration");
+			TitledBorder border = new TitledBorder("Acceleration (m/s)");
 			setBorder(border);
 			setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
 			accXField = new JLabel("X: -");
@@ -57,10 +59,24 @@ public class MeasurementsPanel extends JPanel implements Observer {
 		}
 			
 		public void update(WorldModel worldModel, Sample sample) {
+			float avgX = 0, avgY = 0, avgZ = 0;
+			List<Sample> samples = worldModel.getLastSamples(10);
+			DecimalFormat format = new DecimalFormat("0.00");			
+			
+			for (Sample s : samples) {
+				Vector3D a = s.getAcceleration();
+				avgX += a.getX();
+				avgY += a.getY();
+				avgZ += a.getZ();
+			}
+			avgX /= samples.size();
+			avgY /= samples.size();
+			avgZ /= samples.size();
+			
 			Vector3D acceleration = sample.getAcceleration();
-			accXField.setText("X: " + acceleration.getX());
-			accYField.setText("Y: " + acceleration.getY());
-			accZField.setText("Z: " + acceleration.getZ());	
+			accXField.setText("X: " + format.format(acceleration.getX()) + " (last), " + format.format(avgX) + " (avg 10)");
+			accYField.setText("Y: " + format.format(acceleration.getY()) + " (last), " + format.format(avgY) + " (avg 10)");
+			accZField.setText("Z: " + format.format(acceleration.getZ()) + " (last), " + format.format(avgZ) + " (avg 10)");
 			repaint();
 		}
 		
