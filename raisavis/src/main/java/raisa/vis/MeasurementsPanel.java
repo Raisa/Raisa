@@ -1,14 +1,10 @@
 package raisa.vis;
 
-import java.awt.Color;
 import java.awt.Dimension;
-import java.awt.Graphics;
 import java.text.DecimalFormat;
 import java.util.List;
 import java.util.Observable;
 import java.util.Observer;
-
-import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -93,7 +89,7 @@ public class MeasurementsPanel extends JPanel implements Observer {
 			this.setMinimumSize(new Dimension(200,80));
 			this.setPreferredSize(new Dimension(200,80));
 			this.setMaximumSize(new Dimension(Short.MAX_VALUE, 80));
-			TitledBorder border = new TitledBorder("Gyroscope");
+			TitledBorder border = new TitledBorder("Gyroscope (dps)");
 			setBorder(border);
 			setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
 			gyroXField = new JLabel("X: -");
@@ -105,10 +101,11 @@ public class MeasurementsPanel extends JPanel implements Observer {
 		}
 			
 		public void update(WorldModel worldModel, Sample sample) {
+			DecimalFormat format = new DecimalFormat("0.00");			
 			Vector3D angularAcceleration = sample.getAngularAcceleration();
-			gyroXField.setText("X: " + angularAcceleration.getX());
-			gyroYField.setText("Y: " + angularAcceleration.getY());
-			gyroZField.setText("Z: " + angularAcceleration.getZ());	
+			gyroXField.setText("X: " + format.format(angularAcceleration.getX()));
+			gyroYField.setText("Y: " + format.format(angularAcceleration.getY()));
+			gyroZField.setText("Z: " + format.format(angularAcceleration.getZ()));	
 			repaint();
 		}
 		

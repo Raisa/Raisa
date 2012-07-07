@@ -52,13 +52,13 @@ public class Sample {
 					data.put("ay", accelerationZ);
 				} else if (part.startsWith("GX")) {
 					float gyroX = Float.parseFloat(part.substring(2));
-					data.put("gx", gyroX);
+					data.put("gx", -gyroX / 1000);
 				} else if (part.startsWith("GY")) {
 					float gyroY = Float.parseFloat(part.substring(2));
-					data.put("gy", gyroY);
+					data.put("gz", gyroY / 1000);
 				} else if (part.startsWith("GZ")) {
 					float gyroZ = Float.parseFloat(part.substring(2));
-					data.put("gz", gyroZ);					
+					data.put("gy", -gyroZ / 1000);					
 				} else {
 				}
 			}
