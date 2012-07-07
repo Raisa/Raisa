@@ -47,7 +47,7 @@ public class MeasurementsPanel extends JPanel implements Observer {
 			this.setMinimumSize(new Dimension(200,80));
 			this.setPreferredSize(new Dimension(200,80));
 			this.setMaximumSize(new Dimension(Short.MAX_VALUE, 80));
-			TitledBorder border = new TitledBorder("Acceleration (m/s)");
+			TitledBorder border = new TitledBorder("Acceleration (m/s^2)");
 			setBorder(border);
 			setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
 			accXField = new JLabel("X: -");

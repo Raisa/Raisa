@@ -48,7 +48,7 @@ public class Sample {
 					float accelerationY = (G * ((Float.parseFloat(part.substring(2)) - 59))) / 1000;
 					data.put("az", accelerationY);
 				} else if (part.startsWith("AZ")) {
-					float accelerationZ = (G * ((-Float.parseFloat(part.substring(2))) - 1008)) / 1000;
+					float accelerationZ = (G * ((-Float.parseFloat(part.substring(2))) - 8)) / 1000;
 					data.put("ay", accelerationZ);
 				} else if (part.startsWith("GX")) {
 					float gyroX = Float.parseFloat(part.substring(2));
