@@ -4,6 +4,8 @@ import java.awt.geom.Point2D;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.commons.lang3.StringUtils;
+
 public class Sample {
 	public String sampleString;
 	public Map<String, Object> data = new HashMap<String, Object>();
@@ -19,45 +21,46 @@ public class Sample {
 		} else {
 			String[] sampleParts = sample.split("[;]");
 			for (String part : sampleParts) {
+				String value = StringUtils.substring(part, 2);
 				if ("STA".equals(part)) {
 				} else if ("END".equals(part)) {
 				} else if (part.startsWith("IR")) {
-					float angle = (float) Math.toRadians(Integer.parseInt(part.substring(2)));
+					float angle = (float) Math.toRadians(Integer.parseInt(value));
 					angle = angle - (float)Math.PI / 2.0f;
 					data.put("ir", angle);
 				} else if (part.startsWith("ID")) {
-					float irSensorValue = Integer.parseInt(part.substring(2));
+					float irSensorValue = Integer.parseInt(value);
 					float distance = 10650.08f * (float)Math.pow(irSensorValue, -0.935f) - 10.0f; // cm
 					data.put("id", distance);
 				} else if (part.startsWith("SR")) {
-					float angle = (float) Math.toRadians(Integer.parseInt(part.substring(2)));
+					float angle = (float) Math.toRadians(Integer.parseInt(value));
 					angle = angle - (float)Math.PI / 2.0f;
 					data.put("sr", angle);
 				} else if (part.startsWith("SD")) {
-					float srSensorValue = Integer.parseInt(part.substring(2));
+					float srSensorValue = Integer.parseInt(value);
 					float distance = (srSensorValue / 2.0f) * 2.54f; // cm
 					data.put("sd", distance);
 				} else if (part.startsWith("CD")) {
-					float compass = (float) Math.toRadians(Integer.parseInt(part.substring(2)));
+					float compass = (float) Math.toRadians(Integer.parseInt(value));
 					data.put("cd", compass);
 					data.put("heading", compass);
 				} else if (part.startsWith("AX")) {
-					float accelerationX = (G * ((-Float.parseFloat(part.substring(2))) - 24)) / 1000 ;
+					float accelerationX = (G * ((-Float.parseFloat(value)) - 24)) / 1000 ;
 					data.put("ax", accelerationX);
 				} else if (part.startsWith("AY")) {
-					float accelerationY = (G * ((Float.parseFloat(part.substring(2)) - 59))) / 1000;
+					float accelerationY = (G * ((Float.parseFloat(value) - 59))) / 1000;
 					data.put("az", accelerationY);
 				} else if (part.startsWith("AZ")) {
-					float accelerationZ = (G * ((-Float.parseFloat(part.substring(2))) - 8)) / 1000;
+					float accelerationZ = (G * ((-Float.parseFloat(value)) - 8)) / 1000;
 					data.put("ay", accelerationZ);
 				} else if (part.startsWith("GX")) {
-					float gyroX = Float.parseFloat(part.substring(2));
+					float gyroX = Float.parseFloat(value);
 					data.put("gx", -gyroX / 1000);
 				} else if (part.startsWith("GY")) {
-					float gyroY = Float.parseFloat(part.substring(2));
+					float gyroY = Float.parseFloat(value);
 					data.put("gz", gyroY / 1000);
 				} else if (part.startsWith("GZ")) {
-					float gyroZ = Float.parseFloat(part.substring(2));
+					float gyroZ = Float.parseFloat(value);
 					data.put("gy", -gyroZ / 1000);					
 				} else {
 				}
