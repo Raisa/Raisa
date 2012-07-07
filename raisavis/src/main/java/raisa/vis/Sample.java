@@ -126,16 +126,16 @@ public class Sample {
 	}
 	
 	public Vector3D getAcceleration() {
-		float x = (Float) (data.get("ax")==null?0:data.get("ax"));
-		float y = (Float) (data.get("ay")==null?0:data.get("ay"));
-		float z = (Float) (data.get("az")==null?0:data.get("az"));
+		float x = (Float) (data.get("ax")==null?0.0f:data.get("ax"));
+		float y = (Float) (data.get("ay")==null?0.0f:data.get("ay"));
+		float z = (Float) (data.get("az")==null?0.0f:data.get("az"));
 		return new Vector3D(x, y, z);
 	}
 	
 	public Vector3D getAngularAcceleration() {
-		float x = (Float) (data.get("gx")==null?0:data.get("gx"));
-		float y = (Float) (data.get("gy")==null?0:data.get("gy"));
-		float z = (Float) (data.get("gz")==null?0:data.get("gz"));
+		float x = (Float) (data.get("gx")==null?0.0f:data.get("gx"));
+		float y = (Float) (data.get("gy")==null?0.0f:data.get("gy"));
+		float z = (Float) (data.get("gz")==null?0.0f:data.get("gz"));
 		return new Vector3D(x, y, z);
 	}	
 	
