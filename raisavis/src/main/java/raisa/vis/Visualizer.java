@@ -2,6 +2,7 @@ package raisa.vis;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.awt.geom.Point2D.Float;
 
 /**
  * See http://arduino.cc/playground/Interfacing/Java for RXTX library setup
@@ -25,7 +26,10 @@ public class Visualizer {
 				if (o % 2 == 1) {
 					angle = 4.0f * (float) Math.PI - angle;
 				}
-				samples.add(new Sample(x, y, heading, world.sample(x, y, heading, angle)));
+				Robot r = new Robot(heading, new Float(x, y));
+				Sample s = new Sample(world.sample(x, y, heading, angle));
+				s.setRobot(r);
+				samples.add(s);
 			}
 		}
 	}
@@ -43,7 +47,10 @@ public class Visualizer {
 					angleDegrees = 0.0f - angleDegrees;
 				}
 				float angle = (float)Math.toRadians(angleDegrees);
-				samples.add(new Sample(x, y, heading, world.sample(x, y, heading, angle)));
+				Robot r = new Robot(heading, new Float(x, y));
+				Sample s = new Sample(world.sample(x, y, heading, angle));
+				s.setRobot(r);
+				samples.add(s);
 			}
 		}
 	}

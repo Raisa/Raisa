@@ -1,5 +1,6 @@
 package raisa.vis;
 
+import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.geom.Point2D.Float;
 import java.awt.geom.Rectangle2D;
@@ -36,8 +37,8 @@ public class Grid {
 		public void draw(Graphics2D g2, VisualizerPanel panel) {
 			Float tl = panel.toScreen(topLeft);
 			int s = (int)panel.toScreen(size);
-			//g2.setColor(Color.lightGray);
-			//g2.drawRect((int)tl.x, (int)tl.y, s, s);
+			g2.setColor(Color.lightGray);
+			g2.drawRect((int)tl.x, (int)tl.y, s, s);
 			g2.drawImage(buffer, (int)tl.x, (int)tl.y, s, s, null);
 		}
 	}

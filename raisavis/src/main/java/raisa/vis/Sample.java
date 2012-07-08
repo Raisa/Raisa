@@ -9,13 +9,11 @@ import org.apache.commons.lang3.StringUtils;
 public class Sample {
 	public String sampleString;
 	public Map<String, Object> data = new HashMap<String, Object>();
+	private Robot robot;
 	private final static float G = 9.80665f;
 
-	public Sample(float x, float y, float heading, String sample) {
+	public Sample(String sample) {
 		sampleString = sample;
-		data.put("x", x);
-		data.put("y", y);
-		data.put("heading", heading);
 		if (!isValid(sample)) {
 			System.out.println("INVALID SAMPLE! \"" + sample + "\"");
 		} else {
@@ -31,7 +29,9 @@ public class Sample {
 				} else if (part.startsWith("ID")) {
 					float irSensorValue = Integer.parseInt(value);
 					float distance = 10650.08f * (float)Math.pow(irSensorValue, -0.935f) - 10.0f; // cm
-					data.put("id", distance);
+					if (distance > 20.0f && distance < 150.0f) {
+						data.put("id", distance);
+					}
 				} else if (part.startsWith("SR")) {
 					float angle = (float) Math.toRadians(Integer.parseInt(value));
 					angle = angle - (float)Math.PI / 2.0f;
@@ -39,9 +39,11 @@ public class Sample {
 				} else if (part.startsWith("SD")) {
 					float srSensorValue = Integer.parseInt(value);
 					float distance = (srSensorValue / 2.0f) * 2.54f; // cm
-					data.put("sd", distance);
+					if (distance > 15.0f && distance < 645.0f) {
+						data.put("sd", distance);
+					}
 				} else if (part.startsWith("CD")) {
-					float compass = (float) Math.toRadians(Integer.parseInt(value));
+					float compass = (float) (Math.toRadians(Integer.parseInt(value)) - Math.PI * 0.5f);
 					data.put("cd", compass);
 					data.put("heading", compass);
 				} else if (part.startsWith("AX")) {
@@ -62,6 +64,12 @@ public class Sample {
 				} else if (part.startsWith("GZ")) {
 					float gyroZ = Float.parseFloat(value);
 					data.put("gy", -gyroZ / 1000);					
+				} else if (part.startsWith("RL")) {
+					float ticks = Float.parseFloat(value);
+					data.put("rl", ticks);
+				} else if (part.startsWith("RR")) {
+					float ticks = Float.parseFloat(value);
+					data.put("rr", ticks);
 				} else {
 				}
 			}
@@ -72,21 +80,21 @@ public class Sample {
 		return (data.containsKey("ir") && data.containsKey("id"));
 	}
 
-	public float getX() {
-		return (Float) data.get("x");
+	public void setRobot(Robot robot) {
+		this.robot = robot;
 	}
-
-	public float getY() {
-		return (Float) data.get("y");
+	
+	public Robot getRobot() {
+		return robot;
 	}
-
+	
 	public float getHeading() {
 		return (Float) data.get("heading");
 	}
 
 	public Spot getIrSpot() {
-		float x = (Float) data.get("x");
-		float y = (Float) data.get("y");
+		float x = robot.getPosition().x;
+		float y = robot.getPosition().y;
 		float heading = (Float) data.get("heading");
 		float angle = 0.0f;
 		float distance = 0.0f;
@@ -100,9 +108,9 @@ public class Sample {
 	}
 
 	public Spot getSrSpot() {
-		float x = (Float) data.get("x");
-		float y = (Float) data.get("y");
-		float heading = (Float) data.get("heading");
+		float x = robot.getPosition().x;
+		float y = robot.getPosition().y;
+		float heading = robot.heading;
 		float angle = 0.0f;
 		float distance = 0.0f;
 		if (data.containsKey("sr")) {
@@ -112,12 +120,6 @@ public class Sample {
 		angle += heading - (float)Math.PI * 0.5f;
 		Spot spot = new Spot(x + (float) Math.cos(angle) * distance, y + (float) Math.sin(angle) * distance);
 		return spot;
-	}
-
-	public Point2D.Float getRobot() {
-		float x = (Float) data.get("x");
-		float y = (Float) data.get("y");
-		return new Point2D.Float(x, y);
 	}
 
 	public static boolean isValid(String sample) {
@@ -140,6 +142,14 @@ public class Sample {
 		float y = (Float) (data.get("gy")==null?0.0f:data.get("gy"));
 		float z = (Float) (data.get("gz")==null?0.0f:data.get("gz"));
 		return new Vector3D(x, y, z);
+	}	
+	
+	public float getLeftWheelTicks() {
+		return (Float) (data.get("rl")==null?0.0f:data.get("rl"));
+	}
+	
+	public float getRightWheelTicks() {
+		return (Float) (data.get("rl")==null?0.0f:data.get("rr"));
 	}	
 	
 }

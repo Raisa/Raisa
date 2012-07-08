@@ -20,22 +20,20 @@ public class WorldModel extends Observable {
 	}
 	
 	public void addSample(String message) {
-		Sample sample = new Sample(robot.position.x, robot.position.y, robot.heading, message);
+		Sample sample = new Sample(message);
 		addSample(sample);
 	}
 	
 	public void addSample(Sample sample) {
-		samples.add(sample);
-		robot.position.x = sample.getX();
-		robot.position.y = sample.getY();
-		robot.heading = sample.getHeading();
+		this.robot = robot.moveRobot(sample);
+		sample.setRobot(robot);	
+		samples.add(sample);		
 		this.setChanged();
 		this.notifyObservers(sample);
 	}
 	
 	public void reset() {
-		robot.heading = 0.0f;
-		robot.position = new Float();
+		robot = new Robot();
 		samples = new ArrayList<Sample>();
 	}
 	

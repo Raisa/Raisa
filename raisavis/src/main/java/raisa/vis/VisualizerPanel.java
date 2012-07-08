@@ -69,6 +69,7 @@ public class VisualizerPanel extends JPanel implements Observer {
 			latestIR = WorldModel.takeLast(latestIR, 10);
 		}
 		if (sample.data.containsKey("sr") && sample.data.containsKey("sd")) {
+			grid.addSpot(sample.getSrSpot());
 			latestSR.add(sample);
 			latestSR = WorldModel.takeLast(latestSR, 10);
 		}
@@ -82,7 +83,7 @@ public class VisualizerPanel extends JPanel implements Observer {
 		drawGrid(g2);
 		drawRobot(g2);
 		drawArrow(g2);
-		drawMeasurementLine(g, robot.position, toWorld(mouse));
+		drawMeasurementLine(g, robot.getPosition(), toWorld(mouse));
 		drawUltrasoundResults(g);
 		drawIrResults(g, g2);
 	}
@@ -109,9 +110,9 @@ public class VisualizerPanel extends JPanel implements Observer {
 				if (sample.isIrSpot()) {
 					g.setColor(new Color(1.0f, 0.0f, 0.0f, ir));
 					if (ir >= 1.0f) {
-						drawMeasurementLine(g, sample.getRobot(), sample.getIrSpot());
+						drawMeasurementLine(g, sample.getRobot().getPosition(), sample.getIrSpot());
 					} else {
-						drawMeasurementLine(g, sample.getRobot(), sample.getIrSpot(), false);
+						drawMeasurementLine(g, sample.getRobot().getPosition(), sample.getIrSpot(), false);
 					}
 					drawPoint(g, sample.getIrSpot());
 					ir *= 0.8f;
@@ -122,8 +123,8 @@ public class VisualizerPanel extends JPanel implements Observer {
 					float angle = sample.getHeading() + sample.getIrDirection() - (float) Math.PI * 0.5f;
 					float dx = (float) Math.cos(angle) * 250.0f;
 					float dy = (float) Math.sin(angle) * 250.0f;
-					Float away = new Float(sample.getRobot().x + dx, sample.getRobot().y + dy);
-					drawMeasurementLine(g, sample.getRobot(), away, false);
+					Float away = new Float(sample.getRobot().getPosition().x + dx, sample.getRobot().getPosition().y + dy);
+					drawMeasurementLine(g, sample.getRobot().getPosition(), away, false);
 					g2.setStroke(stroke);
 				}
 			}
@@ -141,12 +142,12 @@ public class VisualizerPanel extends JPanel implements Observer {
 				Spot spot = sample.getSrSpot();
 				g.setColor(new Color(0.0f, 0.6f, 0.6f, sr));
 				if (sr >= 1.0f) {
-					drawMeasurementLine(g, sample.getRobot(), spot);
+					drawMeasurementLine(g, sample.getRobot().getPosition(), spot);
 					// g.setColor(new Color(0.0f, 0.6f, 0.6f, 0.05f));
-					drawSector(g, robot.position, spot, sonarWidth);
+					drawSector(g, robot.getPosition(), spot, sonarWidth);
 				} else {
 					// g.setColor(new Color(0.0f, 0.6f, 0.6f, 0.05f));
-					drawSector(g, robot.position, spot, sonarWidth);
+					drawSector(g, robot.getPosition(), spot, sonarWidth);
 				}
 				g.setColor(new Color(0.0f, 0.6f, 0.6f, sr));
 				drawPoint(g, sample.getIrSpot());
@@ -158,7 +159,7 @@ public class VisualizerPanel extends JPanel implements Observer {
 	private void drawRobot(Graphics2D g2) {
 		Robot robot = worldModel.getRobot();
 		g2.setColor(Color.gray);
-		Float robotScreen = toScreen(robot.position);
+		Float robotScreen = toScreen(robot.getPosition());
 		float widthScreen = toScreen(11.0f);
 		float heightScreen = toScreen(20.0f);
 		float turretScreen = toScreen(5.4f);
@@ -180,7 +181,7 @@ public class VisualizerPanel extends JPanel implements Observer {
 	private void drawArrow(Graphics2D g2) {
 		Robot robot = worldModel.getRobot();
 		g2.setColor(Color.black);
-		Float robotScreen = toScreen(robot.position);
+		Float robotScreen = toScreen(robot.getPosition());
 		Path2D.Float p = new Path2D.Float();
 		p.moveTo(0, 0);
 		p.lineTo(0, toScreen(-30.0f));
