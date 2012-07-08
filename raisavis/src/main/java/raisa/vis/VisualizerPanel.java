@@ -69,7 +69,7 @@ public class VisualizerPanel extends JPanel implements Observer {
 			latestIR = WorldModel.takeLast(latestIR, 10);
 		}
 		if (sample.data.containsKey("sr") && sample.data.containsKey("sd")) {
-			grid.addSpot(sample.getSrSpot());
+			//grid.addSpot(sample.getSrSpot());
 			latestSR.add(sample);
 			latestSR = WorldModel.takeLast(latestSR, 10);
 		}

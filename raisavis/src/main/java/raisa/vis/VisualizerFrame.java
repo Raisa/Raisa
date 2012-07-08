@@ -147,7 +147,7 @@ public class VisualizerFrame extends JFrame {
 				visualizer.zoomOut();
 			}
 		});
-		visualizer.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke('-'), CLEAR_HISTORY_ACTION_KEY);
+		visualizer.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke('c'), CLEAR_HISTORY_ACTION_KEY);
 		visualizer.getActionMap().put(CLEAR_HISTORY_ACTION_KEY, new AbstractAction() {
 			private static final long serialVersionUID = 1L;
 
@@ -156,7 +156,7 @@ public class VisualizerFrame extends JFrame {
 				visualizer.clear();
 			}
 		});
-		visualizer.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke('-'), LIMIT_HISTORY_ACTION_KEY);
+		visualizer.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke('h'), LIMIT_HISTORY_ACTION_KEY);
 		visualizer.getActionMap().put(LIMIT_HISTORY_ACTION_KEY, new AbstractAction() {
 			private static final long serialVersionUID = 1L;
 
