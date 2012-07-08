@@ -1,7 +1,9 @@
 package raisa.vis;
 
 import java.awt.Dimension;
+import java.awt.Graphics;
 import java.text.DecimalFormat;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Observable;
 import java.util.Observer;
@@ -21,7 +23,10 @@ public class MeasurementsPanel extends JPanel implements Observer {
 		TitledBorder border = new TitledBorder("Measurements");
 		setBorder(border);
 		setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
-		accelerationPanel = new AccelerationPanel();
+		this.setMinimumSize(new Dimension(200, 300));
+		this.setPreferredSize(new Dimension(200, 300));
+		this.setMaximumSize(new Dimension(200, 300));
+		accelerationPanel = new AccelerationPanel(worldModel);
 		this.add(accelerationPanel);
 		gyroscopePanel = new GyroscopePanel();
 		this.add(gyroscopePanel);		
@@ -38,41 +43,55 @@ public class MeasurementsPanel extends JPanel implements Observer {
 		private JLabel accXField;
 		private JLabel accYField;
 		private JLabel accZField;
-		
-		public AccelerationPanel() {
-			this.setMinimumSize(new Dimension(200,80));
-			this.setPreferredSize(new Dimension(200,80));
-			this.setMaximumSize(new Dimension(Short.MAX_VALUE, 80));
+		private AccelerationGraphPanel accXPanel;
+		private AccelerationGraphPanel accYPanel;
+		private AccelerationGraphPanel accZPanel;
+
+		public AccelerationPanel(WorldModel worldModel) {
+			this.setMinimumSize(new Dimension(190, 240));
+			this.setPreferredSize(new Dimension(190, 240));
+			this.setMaximumSize(new Dimension(190, 240));
 			TitledBorder border = new TitledBorder("Acceleration (m/s^2)");
 			setBorder(border);
 			setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
 			accXField = new JLabel("X: -");
+			accXField.setAlignmentX(LEFT_ALIGNMENT);
 			accYField = new JLabel("Y: -");
+			accYField.setAlignmentX(LEFT_ALIGNMENT);
 			accZField = new JLabel("Z: -");
+			accZField.setAlignmentX(LEFT_ALIGNMENT);
+			accXPanel = new AccelerationGraphPanel();
+			accXPanel.setAlignmentX(LEFT_ALIGNMENT);
+			accYPanel = new AccelerationGraphPanel();
+			accYPanel.setAlignmentX(LEFT_ALIGNMENT);
+			accZPanel = new AccelerationGraphPanel();	
+			accZPanel.setAlignmentX(LEFT_ALIGNMENT);
 			this.add(accXField);		
-			this.add(accYField);			
-			this.add(accZField);						
+			this.add(accXPanel);
+			this.add(accYField);	
+			this.add(accYPanel);	
+			this.add(accZField);
+			this.add(accZPanel);	
 		}
 			
 		public void update(WorldModel worldModel, Sample sample) {
-			float avgX = 0, avgY = 0, avgZ = 0;
-			List<Sample> samples = worldModel.getLastSamples(10);
-			DecimalFormat format = new DecimalFormat("0.00");			
-			
-			for (Sample s : samples) {
-				Vector3D a = s.getAcceleration();
-				avgX += a.getX();
-				avgY += a.getY();
-				avgZ += a.getZ();
-			}
-			avgX /= samples.size();
-			avgY /= samples.size();
-			avgZ /= samples.size();
-			
+			DecimalFormat format = new DecimalFormat("0.000");			
 			Vector3D acceleration = sample.getAcceleration();
-			accXField.setText("X: " + format.format(acceleration.getX()) + " (last), " + format.format(avgX) + " (avg 10)");
-			accYField.setText("Y: " + format.format(acceleration.getY()) + " (last), " + format.format(avgY) + " (avg 10)");
-			accZField.setText("Z: " + format.format(acceleration.getZ()) + " (last), " + format.format(avgZ) + " (avg 10)");
+			accXField.setText("X: " + format.format(acceleration.getX()));
+			accYField.setText("Y: " + format.format(acceleration.getY()));
+			accZField.setText("Z: " + format.format(acceleration.getZ()));
+			List<Sample> samples = worldModel.getLastSamples(120);
+			List<Float> samplesX = new LinkedList<Float>();
+			List<Float> samplesY = new LinkedList<Float>();
+			List<Float> samplesZ = new LinkedList<Float>();
+			for (Sample s : samples) {
+				samplesX.add(s.getAcceleration().getX());
+				samplesY.add(s.getAcceleration().getY());
+				samplesZ.add(s.getAcceleration().getZ());
+			}
+			accXPanel.setMeasurements(samplesX);
+			accYPanel.setMeasurements(samplesY);
+			accZPanel.setMeasurements(samplesZ);
 			repaint();
 		}
 		
@@ -86,9 +105,9 @@ public class MeasurementsPanel extends JPanel implements Observer {
 		private JLabel gyroZField;
 		
 		public GyroscopePanel() {
-			this.setMinimumSize(new Dimension(200,80));
-			this.setPreferredSize(new Dimension(200,80));
-			this.setMaximumSize(new Dimension(Short.MAX_VALUE, 80));
+			this.setMinimumSize(new Dimension(190,80));
+			this.setPreferredSize(new Dimension(190,80));
+			this.setMaximumSize(new Dimension(190, 80));
 			TitledBorder border = new TitledBorder("Gyroscope (dps)");
 			setBorder(border);
 			setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
@@ -111,5 +130,30 @@ public class MeasurementsPanel extends JPanel implements Observer {
 		
 	}
 	
+	class AccelerationGraphPanel extends JPanel {
+		
+		private List<Float> measurements = new LinkedList<Float>();
+		
+		public AccelerationGraphPanel() {
+			this.setPreferredSize(new Dimension(190, 50));
+			this.setMaximumSize(new Dimension(190, 50));
+		}
+		
+	    public Dimension getPreferredSize() {
+	        return new Dimension(190,50);
+	    }
+	    
+	    public void setMeasurements(List<Float> measurements) {
+	    	this.measurements = measurements;
+	    }
+
+	    protected void paintComponent(Graphics g) {
+	        super.paintComponent(g);   
+	        for (int i=0; i<measurements.size(); i++) {
+	        	g.drawLine(20 + i, 25, 20 + i, 25 + (int)(20 * measurements.get(i).floatValue()));
+	        }
+	    }  
+	    
+	}
 	
 }

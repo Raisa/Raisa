@@ -48,6 +48,10 @@ const int soundPin2 = 7;
 
 // compass and accelometer
 LSM303 compass;
+long accMeasurementSumX = 0;
+long accMeasurementSumY = 0;
+long accMeasurementSumZ = 0;
+short accMeasurementCount = 0;
 
 // Gyroscope
 L3G4200D gyro;
@@ -55,6 +59,7 @@ L3G4200D gyro;
 // dummy timer (no real interrupts)
 Timer t;
 int encoderEvent;
+int accelerationReadEvent;
 int readIncomingDataEvent;
 long timeMillisBefore;
 
@@ -90,11 +95,19 @@ void setup()
   
   encoderEvent = t.every(20, doEncoderRead);
   readIncomingDataEvent = t.every(20, readIncomingData);
+  accelerationReadEvent = t.every(5, doAccelerationRead);
   
   pinMode(blueLedPin, OUTPUT);
   digitalWrite(blueLedPin, HIGH);
   Serial.println("RaisaSweep starting");
 } 
+
+void doAccelerationRead() {
+  accMeasurementSumX += (long)compass.a.x;
+  accMeasurementSumY += (long)compass.a.y;
+  accMeasurementSumZ += (long)compass.a.z;
+  accMeasurementCount++;
+}
 
 void doEncoderRead() {
   //Min value is 400 and max value is 800, so state chance can be done at 600.
@@ -215,7 +228,8 @@ void sendFieldToServer(char * field, long value) {
   
 void sendDataToServer(int angle, long distanceUltraSonic, long distanceInfraRed, 
     long soundValue1, long soundValue2, long compassDirection, long timeSinceStart,
-    int tmpEncoderLeftCount, int tmpEncoderRightCount) {
+    int tmpEncoderLeftCount, int tmpEncoderRightCount,
+    long accelerationX, long accelerationY, long accelerationZ) {
   static long messageNumber = 0;
   Serial.print("STA;");
   sendFieldToServer("SR", angle);
@@ -232,9 +246,9 @@ void sendDataToServer(int angle, long distanceUltraSonic, long distanceInfraRed,
   sendFieldToServer("GX", (long)gyro.g.x);
   sendFieldToServer("GY", (long)gyro.g.y);
   sendFieldToServer("GZ", (long)gyro.g.z);
-  sendFieldToServer("AX", (long)compass.a.x);
-  sendFieldToServer("AY", (long)compass.a.y);
-  sendFieldToServer("AZ", (long)compass.a.z);
+  sendFieldToServer("AX", accelerationX);
+  sendFieldToServer("AY", accelerationY);
+  sendFieldToServer("AZ", accelerationZ);
   Serial.println("END;");  
 }
 
@@ -255,6 +269,14 @@ void scan(int angle, int scanDelay) {
   encoderLeftCount = 0;
   int tmpEncoderRightCount = encoderRightCount;
   encoderRightCount = 0;
+  
+  long tmpAccMeasurementX = accMeasurementSumX / accMeasurementCount;
+  long tmpAccMeasurementY = accMeasurementSumY / accMeasurementCount;
+  long tmpAccMeasurementZ = accMeasurementSumZ / accMeasurementCount;
+  accMeasurementSumX = 0;
+  accMeasurementSumY = 0;
+  accMeasurementSumZ = 0;
+  accMeasurementCount = 0;
 
   measureGyro();  
   t.update();
@@ -267,7 +289,8 @@ void scan(int angle, int scanDelay) {
   // organize code so that servo is turning while serial data is sent
   sendDataToServer(angle, distanceUltraSonic, distanceInfraRed, 
     soundValue1, soundValue2, compassDirection, millis(),
-    tmpEncoderLeftCount, tmpEncoderRightCount);
+    tmpEncoderLeftCount, tmpEncoderRightCount,
+    tmpAccMeasurementX, tmpAccMeasurementY, tmpAccMeasurementZ);
 }
 
 void loop() 
