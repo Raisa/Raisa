@@ -4,6 +4,7 @@ import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
+import java.awt.event.MouseAdapter;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -30,6 +31,9 @@ import raisa.comms.SampleParser;
 import raisa.comms.SerialCommunicator;
 import raisa.domain.Sample;
 import raisa.domain.WorldModel;
+import raisa.ui.tool.DrawTool;
+import raisa.ui.tool.MeasureTool;
+import raisa.ui.tool.Tool;
 
 public class VisualizerFrame extends JFrame {
 	private static final long serialVersionUID = 1L;
@@ -41,7 +45,7 @@ public class VisualizerFrame extends JFrame {
 	private MeasureTool measureTool = new MeasureTool();
 	
 	public VisualizerFrame(WorldModel worldModel) {
-		visualizer = new VisualizerPanel(worldModel);
+		visualizer = new VisualizerPanel(this, worldModel);
 		MeasurementsPanel measurementsPanel = new MeasurementsPanel(worldModel);
 		this.worldModel = worldModel;
 		JMenuBar menuBar = new JMenuBar();
@@ -429,5 +433,9 @@ public class VisualizerFrame extends JFrame {
 
 	public void selectedDrawTool() {
 		setCurrentTool(drawTool);
+	}
+
+	public Tool getCurrentTool() {
+		return currentTool;
 	}
 }

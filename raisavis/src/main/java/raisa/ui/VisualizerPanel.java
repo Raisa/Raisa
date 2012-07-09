@@ -41,6 +41,7 @@ public class VisualizerPanel extends JPanel implements Observer {
 	private Grid grid = new Grid();
 	private Stroke dashed;
 	private Stroke arrow;
+	private VisualizerFrame visualizerFrame;
 	private WorldModel worldModel;
 
 	public void reset() {
@@ -54,7 +55,8 @@ public class VisualizerPanel extends JPanel implements Observer {
 		grid = new Grid();
 	}
 
-	public VisualizerPanel(WorldModel worldModel) {
+	public VisualizerPanel(VisualizerFrame frame, WorldModel worldModel) {
+		this.visualizerFrame = frame;
 		this.worldModel = worldModel;
 		worldModel.addObserver(this);
 		setBackground(Color.gray);
@@ -345,6 +347,7 @@ public class VisualizerPanel extends JPanel implements Observer {
 		public void mouseMoved(MouseEvent mouseEvent) {
 			mouse.x = mouseEvent.getX();
 			mouse.y = mouseEvent.getY();
+			visualizerFrame.getCurrentTool().mouseMoved(mouseEvent, mouse);
 			repaint();
 		}
 
@@ -356,6 +359,7 @@ public class VisualizerPanel extends JPanel implements Observer {
 			camera.y += (mouseDragStart.y - mouse.y) / scale;
 			mouseDragStart.x = mouse.x;
 			mouseDragStart.y = mouse.y;
+			visualizerFrame.getCurrentTool().mouseDragged(mouseEvent, mouseDragStart, mouse);
 			repaint();
 		}
 	}
@@ -375,7 +379,15 @@ public class VisualizerPanel extends JPanel implements Observer {
 		@Override
 		public void mousePressed(MouseEvent mouseEvent) {
 			mouseDragStart.x = mouseEvent.getX();
-			mouseDragStart.y = mouseEvent.getY();
+			mouseDragStart.y = mouseEvent.getY();			
+			visualizerFrame.getCurrentTool().mousePressed(mouseEvent, mouseDragStart);
+		}
+
+		@Override
+		public void mouseReleased(MouseEvent mouseEvent) {
+			mouseDragStart.x = mouseEvent.getX();
+			mouseDragStart.y = mouseEvent.getY();			
+			visualizerFrame.getCurrentTool().mouseReleased(mouseEvent, mouseDragStart);
 		}
 	}
 
