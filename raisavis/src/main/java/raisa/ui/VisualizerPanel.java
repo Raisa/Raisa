@@ -355,8 +355,8 @@ public class VisualizerPanel extends JPanel implements Observer {
 		public void mouseDragged(MouseEvent mouseEvent) {
 			mouse.x = mouseEvent.getX();
 			mouse.y = mouseEvent.getY();
-			camera.x += (mouseDragStart.x - mouse.x) / scale;
-			camera.y += (mouseDragStart.y - mouse.y) / scale;
+			//camera.x += (mouseDragStart.x - mouse.x) / scale;
+			//camera.y += (mouseDragStart.y - mouse.y) / scale;
 			mouseDragStart.x = mouse.x;
 			mouseDragStart.y = mouse.y;
 			visualizerFrame.getCurrentTool().mouseDragged(mouseEvent, mouseDragStart, mouse);
