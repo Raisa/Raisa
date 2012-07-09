@@ -36,6 +36,7 @@ public class VisualizerPanel extends JPanel implements Observer {
 	private Float mouse = new Float();
 	private Float mouseDownPosition = new Float();
 	private Float mouseDragStart = new Float();
+	private boolean mouseDragging = false;
 	private float scale = 1.0f;
 	private List<Sample> latestIR = new ArrayList<Sample>();
 	private List<Sample> latestSR = new ArrayList<Sample>();
@@ -97,6 +98,9 @@ public class VisualizerPanel extends JPanel implements Observer {
 		drawArrow(g2);
 		drawUltrasoundResults(g);
 		drawIrResults(g, g2);
+		if (mouseDragging) {
+			drawMeasurementLine(g2, toWorld(new Vector2D(mouseDownPosition)), toWorld(new Vector2D(mouse)));
+		}
 	}
 
 	private void drawRobotTrail(Graphics2D g2, List<Robot> states) {
@@ -384,7 +388,8 @@ public class VisualizerPanel extends JPanel implements Observer {
 			mouseDragStart.x = mouseEvent.getX();
 			mouseDragStart.y = mouseEvent.getY();			
 			mouseDownPosition.x = mouseEvent.getX();
-			mouseDownPosition.y = mouseEvent.getY();			
+			mouseDownPosition.y = mouseEvent.getY();
+			mouseDragging = true;
 			visualizerFrame.getCurrentTool().mousePressed(mouseEvent, mouseDragStart);
 		}
 
@@ -392,6 +397,7 @@ public class VisualizerPanel extends JPanel implements Observer {
 		public void mouseReleased(MouseEvent mouseEvent) {
 			mouse.x = mouseEvent.getX();
 			mouse.y = mouseEvent.getY();
+			mouseDragging = false;
 			visualizerFrame.getCurrentTool().mouseReleased(mouseEvent, mouseDownPosition, mouse);
 		}
 	}
