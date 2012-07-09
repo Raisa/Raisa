@@ -495,4 +495,12 @@ public class VisualizerFrame extends JFrame {
 	public boolean isUserEditRedoable() {
 		return visualizerPanel.isUserEditRedoable();
 	}
+
+	public int getUserUndoLevels() {
+		return visualizerPanel.getUserUndoLevels();
+	}
+
+	public int getUserRedoLevels() {
+		return visualizerPanel.getUserRedoLevels();
+	}
 }

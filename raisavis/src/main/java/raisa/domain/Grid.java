@@ -17,11 +17,12 @@ public class Grid {
 	private static final Color clearColor = Color.white;
 
 	private BufferedImage blockedImage = new BufferedImage(GRID_SIZE, GRID_SIZE, BufferedImage.TYPE_INT_ARGB);
-	private BufferedImage userImage = new BufferedImage(GRID_SIZE, GRID_SIZE, BufferedImage.TYPE_INT_ARGB);
 	private List<BufferedImage> userUndoLevels = new ArrayList<BufferedImage>();
 	private int userUndoLevel = 0;
 
 	public Grid() {
+		BufferedImage userImage = new BufferedImage(GRID_SIZE, GRID_SIZE, BufferedImage.TYPE_INT_ARGB);
+		userUndoLevels.add(userImage);
 		for (int y = 0; y < GRID_SIZE; ++y) {
 			for (int x = 0; x < GRID_SIZE; ++x) {
 				blockedImage.setRGB(x, y, transparentColor.getRGB());
@@ -41,7 +42,11 @@ public class Grid {
 		int x = Math.round(position.x / CELL_SIZE) + GRID_SIZE / 2;
 		int y = Math.round(position.y / CELL_SIZE) + GRID_SIZE / 2;
 		int rgb1 = (isBlocked ? blockedColor : clearColor).getRGB();
-		this.userImage.setRGB(x, y, rgb1);
+		getLatestUserImage().setRGB(x, y, rgb1);
+	}
+
+	private BufferedImage getLatestUserImage() {
+		return this.userUndoLevels.get(userUndoLevels.size()-1);
 	}
 
 	public BufferedImage getBlockedImage() {
@@ -49,28 +54,26 @@ public class Grid {
 	}
 
 	public BufferedImage getUserImage() {
-		return userImage;
+		return userUndoLevels.get(userUndoLevel);
 	}
 
 	public void pushUserUndoLevel() {
-		BufferedImage copy = new BufferedImage(userImage.getWidth(), userImage.getHeight(), userImage.getType());
-		copy.setData(userImage.getData());
+		BufferedImage copy = new BufferedImage(getLatestUserImage().getWidth(), getLatestUserImage().getHeight(), getLatestUserImage().getType());
+		copy.setData(getLatestUserImage().getData());
 		userUndoLevels.add(copy);
-		userUndoLevels = CollectionUtil.takeLast(userUndoLevels, MAX_UNDO_LEVELS);
+		userUndoLevels = CollectionUtil.takeLast(userUndoLevels, MAX_UNDO_LEVELS + 1);
 		userUndoLevel = userUndoLevels.size() - 1;
 	}
 
 	public void redoUserUndoLevel() {
 		if (isUserEditRedoable()) {
 			++userUndoLevel;
-			userImage = userUndoLevels.get(userUndoLevel);
 		}
 	}
 
 	public void popUserUndoLevel() {
 		if (isUserEditUndoable()) {
 			--userUndoLevel;
-			userImage = userUndoLevels.get(userUndoLevel);
 		}
 	}
 	
@@ -80,5 +83,13 @@ public class Grid {
 	
 	public boolean isUserEditRedoable() {
 		return userUndoLevel < userUndoLevels.size() - 1;		
+	}
+
+	public int getUserUndoLevels() {
+		return userUndoLevel;
+	}
+
+	public int getUserRedoLevels() {
+		return userUndoLevels.size() - userUndoLevel - 1;
 	}
 }

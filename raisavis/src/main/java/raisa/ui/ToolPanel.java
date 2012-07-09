@@ -65,10 +65,16 @@ public class ToolPanel extends JPanel {
 		frame.addUserEditUndoListener(new UserEditUndoListener() {
 			@Override
 			public void usedEditUndoAction() {
-				undo.setEnabled(frame.isUserEditUndoable());
-				redo.setEnabled(frame.isUserEditRedoable());
+				updateUndoRedo(frame, undo, redo);
 			}
 		});
+		updateUndoRedo(frame, undo, redo);
 	}
 
+	private void updateUndoRedo(final VisualizerFrame frame, final JButton undo, final JButton redo) {
+		undo.setEnabled(frame.isUserEditUndoable());
+		undo.setText("Undo (" +frame.getUserUndoLevels() + ")");
+		redo.setEnabled(frame.isUserEditRedoable());
+		redo.setText("Redo (" + frame.getUserRedoLevels() + ")");
+	}
 }

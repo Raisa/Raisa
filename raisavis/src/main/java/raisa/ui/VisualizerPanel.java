@@ -459,4 +459,12 @@ public class VisualizerPanel extends JPanel implements Observer {
 	public boolean isUserEditRedoable() {
 		return grid.isUserEditRedoable();
 	}
+
+	public int getUserUndoLevels() {
+		return grid.getUserUndoLevels();
+	}
+
+	public int getUserRedoLevels() {
+		return grid.getUserRedoLevels();
+	}
 }
