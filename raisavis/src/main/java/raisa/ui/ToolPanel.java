@@ -49,6 +49,7 @@ public class ToolPanel extends JPanel {
 			@Override
 			public void actionPerformed(ActionEvent event) {
 				frame.popUserEditUndoLevel();
+				frame.repaint();
 			}			
 		});
 		undoRedo.add(undo);
@@ -58,6 +59,7 @@ public class ToolPanel extends JPanel {
 			@Override
 			public void actionPerformed(ActionEvent event) {
 				frame.redoUserEditUndoLevel();
+				frame.repaint();
 			}			
 		});
 		undoRedo.add(redo);
