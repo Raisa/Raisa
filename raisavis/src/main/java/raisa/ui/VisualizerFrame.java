@@ -36,6 +36,9 @@ public class VisualizerFrame extends JFrame {
 	private VisualizerPanel visualizer;
 	private File defaultDirectory = null;
 	private final WorldModel worldModel;
+	private Tool currentTool;
+	private DrawTool drawTool = new DrawTool();
+	private MeasureTool measureTool = new MeasureTool();
 	
 	public VisualizerFrame(WorldModel worldModel) {
 		visualizer = new VisualizerPanel(worldModel);
@@ -124,7 +127,10 @@ public class VisualizerFrame extends JFrame {
 
 		final BasicController controller = new BasicController(communicator);
 		
-		ControlPanel controlPanel = new ControlPanel(visualizer, controller, communicator);
+		DrawTool drawTool = new DrawTool();
+		setCurrentTool(drawTool);
+		
+		ControlPanel controlPanel = new ControlPanel(this, visualizer, controller, communicator);
 		
 		int nextFreeActionKey = 0;
 		final int ZOOM_IN_ACTION_KEY = ++nextFreeActionKey;
@@ -233,6 +239,7 @@ public class VisualizerFrame extends JFrame {
 				controller.sendLights();
 			}
 		});
+		
 
 		updateTitle();
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -244,6 +251,10 @@ public class VisualizerFrame extends JFrame {
 		setVisible(true);
 		setLocationRelativeTo(null);
 		setExtendedState(JFrame.MAXIMIZED_BOTH);
+	}
+
+	private void setCurrentTool(Tool tool) {
+		this.currentTool = tool;
 	}
 
 	public void save(String fileName) {
@@ -410,5 +421,13 @@ public class VisualizerFrame extends JFrame {
 	
 	private void updateTitle() {
 		setTitle("Raisa Visualizer - " + Math.round(visualizer.getScale() * 100.0f) + "%"); 		
+	}
+	
+	public void selectedMeasureTool() {
+		setCurrentTool(measureTool);
+	}
+
+	public void selectedDrawTool() {
+		setCurrentTool(drawTool);
 	}
 }

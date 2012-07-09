@@ -6,8 +6,8 @@ import java.awt.image.BufferedImage;
 import raisa.util.Vector2D;
 
 public class Grid {
-	public static final int CELL_SIZE = 16;
-	public static final int GRID_SIZE = 200;
+	public static final int CELL_SIZE = 8;
+	public static final int GRID_SIZE = 400;
 	private BufferedImage blockedImage = new BufferedImage(GRID_SIZE, GRID_SIZE, BufferedImage.TYPE_INT_ARGB);
 	private static final Color transparentColor = new Color(1.0f, 0.0f, 1.0f, 0.0f);
 	private static final Color blockedColor = Color.black;
