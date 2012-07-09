@@ -37,15 +37,15 @@ import raisa.ui.tool.Tool;
 
 public class VisualizerFrame extends JFrame {
 	private static final long serialVersionUID = 1L;
-	private VisualizerPanel visualizer;
+	private VisualizerPanel visualizerPanel;
 	private File defaultDirectory = null;
 	private final WorldModel worldModel;
 	private Tool currentTool;
-	private DrawTool drawTool = new DrawTool();
-	private MeasureTool measureTool = new MeasureTool();
+	private DrawTool drawTool = new DrawTool(this);
+	private MeasureTool measureTool = new MeasureTool(this);
 	
 	public VisualizerFrame(WorldModel worldModel) {
-		visualizer = new VisualizerPanel(this, worldModel);
+		visualizerPanel = new VisualizerPanel(this, worldModel);
 		MeasurementsPanel measurementsPanel = new MeasurementsPanel(worldModel);
 		this.worldModel = worldModel;
 		JMenuBar menuBar = new JMenuBar();
@@ -107,7 +107,7 @@ public class VisualizerFrame extends JFrame {
 		zoomIn.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				visualizer.zoomIn();
+				visualizerPanel.zoomIn();
 				updateTitle();
 			}
 		});
@@ -116,7 +116,7 @@ public class VisualizerFrame extends JFrame {
 		zoomOut.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				visualizer.zoomOut();
+				visualizerPanel.zoomOut();
 				updateTitle();
 			}
 		});
@@ -131,10 +131,9 @@ public class VisualizerFrame extends JFrame {
 
 		final BasicController controller = new BasicController(communicator);
 		
-		DrawTool drawTool = new DrawTool();
 		setCurrentTool(drawTool);
 		
-		ControlPanel controlPanel = new ControlPanel(this, visualizer, controller, communicator);
+		ControlPanel controlPanel = new ControlPanel(this, visualizerPanel, controller, communicator);
 		
 		int nextFreeActionKey = 0;
 		final int ZOOM_IN_ACTION_KEY = ++nextFreeActionKey;
@@ -148,46 +147,46 @@ public class VisualizerFrame extends JFrame {
 		final int BACK_ACTION_KEY = ++nextFreeActionKey;
 		final int LIGHTS_ACTION_KEY = ++nextFreeActionKey;		
 		
-		visualizer.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke('+'), ZOOM_IN_ACTION_KEY);
-		visualizer.getActionMap().put(ZOOM_IN_ACTION_KEY, new AbstractAction() {
+		visualizerPanel.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke('+'), ZOOM_IN_ACTION_KEY);
+		visualizerPanel.getActionMap().put(ZOOM_IN_ACTION_KEY, new AbstractAction() {
 			private static final long serialVersionUID = 1L;
 
 			@Override
 			public void actionPerformed(ActionEvent event) {
-				visualizer.zoomIn();
+				visualizerPanel.zoomIn();
 				updateTitle();
 			}
 		});
-		visualizer.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke('-'), ZOOM_OUT_ACTION_KEY);
-		visualizer.getActionMap().put(ZOOM_OUT_ACTION_KEY, new AbstractAction() {
+		visualizerPanel.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke('-'), ZOOM_OUT_ACTION_KEY);
+		visualizerPanel.getActionMap().put(ZOOM_OUT_ACTION_KEY, new AbstractAction() {
 			private static final long serialVersionUID = 1L;
 
 			@Override
 			public void actionPerformed(ActionEvent event) {
-				visualizer.zoomOut();
+				visualizerPanel.zoomOut();
 				updateTitle();
 			}
 		});
-		visualizer.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke('c'), CLEAR_HISTORY_ACTION_KEY);
-		visualizer.getActionMap().put(CLEAR_HISTORY_ACTION_KEY, new AbstractAction() {
+		visualizerPanel.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke('c'), CLEAR_HISTORY_ACTION_KEY);
+		visualizerPanel.getActionMap().put(CLEAR_HISTORY_ACTION_KEY, new AbstractAction() {
 			private static final long serialVersionUID = 1L;
 
 			@Override
 			public void actionPerformed(ActionEvent event) {
-				visualizer.clear();
+				visualizerPanel.clear();
 			}
 		});
-		visualizer.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke('h'), LIMIT_HISTORY_ACTION_KEY);
-		visualizer.getActionMap().put(LIMIT_HISTORY_ACTION_KEY, new AbstractAction() {
+		visualizerPanel.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke('h'), LIMIT_HISTORY_ACTION_KEY);
+		visualizerPanel.getActionMap().put(LIMIT_HISTORY_ACTION_KEY, new AbstractAction() {
 			private static final long serialVersionUID = 1L;
 
 			@Override
 			public void actionPerformed(ActionEvent event) {
-				visualizer.removeOldSamples();
+				visualizerPanel.removeOldSamples();
 			}
 		});
-		visualizer.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_LEFT, 0), LEFT_ACTION_KEY);
-		visualizer.getActionMap().put(LEFT_ACTION_KEY, new AbstractAction() {
+		visualizerPanel.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_LEFT, 0), LEFT_ACTION_KEY);
+		visualizerPanel.getActionMap().put(LEFT_ACTION_KEY, new AbstractAction() {
 			private static final long serialVersionUID = 1L;
 
 			@Override
@@ -195,8 +194,8 @@ public class VisualizerFrame extends JFrame {
 				controller.sendLeft();
 			}
 		});
-		visualizer.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_RIGHT, 0), RIGHT_ACTION_KEY);
-		visualizer.getActionMap().put(RIGHT_ACTION_KEY, new AbstractAction() {
+		visualizerPanel.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_RIGHT, 0), RIGHT_ACTION_KEY);
+		visualizerPanel.getActionMap().put(RIGHT_ACTION_KEY, new AbstractAction() {
 			private static final long serialVersionUID = 1L;
 
 			@Override
@@ -204,8 +203,8 @@ public class VisualizerFrame extends JFrame {
 				controller.sendRight();
 			}
 		});
-		visualizer.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_SPACE, 0), STOP_ACTION_KEY);
-		visualizer.getActionMap().put(STOP_ACTION_KEY, new AbstractAction() {
+		visualizerPanel.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_SPACE, 0), STOP_ACTION_KEY);
+		visualizerPanel.getActionMap().put(STOP_ACTION_KEY, new AbstractAction() {
 			private static final long serialVersionUID = 1L;
 
 			@Override
@@ -214,8 +213,8 @@ public class VisualizerFrame extends JFrame {
 			}
 		});
 
-		visualizer.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_UP, 0), FORWARD_ACTION_KEY);
-		visualizer.getActionMap().put(FORWARD_ACTION_KEY, new AbstractAction() {
+		visualizerPanel.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_UP, 0), FORWARD_ACTION_KEY);
+		visualizerPanel.getActionMap().put(FORWARD_ACTION_KEY, new AbstractAction() {
 			private static final long serialVersionUID = 1L;
 
 			@Override
@@ -224,8 +223,8 @@ public class VisualizerFrame extends JFrame {
 			}
 		});
 
-		visualizer.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_DOWN, 0), BACK_ACTION_KEY);
-		visualizer.getActionMap().put(BACK_ACTION_KEY, new AbstractAction() {
+		visualizerPanel.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_DOWN, 0), BACK_ACTION_KEY);
+		visualizerPanel.getActionMap().put(BACK_ACTION_KEY, new AbstractAction() {
 			private static final long serialVersionUID = 1L;
 
 			@Override
@@ -234,8 +233,8 @@ public class VisualizerFrame extends JFrame {
 			}
 		});
 
-		visualizer.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke('l'), LIGHTS_ACTION_KEY);
-		visualizer.getActionMap().put(LIGHTS_ACTION_KEY, new AbstractAction() {
+		visualizerPanel.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke('l'), LIGHTS_ACTION_KEY);
+		visualizerPanel.getActionMap().put(LIGHTS_ACTION_KEY, new AbstractAction() {
 			private static final long serialVersionUID = 1L;
 
 			@Override
@@ -248,7 +247,7 @@ public class VisualizerFrame extends JFrame {
 		updateTitle();
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setSize(600, 400);
-		getContentPane().add(visualizer, BorderLayout.CENTER);
+		getContentPane().add(visualizerPanel, BorderLayout.CENTER);
 		getContentPane().add(controlPanel, BorderLayout.WEST);
 		getContentPane().add(measurementsPanel, BorderLayout.EAST);
 		setJMenuBar(menuBar);
@@ -363,7 +362,7 @@ public class VisualizerFrame extends JFrame {
 	}
 
 	public void reset() {
-		visualizer.reset();
+		visualizerPanel.reset();
 		updateTitle();
 	}
 
@@ -416,7 +415,7 @@ public class VisualizerFrame extends JFrame {
 	}
 
 	public VisualizerPanel getVisualizer() {
-		return visualizer;
+		return visualizerPanel;
 	}
 	
 	private void saveDefaultDirectory(String filename) {
@@ -424,7 +423,7 @@ public class VisualizerFrame extends JFrame {
 	}
 	
 	private void updateTitle() {
-		setTitle("Raisa Visualizer - " + Math.round(visualizer.getScale() * 100.0f) + "%"); 		
+		setTitle("Raisa Visualizer - " + Math.round(visualizerPanel.getScale() * 100.0f) + "%"); 		
 	}
 	
 	public void selectedMeasureTool() {
@@ -437,5 +436,13 @@ public class VisualizerFrame extends JFrame {
 
 	public Tool getCurrentTool() {
 		return currentTool;
+	}
+
+	public float getScale() {
+		return visualizerPanel.getScale();
+	}
+
+	public void panCameraBy(float dx, float dy) {
+		visualizerPanel.panCameraBy(dx, dy);
 	}
 }

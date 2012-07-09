@@ -355,11 +355,9 @@ public class VisualizerPanel extends JPanel implements Observer {
 		public void mouseDragged(MouseEvent mouseEvent) {
 			mouse.x = mouseEvent.getX();
 			mouse.y = mouseEvent.getY();
-			//camera.x += (mouseDragStart.x - mouse.x) / scale;
-			//camera.y += (mouseDragStart.y - mouse.y) / scale;
+			visualizerFrame.getCurrentTool().mouseDragged(mouseEvent, mouseDragStart, mouse);
 			mouseDragStart.x = mouse.x;
 			mouseDragStart.y = mouse.y;
-			visualizerFrame.getCurrentTool().mouseDragged(mouseEvent, mouseDragStart, mouse);
 			repaint();
 		}
 	}
@@ -385,9 +383,9 @@ public class VisualizerPanel extends JPanel implements Observer {
 
 		@Override
 		public void mouseReleased(MouseEvent mouseEvent) {
-			mouseDragStart.x = mouseEvent.getX();
-			mouseDragStart.y = mouseEvent.getY();			
-			visualizerFrame.getCurrentTool().mouseReleased(mouseEvent, mouseDragStart);
+			mouse.x = mouseEvent.getX();
+			mouse.y = mouseEvent.getY();
+			visualizerFrame.getCurrentTool().mouseReleased(mouseEvent, mouse);
 		}
 	}
 
@@ -413,5 +411,10 @@ public class VisualizerPanel extends JPanel implements Observer {
 
 	public float getScale() {
 		return scale;
+	}
+
+	public void panCameraBy(float dx, float dy) {
+		camera.x += dx;
+		camera.y += dy;
 	}
 }
