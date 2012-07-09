@@ -10,7 +10,6 @@ import java.io.InputStream;
 import java.util.Enumeration;
 import java.util.Scanner;
 
-import raisa.domain.Sample;
 import raisa.domain.WorldModel;
 
 public class SerialCommunicator implements SerialPortEventListener, Communicator {
@@ -103,9 +102,10 @@ public class SerialCommunicator implements SerialPortEventListener, Communicator
 			try {
 				Scanner scanner = new Scanner(input).useDelimiter("\n");
 				String line = scanner.next();
+				SampleParser parser = new SampleParser();
 				while (line!=null) {
 					System.out.println(new String(line));							
-					if (!Sample.isValid(line)) {
+					if (!parser.isValid(line)) {
 						System.out.println("Invalid sample!");
 					} else {
 						this.worldModel.addSample(line);

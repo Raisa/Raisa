@@ -12,7 +12,6 @@ import java.awt.event.MouseEvent;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Path2D;
 import java.awt.geom.Point2D.Float;
-import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -25,6 +24,7 @@ import raisa.domain.Grid;
 import raisa.domain.Robot;
 import raisa.domain.Sample;
 import raisa.domain.WorldModel;
+import raisa.util.GeometryUtil;
 import raisa.util.Vector2D;
 
 public class VisualizerPanel extends JPanel implements Observer {
@@ -67,14 +67,13 @@ public class VisualizerPanel extends JPanel implements Observer {
 
 	public void update(Observable model, Object s) {
 		Sample sample = (Sample)s;
-		if (sample.data.containsKey("ir")) {
-			if (sample.isIrSpot()) {
-				grid.addSpot(sample.getIrSpot());
-			}
+		if (sample.isInfrared1MeasurementValid()) {
+			Vector2D spotPosition = GeometryUtil.calculatePosition(worldModel.getRobot().getPosition(), worldModel.getRobot().getHeading() + sample.getInfrared1Angle(), sample.getInfrared1Distance());
+			grid.setPosition(spotPosition, true);
 			latestIR.add(sample);
 			latestIR = WorldModel.takeLast(latestIR, 10);
 		}
-		if (sample.data.containsKey("sr") && sample.data.containsKey("sd")) {
+		if (sample.isUltrasound1MeasurementValid()) {
 			//grid.addSpot(sample.getSrSpot());
 			latestSR.add(sample);
 			latestSR = WorldModel.takeLast(latestSR, 10);
@@ -87,11 +86,29 @@ public class VisualizerPanel extends JPanel implements Observer {
 		Graphics2D g2 = (Graphics2D) g;
 		clearScreen(g);
 		drawGrid(g2);
+		drawRobotTrail(g2, worldModel.getStates());
 		drawRobot(g2);
 		drawArrow(g2);
 		drawMeasurementLine(g, robot.getPosition(), toWorld(mouse));
 		drawUltrasoundResults(g);
 		drawIrResults(g, g2);
+	}
+
+	private void drawRobotTrail(Graphics2D g2, List<Robot> states) {
+		g2.setColor(Color.gray);
+		Robot lastState = null;
+		for (Robot state : states) {
+			if (lastState != null) {
+				drawLine(g2, lastState.getPosition(), state.getPosition());
+			}
+			lastState = state;
+		}
+	}
+
+	private void drawLine(Graphics2D g2, Float from, Float to) {
+		Float screenFrom = toScreen(from);
+		Float screenTo = toScreen(to);
+		g2.drawLine((int)screenFrom.x, (int)screenFrom.y, (int)screenTo.x, (int)screenTo.y);
 	}
 
 	private void clearScreen(Graphics g) {
@@ -101,10 +118,10 @@ public class VisualizerPanel extends JPanel implements Observer {
 	}
 
 	private void drawGrid(Graphics2D g2) {
-		int screenWidth = getBounds().width;
-		int screenHeight = getBounds().height;
-		Float tl = new Float(camera.x - screenWidth * 0.5f / scale, camera.y - screenHeight * 0.5f / scale);
-		grid.draw(g2, new Rectangle2D.Float(tl.x * scale, tl.y * scale, screenWidth * scale, screenHeight * scale), this);
+		float size = Grid.GRID_SIZE * Grid.CELL_SIZE;
+		Float screen = toScreen(new Float(- size * 0.5f, - size * 0.5f));
+		int screenSize = (int)toScreen(size);
+		g2.drawImage(grid.getBlockedImage(), (int)screen.x, (int)screen.y, screenSize, screenSize, null);
 	}
 	
 	private void drawIrResults(Graphics g, Graphics2D g2) {
@@ -113,24 +130,27 @@ public class VisualizerPanel extends JPanel implements Observer {
 			Collections.reverse(irs);
 			float ir = 1.0f;
 			for (Sample sample : irs) {
-				if (sample.isIrSpot()) {
+				Robot robot = worldModel.getRobot();
+				if (sample.isInfrared1MeasurementValid()) {
 					g.setColor(new Color(1.0f, 0.0f, 0.0f, ir));
+					Float spot = GeometryUtil.calculatePosition(robot.getPosition(), robot.getHeading() + sample.getInfrared1Angle(), sample.getInfrared1Distance());
 					if (ir >= 1.0f) {
-						drawMeasurementLine(g, sample.getRobot().getPosition(), sample.getIrSpot());
+						drawMeasurementLine(g, robot.getPosition(), spot);
 					} else {
-						drawMeasurementLine(g, sample.getRobot().getPosition(), sample.getIrSpot(), false);
+						drawMeasurementLine(g, robot.getPosition(), spot, false);
 					}
-					drawPoint(g, sample.getIrSpot());
+					drawPoint(g, spot);
 					ir *= 0.8f;
 				} else {
 					g.setColor(new Color(1.0f, 0.0f, 0.0f, ir));
 					Stroke stroke = g2.getStroke();
 					g2.setStroke(dashed);
-					float angle = sample.getHeading() + sample.getIrDirection() - (float) Math.PI * 0.5f;
+					float angle = robot.getHeading() + sample.getInfrared1Angle() - (float) Math.PI * 0.5f;
 					float dx = (float) Math.cos(angle) * 250.0f;
 					float dy = (float) Math.sin(angle) * 250.0f;
-					Float away = new Float(sample.getRobot().getPosition().x + dx, sample.getRobot().getPosition().y + dy);
-					drawMeasurementLine(g, sample.getRobot().getPosition(), away, false);
+					Float position = robot.getPosition();
+					Float away = new Float(position.x + dx, position.y + dy);
+					drawMeasurementLine(g, position, away, false);
 					g2.setStroke(stroke);
 				}
 			}
@@ -144,19 +164,20 @@ public class VisualizerPanel extends JPanel implements Observer {
 			List<Sample> srs = new ArrayList<Sample>(latestSR);
 			Collections.reverse(srs);
 			float sr = 1.0f;
+			Float position = robot.getPosition();
 			for (Sample sample : srs) {
-				Vector2D spot = sample.getSrSpot();
+				Vector2D spot = GeometryUtil.calculatePosition(position, robot.getHeading() + sample.getUltrasound1Angle(), sample.getUltrasound1Distance());
 				g.setColor(new Color(0.0f, 0.6f, 0.6f, sr));
 				if (sr >= 1.0f) {
-					drawMeasurementLine(g, sample.getRobot().getPosition(), spot);
+					drawMeasurementLine(g, position, spot);
 					// g.setColor(new Color(0.0f, 0.6f, 0.6f, 0.05f));
-					drawSector(g, robot.getPosition(), spot, sonarWidth);
+					drawSector(g, position, spot, sonarWidth);
 				} else {
 					// g.setColor(new Color(0.0f, 0.6f, 0.6f, 0.05f));
-					drawSector(g, robot.getPosition(), spot, sonarWidth);
+					drawSector(g, position, spot, sonarWidth);
 				}
 				g.setColor(new Color(0.0f, 0.6f, 0.6f, sr));
-				drawPoint(g, sample.getIrSpot());
+				drawPoint(g, spot);
 				sr *= 0.8f;
 			}
 		}
@@ -346,5 +367,9 @@ public class VisualizerPanel extends JPanel implements Observer {
 	public void removeOldSamples() {
 		worldModel.removeOldSamples(1000);
 		repaint();
+	}
+
+	public float getScale() {
+		return scale;
 	}
 }

@@ -2,9 +2,8 @@ package raisa;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.awt.geom.Point2D.Float;
 
-import raisa.domain.Robot;
+import raisa.comms.SampleParser;
 import raisa.domain.Sample;
 import raisa.domain.WorldModel;
 import raisa.test.ExampleWorld1;
@@ -34,9 +33,8 @@ public class Visualizer {
 					angleDegrees = 0.0f - angleDegrees;
 				}
 				float angle = (float)Math.toRadians(angleDegrees);
-				Robot r = new Robot(heading, new Float(x, y));
-				Sample s = new Sample(world.sample(x, y, heading, angle));
-				s.setRobot(r);
+				//Robot r = new Robot(heading, new Float(x, y));
+				Sample s = new SampleParser().parse(world.sample(x, y, heading, angle));
 				samples.add(s);
 			}
 		}

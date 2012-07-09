@@ -26,6 +26,7 @@ import javax.swing.KeyStroke;
 import raisa.comms.BasicController;
 import raisa.comms.ConsoleCommunicator;
 import raisa.comms.FailoverCommunicator;
+import raisa.comms.SampleParser;
 import raisa.comms.SerialCommunicator;
 import raisa.domain.Sample;
 import raisa.domain.WorldModel;
@@ -37,7 +38,6 @@ public class VisualizerFrame extends JFrame {
 	private final WorldModel worldModel;
 	
 	public VisualizerFrame(WorldModel worldModel) {
-		super("Raisa Visualizer");
 		visualizer = new VisualizerPanel(worldModel);
 		MeasurementsPanel measurementsPanel = new MeasurementsPanel(worldModel);
 		this.worldModel = worldModel;
@@ -101,6 +101,7 @@ public class VisualizerFrame extends JFrame {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				visualizer.zoomIn();
+				updateTitle();
 			}
 		});
 		zoomIn.setMnemonic('i');
@@ -109,6 +110,7 @@ public class VisualizerFrame extends JFrame {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				visualizer.zoomOut();
+				updateTitle();
 			}
 		});
 		zoomOut.setMnemonic('o');
@@ -143,6 +145,7 @@ public class VisualizerFrame extends JFrame {
 			@Override
 			public void actionPerformed(ActionEvent event) {
 				visualizer.zoomIn();
+				updateTitle();
 			}
 		});
 		visualizer.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke('-'), ZOOM_OUT_ACTION_KEY);
@@ -152,6 +155,7 @@ public class VisualizerFrame extends JFrame {
 			@Override
 			public void actionPerformed(ActionEvent event) {
 				visualizer.zoomOut();
+				updateTitle();
 			}
 		});
 		visualizer.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke('c'), CLEAR_HISTORY_ACTION_KEY);
@@ -230,6 +234,7 @@ public class VisualizerFrame extends JFrame {
 			}
 		});
 
+		updateTitle();
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setSize(600, 400);
 		getContentPane().add(visualizer, BorderLayout.CENTER);
@@ -319,7 +324,7 @@ public class VisualizerFrame extends JFrame {
 	private void internalSave(String fileName) throws Exception {
 		BufferedWriter writer = new BufferedWriter(new FileWriter(fileName));
 		for (Sample sample : worldModel.getSamples()) {
-			writer.write(sample.sampleString);
+			writer.write(sample.getSampleString());
 			writer.newLine();
 		}
 		writer.close();
@@ -329,8 +334,9 @@ public class VisualizerFrame extends JFrame {
 		BufferedReader fr = new BufferedReader(new FileReader(fileName));
 		List<String> sampleStrings = new ArrayList<String>();
 		String line = fr.readLine();
+		SampleParser parser = new SampleParser();
 		while (line != null) {
-			if (!Sample.isValid(line)) {
+			if (!parser.isValid(line)) {
 				System.out.println("Invalid sample! \"" + line + "\"");
 			} else {
 				sampleStrings.add(line);
@@ -343,6 +349,7 @@ public class VisualizerFrame extends JFrame {
 
 	public void reset() {
 		visualizer.reset();
+		updateTitle();
 	}
 
 	public void exit() {
@@ -399,5 +406,9 @@ public class VisualizerFrame extends JFrame {
 	
 	private void saveDefaultDirectory(String filename) {
 		defaultDirectory = new File(filename).getParentFile();
+	}
+	
+	private void updateTitle() {
+		setTitle("Raisa Visualizer - " + Math.round(visualizer.getScale() * 100.0f) + "%"); 		
 	}
 }

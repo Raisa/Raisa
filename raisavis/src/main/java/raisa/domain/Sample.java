@@ -1,164 +1,141 @@
 package raisa.domain;
 
-import java.util.HashMap;
-import java.util.Map;
-
-import org.apache.commons.lang3.StringUtils;
-
-import raisa.util.Vector2D;
 import raisa.util.Vector3D;
 
+
 public class Sample {
-	public String sampleString;
-	public Map<String, Object> data = new HashMap<String, Object>();
-	private Robot robot;
-	private final static float G = 9.80665f;
-
-	public Sample(String sample) {
-		sampleString = sample;
-		if (!isValid(sample)) {
-			System.out.println("INVALID SAMPLE! \"" + sample + "\"");
-		} else {
-			String[] sampleParts = sample.split("[;]");
-			for (String part : sampleParts) {
-				String value = StringUtils.substring(part, 2);
-				if ("STA".equals(part)) {
-				} else if ("END".equals(part)) {
-				} else if (part.startsWith("IR")) {
-					float angle = (float) Math.toRadians(Integer.parseInt(value));
-					angle = angle - (float)Math.PI / 2.0f;
-					data.put("ir", angle);
-				} else if (part.startsWith("ID")) {
-					float irSensorValue = Integer.parseInt(value);
-					float distance = 10650.08f * (float)Math.pow(irSensorValue, -0.935f) - 10.0f; // cm
-					if (distance > 20.0f && distance < 150.0f) {
-						data.put("id", distance);
-					}
-				} else if (part.startsWith("SR")) {
-					float angle = (float) Math.toRadians(Integer.parseInt(value));
-					angle = angle - (float)Math.PI / 2.0f;
-					data.put("sr", angle);
-				} else if (part.startsWith("SD")) {
-					float srSensorValue = Integer.parseInt(value);
-					float distance = (srSensorValue / 2.0f) * 2.54f; // cm
-					if (distance > 15.0f && distance < 645.0f) {
-						data.put("sd", distance);
-					}
-				} else if (part.startsWith("CD")) {
-					float compass = (float) (Math.toRadians(Integer.parseInt(value)) - Math.PI * 0.5f);
-					data.put("cd", compass);
-					data.put("heading", compass);
-				} else if (part.startsWith("AX")) {
-					float accelerationX = (G * ((-Float.parseFloat(value)) - 24)) / 1000 ;
-					data.put("ax", accelerationX);
-				} else if (part.startsWith("AY")) {
-					float accelerationY = (G * ((Float.parseFloat(value) - 59))) / 1000;
-					data.put("az", accelerationY);
-				} else if (part.startsWith("AZ")) {
-					float accelerationZ = (G * ((-Float.parseFloat(value)) - 8)) / 1000;
-					data.put("ay", accelerationZ);
-				} else if (part.startsWith("GX")) {
-					float gyroX = Float.parseFloat(value);
-					data.put("gx", -gyroX / 1000);
-				} else if (part.startsWith("GY")) {
-					float gyroY = Float.parseFloat(value);
-					data.put("gz", gyroY / 1000);
-				} else if (part.startsWith("GZ")) {
-					float gyroZ = Float.parseFloat(value);
-					data.put("gy", -gyroZ / 1000);					
-				} else if (part.startsWith("RL")) {
-					float ticks = Float.parseFloat(value);
-					data.put("rl", ticks);
-				} else if (part.startsWith("RR")) {
-					float ticks = Float.parseFloat(value);
-					data.put("rr", ticks);
-				} else if (part.startsWith("SB")) {
-					float soundIntensity = Float.parseFloat(value);
-					data.put("sb", soundIntensity);
-				} else {
-				}
-			}
-		}
-	}
-
-	public boolean isIrSpot() {
-		return (data.containsKey("ir") && data.containsKey("id"));
-	}
-
-	public void setRobot(Robot robot) {
-		this.robot = robot;
-	}
+	private String sampleString;
+	private float infrared1Angle;
+	private float infrared1Distance;
+	private boolean infrared1MeasurementValid;
+	private float ultrasound1Angle;
+	private float ultrasound1Distance;
+	private boolean ultrasound1MeasurementValid;
+	private float compassDirection;
+	private Vector3D acceleration = new Vector3D();
+	private Vector3D gyro = new Vector3D();
+	private int leftTrackTicks;
+	private int rightTrackTicks;
+	private int soundIntensity;
 	
-	public Robot getRobot() {
-		return robot;
+	public String getSampleString() {
+		return sampleString;
 	}
+
+	public void setSampleString(String sampleString) {
+		this.sampleString = sampleString;
+	}
+
+	public boolean isUltrasound1MeasurementValid() {
+		return ultrasound1MeasurementValid;
+	}
+
+	public void setUltrasound1MeasurementValid(boolean ultrasound1MeasurementValid) {
+		this.ultrasound1MeasurementValid = ultrasound1MeasurementValid;
+	}
+
+	public void setInfrared1MeasurementValid(boolean infrared1MeasurementValid) {
+		this.infrared1MeasurementValid = infrared1MeasurementValid;
+	}
+
+	public void setInfrared1Angle(float angle) {
+		this.infrared1Angle = angle;
+	}
+
+	public void setInfrared1Distance(float distance) {
+		this.infrared1Distance = distance;
+	}
+
+	public void setUltrasound1Angle(float angle) {
+		this.ultrasound1Angle = angle;
+	}
+
+	public void setUltrasound1Distance(float distance) {
+		this.ultrasound1Distance = distance;
+	}
+
+	public void setCompassDirection(float angle) {
+		this.compassDirection = angle;
+	}
+
+	public void setAccelerationX(float accelerationX) {
+		acceleration.setX(accelerationX);
+	}
+
+	public void setAccelerationY(float accelerationY) {
+		acceleration.setY(accelerationY);
+	}
+
+	public void setAccelerationZ(float accelerationZ) {
+		acceleration.setZ(accelerationZ);
+	}
+
+	public void setGyroX(float f) {
+		gyro.setX(f);
+	}
+
+	public void setGyroY(float f) {
+		gyro.setY(f);
+	}
+
+	public void setGyroZ(float f) {
+		gyro.setZ(f);
+	}
+
+	public void setLeftTrackTicks(int ticks) {
+		leftTrackTicks = ticks;
+	}
+
+	public void setRightTrackTicks(int ticks) {
+		rightTrackTicks = ticks;
+	}
+
+	public void setSoundIntensity(int intensity) {
+		soundIntensity = intensity;
+	}	
 	
-	public float getHeading() {
-		return (Float) data.get("heading");
+	public float getInfrared1Angle() {
+		return infrared1Angle;
 	}
 
-	public Vector2D getIrSpot() {
-		float x = robot.getPosition().x;
-		float y = robot.getPosition().y;
-		float heading = (Float) data.get("heading");
-		float angle = 0.0f;
-		float distance = 0.0f;
-		if (data.containsKey("ir") && data.containsKey("id")) {
-			angle = (Float) data.get("ir");
-			distance = (Float) data.get("id");
-		}
-		angle += heading - (float)Math.PI * 0.5f;
-		Vector2D spot = new Vector2D(x + (float) Math.cos(angle) * distance, y + (float) Math.sin(angle) * distance);
-		return spot;
+	public float getInfrared1Distance() {
+		return infrared1Distance;
 	}
 
-	public Vector2D getSrSpot() {
-		float x = robot.getPosition().x;
-		float y = robot.getPosition().y;
-		float heading = robot.heading;
-		float angle = 0.0f;
-		float distance = 0.0f;
-		if (data.containsKey("sr")) {
-			angle = (Float) data.get("sr");
-			distance = (Float) data.get("sd");
-		}
-		angle += heading - (float)Math.PI * 0.5f;
-		Vector2D spot = new Vector2D(x + (float) Math.cos(angle) * distance, y + (float) Math.sin(angle) * distance);
-		return spot;
+	public float getUltrasound1Angle() {
+		return ultrasound1Angle;
 	}
 
-	public static boolean isValid(String sample) {
-		return sample.matches("STA;([A-Z]+[-]?[0-9]+;)*END;[\n\r]*");
+	public float getUltrasound1Distance() {
+		return ultrasound1Distance;
 	}
 
-	public float getIrDirection() {
-		return (Float) data.get("ir");
+	public float getCompassDirection() {
+		return compassDirection;
 	}
-	
+
 	public Vector3D getAcceleration() {
-		float x = (Float) (data.get("ax")==null?0.0f:data.get("ax"));
-		float y = (Float) (data.get("ay")==null?0.0f:data.get("ay"));
-		float z = (Float) (data.get("az")==null?0.0f:data.get("az"));
-		return new Vector3D(x, y, z);
+		return acceleration;
 	}
-	
-	public Vector3D getAngularAcceleration() {
-		float x = (Float) (data.get("gx")==null?0.0f:data.get("gx"));
-		float y = (Float) (data.get("gy")==null?0.0f:data.get("gy"));
-		float z = (Float) (data.get("gz")==null?0.0f:data.get("gz"));
-		return new Vector3D(x, y, z);
-	}	
-	
-	public float getLeftWheelTicks() {
-		return (Float) (data.get("rl")==null?0.0f:data.get("rl"));
-	}
-	
-	public float getRightWheelTicks() {
-		return (Float) (data.get("rr")==null?0.0f:data.get("rr"));
-	}	
 
-	public float getSoundIntensity() {
-		return (Float) (data.get("sb")==null?0.0f:data.get("sb"));
+	public Vector3D getGyro() {
+		return gyro;
+	}
+
+	public int getLeftTrackTicks() {
+		return leftTrackTicks;
+	}
+
+	public int getRightTrackTicks() {
+		return rightTrackTicks;
+	}
+
+	public boolean isInfrared1MeasurementValid() {
+		return infrared1MeasurementValid;
+	}
+
+	public int getSoundIntensity() {
+		return soundIntensity;
 	}		
 	
 }

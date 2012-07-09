@@ -129,7 +129,7 @@ public class MeasurementsPanel extends JPanel implements Observer {
 			
 		public void update(WorldModel worldModel, Sample sample) {
 			DecimalFormat format = new DecimalFormat("0.00");			
-			Vector3D angularAcceleration = sample.getAngularAcceleration();
+			Vector3D angularAcceleration = sample.getAcceleration();
 			gyroXField.setText("X: " + format.format(angularAcceleration.getX()));
 			gyroYField.setText("Y: " + format.format(angularAcceleration.getY()));
 			gyroZField.setText("Z: " + format.format(angularAcceleration.getZ()));	
@@ -165,7 +165,7 @@ public class MeasurementsPanel extends JPanel implements Observer {
 			List<Sample> samples = worldModel.getLastSamples(120);
 			List<Float> soundIntensities = new LinkedList<Float>();
 			for (Sample s : samples) {
-				soundIntensities.add(s.getSoundIntensity());
+				soundIntensities.add((float)s.getSoundIntensity());
 			}
 			soundGraphPanel.setMeasurements(soundIntensities);
 			repaint();
