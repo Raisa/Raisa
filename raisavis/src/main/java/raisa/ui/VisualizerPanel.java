@@ -221,30 +221,30 @@ public class VisualizerPanel extends JPanel implements Observer {
 		p.lineTo(x2, y2);
 		p.lineTo(x1, y2);
 		p.closePath();
-		p.transform(AffineTransform.getRotateInstance(robot.heading));
+		p.transform(AffineTransform.getRotateInstance(robot.getHeading()));
 		p.transform(AffineTransform.getTranslateInstance(robotScreen.x, robotScreen.y));
 		g2.fill(p);
 
-		Float wheelLeftScreen = toScreen(robot.positionLeftWheel);
+		Float wheelLeftScreen = toScreen(robot.getPositionLeftTrack());
 		Path2D.Float wheelLeft = new Path2D.Float();
 		wheelLeft.moveTo(-2f, +turretScreen) ;
 		wheelLeft.lineTo(-2f, -(heightScreen - turretScreen));
 		wheelLeft.lineTo(2f, -(heightScreen - turretScreen));
 		wheelLeft.lineTo(2f, +turretScreen);
 		wheelLeft.closePath();
-		wheelLeft.transform(AffineTransform.getRotateInstance(robot.heading));
+		wheelLeft.transform(AffineTransform.getRotateInstance(robot.getHeading()));
 		wheelLeft.transform(AffineTransform.getTranslateInstance(wheelLeftScreen.x, wheelLeftScreen.y));
 		g2.setColor(Color.orange);
 		g2.fill(wheelLeft);			
 
-		Float wheelRightScreen = toScreen(robot.positionRightWheel);
+		Float wheelRightScreen = toScreen(robot.getPositionRightTrack());
 		Path2D.Float wheelRight = new Path2D.Float();
 		wheelRight.moveTo(-2f, +turretScreen) ;
 		wheelRight.lineTo(-2f, -(heightScreen - turretScreen));
 		wheelRight.lineTo(2f, -(heightScreen - turretScreen));
 		wheelRight.lineTo(2f, +turretScreen);
 		wheelRight.closePath();
-		wheelRight.transform(AffineTransform.getRotateInstance(robot.heading));
+		wheelRight.transform(AffineTransform.getRotateInstance(robot.getHeading()));
 		wheelRight.transform(AffineTransform.getTranslateInstance(wheelRightScreen.x, wheelRightScreen.y));
 		g2.setColor(Color.RED);
 		g2.fill(wheelRight);			
@@ -260,7 +260,7 @@ public class VisualizerPanel extends JPanel implements Observer {
 		p.lineTo(-toScreen(4.0f), -toScreen(25.0f));
 		p.moveTo(0, toScreen(-30.0f));
 		p.lineTo(+toScreen(4.0f), -toScreen(25.0f));
-		p.transform(AffineTransform.getRotateInstance(robot.heading));
+		p.transform(AffineTransform.getRotateInstance(robot.getHeading()));
 		p.transform(AffineTransform.getTranslateInstance(robotScreen.x, robotScreen.y));
 		Stroke old = g2.getStroke();
 		g2.setStroke(arrow);

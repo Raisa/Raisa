@@ -79,7 +79,10 @@ public class SampleParser {
 					sample.setRightTrackTicks(ticks);
 				} else if (part.startsWith("SB")) {
 					int intensity = Integer.parseInt(value);
-					sample.setSoundIntensity(intensity);					
+					sample.setSoundIntensity(intensity);	
+				} else if (part.startsWith("TI")) {
+					long timestampMillis = Long.parseLong(value);
+					sample.setTimestampMillis(timestampMillis);										
 				} else {
 				}
 			}
