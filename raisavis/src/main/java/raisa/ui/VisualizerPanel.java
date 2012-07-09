@@ -1,7 +1,9 @@
 package raisa.ui;
 
+import java.awt.AlphaComposite;
 import java.awt.BasicStroke;
 import java.awt.Color;
+import java.awt.Composite;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Stroke;
@@ -12,7 +14,6 @@ import java.awt.event.MouseEvent;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Path2D;
 import java.awt.geom.Point2D.Float;
-import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -69,7 +70,8 @@ public class VisualizerPanel extends JPanel implements Observer {
 	public void update(Observable model, Object s) {
 		Sample sample = (Sample)s;
 		if (sample.isInfrared1MeasurementValid()) {
-			grid.addSpot(GeometryUtil.calculatePosition(worldModel.getRobot().getPosition(), worldModel.getRobot().getHeading() + sample.getInfrared1Angle(), sample.getInfrared1Distance()));
+			Vector2D spotPosition = GeometryUtil.calculatePosition(worldModel.getRobot().getPosition(), worldModel.getRobot().getHeading() + sample.getInfrared1Angle(), sample.getInfrared1Distance());
+			grid.setPosition(spotPosition, true);
 			latestIR.add(sample);
 			latestIR = WorldModel.takeLast(latestIR, 10);
 		}
@@ -100,10 +102,9 @@ public class VisualizerPanel extends JPanel implements Observer {
 	}
 
 	private void drawGrid(Graphics2D g2) {
-		int screenWidth = getBounds().width;
-		int screenHeight = getBounds().height;
-		Float tl = new Float(camera.x - screenWidth * 0.5f / scale, camera.y - screenHeight * 0.5f / scale);
-		grid.draw(g2, new Rectangle2D.Float(tl.x * scale, tl.y * scale, screenWidth * scale, screenHeight * scale), this);
+		float size = Grid.GRID_SIZE * Grid.CELL_SIZE * scale;
+		Float screen = toScreen(new Float(- size * 0.5f, - size * 0.5f));
+		g2.drawImage(grid.getBlockedImage(), (int)screen.x, (int)screen.y, (int)size, (int)size, null);
 	}
 	
 	private void drawIrResults(Graphics g, Graphics2D g2) {
