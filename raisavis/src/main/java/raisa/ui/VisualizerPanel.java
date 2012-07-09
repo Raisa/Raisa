@@ -26,6 +26,7 @@ import raisa.domain.Grid;
 import raisa.domain.Robot;
 import raisa.domain.Sample;
 import raisa.domain.WorldModel;
+import raisa.util.CollectionUtil;
 import raisa.util.GeometryUtil;
 import raisa.util.Vector2D;
 
@@ -76,20 +77,19 @@ public class VisualizerPanel extends JPanel implements Observer {
 		Sample sample = (Sample)s;
 		if (sample.isInfrared1MeasurementValid()) {
 			Vector2D spotPosition = GeometryUtil.calculatePosition(worldModel.getRobot().getPosition(), worldModel.getRobot().getHeading() + sample.getInfrared1Angle(), sample.getInfrared1Distance());
-			grid.setPosition(spotPosition, true);
+			grid.setGridPosition(spotPosition, true);
 			latestIR.add(sample);
-			latestIR = WorldModel.takeLast(latestIR, 10);
+			latestIR = CollectionUtil.takeLast(latestIR, 10);
 		}
 		if (sample.isUltrasound1MeasurementValid()) {
 			//grid.addSpot(sample.getSrSpot());
 			latestSR.add(sample);
-			latestSR = WorldModel.takeLast(latestSR, 10);
+			latestSR = CollectionUtil.takeLast(latestSR, 10);
 		}
 		repaint();
 	}
 
 	public void paintComponent(Graphics g) {
-		Robot robot = worldModel.getRobot();
 		Graphics2D g2 = (Graphics2D) g;
 		clearScreen(g);
 		drawGrid(g2);
@@ -146,6 +146,7 @@ public class VisualizerPanel extends JPanel implements Observer {
 		float size = Grid.GRID_SIZE * Grid.CELL_SIZE;
 		Float screen = toScreen(new Float(- size * 0.5f, - size * 0.5f));
 		int screenSize = (int)toScreen(size);
+		g2.drawImage(grid.getUserImage(), (int)screen.x, (int)screen.y, screenSize, screenSize, null);
 		g2.drawImage(grid.getBlockedImage(), (int)screen.x, (int)screen.y, screenSize, screenSize, null);
 	}
 	
@@ -431,7 +432,31 @@ public class VisualizerPanel extends JPanel implements Observer {
 		camera.y += dy;
 	}
 
-	public void setPosition(Vector2D position, boolean isBlocked) {
-		grid.setPosition(position, isBlocked);
+	public void setGridPosition(Vector2D position, boolean isBlocked) {
+		grid.setGridPosition(position, isBlocked);
+	}
+
+	public void setUserPosition(Vector2D position, boolean isBlocked) {
+		grid.setUserPosition(position, isBlocked);
+	}
+	
+	public void pushUserEditUndoLevel() {
+		grid.pushUserUndoLevel();
+	}
+	
+	public void popUserEditUndoLevel() {
+		grid.popUserUndoLevel();
+	}
+
+	public void redoUserEditUndoLevel() {
+		grid.redoUserUndoLevel();
+	}
+
+	public boolean isUserEditUndoable() {
+		return grid.isUserEditUndoable();
+	}
+
+	public boolean isUserEditRedoable() {
+		return grid.isUserEditRedoable();
 	}
 }

@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Observable;
 
 import raisa.comms.SampleParser;
+import raisa.util.CollectionUtil;
 
 
 public class WorldModel extends Observable implements Serializable {
@@ -53,7 +54,7 @@ public class WorldModel extends Observable implements Serializable {
 	}
 	
 	public void removeOldSamples(int preserveLength) {
-		samples = takeLast(samples, preserveLength);
+		samples = CollectionUtil.takeLast(samples, preserveLength);
 	}
 	
 	public void clearSamples() {
@@ -61,18 +62,6 @@ public class WorldModel extends Observable implements Serializable {
 	}
 	
 	public List<Sample> getLastSamples(int numberOfSamples) {
-		return takeLast(samples, numberOfSamples);
-	}
-	
-	public static List<Sample> takeLast(List<Sample> samples, int length) {
-		if (samples.size() > length) {
-			int fromIndex = Math.max(0, samples.size() - length);
-			int toIndex = samples.size();
-			List<Sample> newSamples = new ArrayList<Sample>();
-			newSamples.addAll(samples.subList(fromIndex, toIndex));
-			return newSamples;
-		}
-		return samples;
+		return CollectionUtil.takeLast(samples, numberOfSamples);
 	}	
-	
 }

@@ -16,6 +16,7 @@ public class DrawTool extends BasicTool {
 		if ((mouseEvent.getModifiersEx() & MouseEvent.BUTTON1_DOWN_MASK) > 0) {
 			if (mouseEvent.isControlDown()) {
 			} else {
+				getVisualizerFrame().pushUserEditUndoLevel();
 				drawLine(mouseEvent, mouseFrom, mouseTo);
 			}
 		} else {
@@ -32,7 +33,7 @@ public class DrawTool extends BasicTool {
 			position.x = mouseFrom.x + i * dx;
 			position.y = mouseFrom.y + i * dy;
 			drawPoint(position, !mouseEvent.isShiftDown());
-		}
+		}		
 	}
 
 	@Override
@@ -45,8 +46,10 @@ public class DrawTool extends BasicTool {
 	public void mouseReleased(MouseEvent mouseEvent, Float mouseFrom, Float mouseTo) {
 		if (mouseEvent.getButton() == MouseEvent.BUTTON1) {
 			if (mouseEvent.isControlDown()) {
+				getVisualizerFrame().pushUserEditUndoLevel();
 				drawLine(mouseEvent, mouseFrom, mouseTo);
 			} else {
+				getVisualizerFrame().pushUserEditUndoLevel();
 				drawPoint(mouseTo, !mouseEvent.isShiftDown());
 			}
 		}
@@ -54,6 +57,6 @@ public class DrawTool extends BasicTool {
 
 	private void drawPoint(Float mouse, boolean isBlocked) {
 		Vector2D worldPosition = getVisualizerFrame().toWorld(new Vector2D(mouse));
-		getVisualizerFrame().setPosition(worldPosition, isBlocked);
+		getVisualizerFrame().setUserPosition(worldPosition, isBlocked);
 	}
 }

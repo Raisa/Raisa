@@ -173,7 +173,8 @@ public class MeasurementsPanel extends JPanel implements Observer {
 		
 	}	
 	
-	class MeasurementGraphPanel extends JPanel {
+	private final static class MeasurementGraphPanel extends JPanel {
+		private static final long serialVersionUID = 1L;
 		
 		private List<Float> measurements = new LinkedList<Float>();
 		private float scaleFactor;
