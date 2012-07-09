@@ -1,9 +1,7 @@
 package raisa.ui;
 
-import java.awt.AlphaComposite;
 import java.awt.BasicStroke;
 import java.awt.Color;
-import java.awt.Composite;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Stroke;
@@ -102,9 +100,10 @@ public class VisualizerPanel extends JPanel implements Observer {
 	}
 
 	private void drawGrid(Graphics2D g2) {
-		float size = Grid.GRID_SIZE * Grid.CELL_SIZE * scale;
+		float size = Grid.GRID_SIZE * Grid.CELL_SIZE;
 		Float screen = toScreen(new Float(- size * 0.5f, - size * 0.5f));
-		g2.drawImage(grid.getBlockedImage(), (int)screen.x, (int)screen.y, (int)size, (int)size, null);
+		int screenSize = (int)toScreen(size);
+		g2.drawImage(grid.getBlockedImage(), (int)screen.x, (int)screen.y, screenSize, screenSize, null);
 	}
 	
 	private void drawIrResults(Graphics g, Graphics2D g2) {
@@ -350,5 +349,9 @@ public class VisualizerPanel extends JPanel implements Observer {
 	public void removeOldSamples() {
 		worldModel.removeOldSamples(1000);
 		repaint();
+	}
+
+	public float getScale() {
+		return scale;
 	}
 }
