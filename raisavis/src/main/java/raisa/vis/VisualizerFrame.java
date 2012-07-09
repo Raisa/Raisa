@@ -43,6 +43,7 @@ public class VisualizerFrame extends JFrame {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				reset();
+				repaint();
 			}
 		});
 		reset.setMnemonic('r');

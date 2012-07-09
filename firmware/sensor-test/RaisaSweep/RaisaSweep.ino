@@ -51,7 +51,8 @@ LSM303 compass;
 long accMeasurementSumX = 0;
 long accMeasurementSumY = 0;
 long accMeasurementSumZ = 0;
-short accMeasurementCount = 0;
+long compassMeasurementSum = 0;
+short imuMeasurementCount = 0;
 
 // Gyroscope
 L3G4200D gyro;
@@ -59,7 +60,7 @@ L3G4200D gyro;
 // dummy timer (no real interrupts)
 Timer t;
 int encoderEvent;
-int accelerationReadEvent;
+int imuReadEvent;
 int readIncomingDataEvent;
 long timeMillisBefore;
 
@@ -95,19 +96,12 @@ void setup()
   
   encoderEvent = t.every(20, doEncoderRead);
   readIncomingDataEvent = t.every(20, readIncomingData);
-  accelerationReadEvent = t.every(5, doAccelerationRead);
+  imuReadEvent = t.every(5, measureCompassAndAccelerometer);
   
   pinMode(blueLedPin, OUTPUT);
   digitalWrite(blueLedPin, HIGH);
   Serial.println("RaisaSweep starting");
 } 
-
-void doAccelerationRead() {
-  accMeasurementSumX += (long)compass.a.x;
-  accMeasurementSumY += (long)compass.a.y;
-  accMeasurementSumZ += (long)compass.a.z;
-  accMeasurementCount++;
-}
 
 void doEncoderRead() {
   //Min value is 400 and max value is 800, so state chance can be done at 600.
@@ -203,11 +197,15 @@ long measureDistanceInfraRed() {
   return analogRead(irPin);
 }
 
-int measureCompassAndAccelerometer() {
+void measureCompassAndAccelerometer() {
   // TODO set and handle timeouts 
   // accelorometer readings are available in compass.a.{x,y,z}
   compass.read();
-  int heading = compass.heading((LSM303::vector){0,-1,0});
+  compassMeasurementSum += compass.heading((LSM303::vector){0,-1,0});
+  accMeasurementSumX += (long)compass.a.x;
+  accMeasurementSumY += (long)compass.a.y;
+  accMeasurementSumZ += (long)compass.a.z;
+  imuMeasurementCount++;
 }
 
 // results are available in gyro.g.x, gyro.g.y, gyro.g.z
@@ -261,7 +259,7 @@ void scan(int angle, int scanDelay) {
   while (scanDelay > (millis() - timeMillisBefore)) {
     t.update();
   }
-  long compassDirection = measureCompassAndAccelerometer();
+
   long soundValue1 = analogRead(soundPin1);
   long soundValue2 = analogRead(soundPin2);
 
@@ -270,13 +268,15 @@ void scan(int angle, int scanDelay) {
   int tmpEncoderRightCount = encoderRightCount;
   encoderRightCount = 0;
   
-  long tmpAccMeasurementX = accMeasurementSumX / accMeasurementCount;
-  long tmpAccMeasurementY = accMeasurementSumY / accMeasurementCount;
-  long tmpAccMeasurementZ = accMeasurementSumZ / accMeasurementCount;
+  long compassDirection = compassMeasurementSum / imuMeasurementCount;
+  long tmpAccMeasurementX = accMeasurementSumX / imuMeasurementCount;
+  long tmpAccMeasurementY = accMeasurementSumY / imuMeasurementCount;
+  long tmpAccMeasurementZ = accMeasurementSumZ / imuMeasurementCount;
+  compassMeasurementSum = 0;
   accMeasurementSumX = 0;
   accMeasurementSumY = 0;
   accMeasurementSumZ = 0;
-  accMeasurementCount = 0;
+  imuMeasurementCount = 0;
 
   measureGyro();  
   t.update();

@@ -42,8 +42,9 @@ public class ExampleWorld1 {
 		}
 		// String sampleString = String.format("J%1$3d,%2$3d\n", (int)a, (int)
 		// distance);
-		String sampleString = String.format("STA;" + ir + "END;\n", (int) a, (int) encodedDistance);
-		// System.out.print(sampleString);
+		String cd = "CD%d;";
+		String sampleString = String.format("STA;" + ir + cd + "RL1;RR1;END;\n", (int) a, (int) encodedDistance, (int)Math.toDegrees(heading));
+		//System.out.print(sampleString);
 		return sampleString;
 	}
 

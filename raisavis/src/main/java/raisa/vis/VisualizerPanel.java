@@ -157,7 +157,8 @@ public class VisualizerPanel extends JPanel implements Observer {
 	}
 
 	private void drawRobot(Graphics2D g2) {
-		Robot robot = worldModel.getRobot();
+		Robot robot = worldModel.getRobot();	
+		
 		g2.setColor(Color.gray);
 		Float robotScreen = toScreen(robot.getPosition());
 		float widthScreen = toScreen(11.0f);
@@ -176,6 +177,30 @@ public class VisualizerPanel extends JPanel implements Observer {
 		p.transform(AffineTransform.getRotateInstance(robot.heading));
 		p.transform(AffineTransform.getTranslateInstance(robotScreen.x, robotScreen.y));
 		g2.fill(p);
+
+		Float wheelLeftScreen = toScreen(robot.positionLeftWheel);
+		Path2D.Float wheelLeft = new Path2D.Float();
+		wheelLeft.moveTo(-2f, +turretScreen) ;
+		wheelLeft.lineTo(-2f, -(heightScreen - turretScreen));
+		wheelLeft.lineTo(2f, -(heightScreen - turretScreen));
+		wheelLeft.lineTo(2f, +turretScreen);
+		wheelLeft.closePath();
+		wheelLeft.transform(AffineTransform.getRotateInstance(robot.heading));
+		wheelLeft.transform(AffineTransform.getTranslateInstance(wheelLeftScreen.x, wheelLeftScreen.y));
+		g2.setColor(Color.orange);
+		g2.fill(wheelLeft);			
+
+		Float wheelRightScreen = toScreen(robot.positionRightWheel);
+		Path2D.Float wheelRight = new Path2D.Float();
+		wheelRight.moveTo(-2f, +turretScreen) ;
+		wheelRight.lineTo(-2f, -(heightScreen - turretScreen));
+		wheelRight.lineTo(2f, -(heightScreen - turretScreen));
+		wheelRight.lineTo(2f, +turretScreen);
+		wheelRight.closePath();
+		wheelRight.transform(AffineTransform.getRotateInstance(robot.heading));
+		wheelRight.transform(AffineTransform.getTranslateInstance(wheelRightScreen.x, wheelRightScreen.y));
+		g2.setColor(Color.RED);
+		g2.fill(wheelRight);			
 	}
 
 	private void drawArrow(Graphics2D g2) {

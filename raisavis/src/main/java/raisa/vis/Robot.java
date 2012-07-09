@@ -4,6 +4,7 @@ import java.awt.geom.Point2D.Float;
 
 public class Robot {
 	public final static float ROBOT_WIDTH = 10f;
+	public final static float ROBOT_LENGTH = 20f;
 	public final static float WHEEL_DIAMETER = 3.6f;
 	public final static float TICK_RADIANS = (float) Math.PI / 8.0f;
 	
@@ -17,12 +18,15 @@ public class Robot {
 	
 	public Robot(float heading, Float position) {
 		this.heading = heading;
+		float tmpX = position.x - ROBOT_WIDTH/2.0f;
+		float tmpY = position.y;
 		this.positionLeftWheel = new Float(
-				position.x - ROBOT_WIDTH * (float)Math.sin(Math.PI/2 - heading),
-				position.y + ROBOT_WIDTH * (float)Math.cos(Math.PI/2 - heading));
+				(float)Math.cos(heading) * tmpX - (float)Math.sin(heading) * tmpY,
+				(float)Math.sin(heading) * tmpX + (float)Math.cos(heading) * tmpY);
+		tmpX = position.x + ROBOT_WIDTH/2.0f;
 		this.positionRightWheel = new Float(
-				position.x + ROBOT_WIDTH * (float)Math.sin(Math.PI/2 - heading),
-				position.y - ROBOT_WIDTH * (float)Math.cos(Math.PI/2 - heading));
+				(float)Math.cos(heading) * tmpX - (float)Math.sin(heading) * tmpY,
+				(float)Math.sin(heading) * tmpX + (float)Math.cos(heading) * tmpY);
 	}
 	
 	public Float getPosition() {
@@ -48,7 +52,10 @@ public class Robot {
 	}
 	
 	public String toString() {
-		return "leftwheel (x=" + positionLeftWheel.x + ",y=" + positionLeftWheel.y + ")";
+		return 
+			"position (x=" + getPosition().x + ",y=" + getPosition().y + "), " +
+			"leftwheel (x=" + positionLeftWheel.x + ",y=" + positionLeftWheel.y + "), " +
+			"rightwheel (x=" + positionRightWheel.x + ",y=" + positionRightWheel.y + ")";
 	}
 	
 	
