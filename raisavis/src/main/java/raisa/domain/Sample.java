@@ -72,6 +72,9 @@ public class Sample {
 				} else if (part.startsWith("RR")) {
 					float ticks = Float.parseFloat(value);
 					data.put("rr", ticks);
+				} else if (part.startsWith("SB")) {
+					float soundIntensity = Float.parseFloat(value);
+					data.put("sb", soundIntensity);
 				} else {
 				}
 			}
@@ -151,7 +154,11 @@ public class Sample {
 	}
 	
 	public float getRightWheelTicks() {
-		return (Float) (data.get("rl")==null?0.0f:data.get("rr"));
+		return (Float) (data.get("rr")==null?0.0f:data.get("rr"));
 	}	
+
+	public float getSoundIntensity() {
+		return (Float) (data.get("sb")==null?0.0f:data.get("sb"));
+	}		
 	
 }
