@@ -23,10 +23,14 @@ public class Grid {
 	public Grid() {
 		BufferedImage userImage = new BufferedImage(GRID_SIZE, GRID_SIZE, BufferedImage.TYPE_INT_ARGB);
 		userUndoLevels.add(userImage);
+		resetImage(blockedImage);
+		resetImage(getUserImage());
+	}
+
+	private void resetImage(BufferedImage image) {
 		for (int y = 0; y < GRID_SIZE; ++y) {
 			for (int x = 0; x < GRID_SIZE; ++x) {
-				blockedImage.setRGB(x, y, transparentColor.getRGB());
-				userImage.setRGB(x, y, transparentColor.getRGB());
+				image.setRGB(x, y, transparentColor.getRGB());
 			}
 		}
 	}
@@ -98,5 +102,9 @@ public class Grid {
 
 	public void setUserImage(BufferedImage mapImage) {
 		getUserImage().setData(mapImage.getData());
+	}
+
+	public void resetUserImage() {
+		resetImage(getUserImage());
 	}
 }

@@ -489,4 +489,8 @@ public class VisualizerPanel extends JPanel implements Observer {
 			e.printStackTrace();
 		}
 	}
+
+	public void resetMap() {
+		grid.resetUserImage();
+	}
 }

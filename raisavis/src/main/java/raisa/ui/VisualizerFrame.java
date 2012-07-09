@@ -94,6 +94,15 @@ public class VisualizerFrame extends JFrame {
 				VisualizerFrame.this.repaint();
 			}
 		});		
+		JMenuItem resetMap = new JMenuItem("Reset map");
+		resetMap.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				pushUserEditUndoLevel();
+				visualizerPanel.resetMap();
+				VisualizerFrame.this.repaint();
+			}
+		});		
 		JMenuItem saveMapAs = new JMenuItem("Save map as...");
 		saveMapAs.addActionListener(new ActionListener() {
 			@Override
@@ -115,6 +124,7 @@ public class VisualizerFrame extends JFrame {
 		mainMenu.add(loadData);
 		mainMenu.add(saveAs);
 		mainMenu.addSeparator();
+		mainMenu.add(resetMap);
 		mainMenu.add(loadMap);
 		mainMenu.add(saveMapAs);
 		mainMenu.addSeparator();
