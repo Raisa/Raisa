@@ -42,6 +42,7 @@ public class ToolPanel extends JPanel {
 		toolGroup.add(draw);
 		
 		JPanel undoRedo = new JPanel();
+		undoRedo.setLayout(new BoxLayout(undoRedo, BoxLayout.X_AXIS));
 		final JButton undo = new JButton("Undo");
 		undo.setEnabled(false);
 		undo.addActionListener(new ActionListener() {
