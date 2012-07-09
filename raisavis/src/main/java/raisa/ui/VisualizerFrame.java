@@ -90,6 +90,7 @@ public class VisualizerFrame extends JFrame {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				loadMap(null);
+				notifyUserEditUndoAction();
 				VisualizerFrame.this.repaint();
 			}
 		});		
