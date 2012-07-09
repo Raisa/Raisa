@@ -43,7 +43,6 @@ public class WorldModel extends Observable implements Serializable {
 		synchronized(states) {
 			states.add(robot);
 		}
-		states.add(robot);
 		samples.add(sample);	
 		calculateSpeed();
 		setChanged();

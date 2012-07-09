@@ -80,17 +80,17 @@ public class Robot {
 
 	public Robot moveRobot(Sample sample) {
 		Robot r = new Robot();		
-		float leftWheelTrip = (WHEEL_DIAMETER * sample.getLeftTrackTicks() * TICK_RADIANS) / 2.0f;
-		float rightWheelTrip = (WHEEL_DIAMETER * sample.getRightTrackTicks() * TICK_RADIANS) / 2.0f;
+		float leftTrackTrip = (WHEEL_DIAMETER * sample.getLeftTrackTicks() * TICK_RADIANS) / 2.0f;
+		float rightTrackTrip = (WHEEL_DIAMETER * sample.getRightTrackTicks() * TICK_RADIANS) / 2.0f;
 		
 		float h = sample.getCompassDirection();
 		r.positionLeftTrack = new Float(
-				this.positionLeftTrack.x + leftWheelTrip * (float)Math.sin(h),
-				this.positionLeftTrack.y - leftWheelTrip * (float)Math.cos(h));
+				this.positionLeftTrack.x + leftTrackTrip * (float)Math.sin(h),
+				this.positionLeftTrack.y - leftTrackTrip * (float)Math.cos(h));
 				
 		r.positionRightTrack = new Float(
-				this.positionRightTrack.x + rightWheelTrip * (float)Math.sin(h),
-				this.positionRightTrack.y - rightWheelTrip * (float)Math.cos(h));
+				this.positionRightTrack.x + rightTrackTrip * (float)Math.sin(h),
+				this.positionRightTrack.y - rightTrackTrip * (float)Math.cos(h));
 		r.heading = h;
 		r.setTimestampMillis(sample.getTimestampMillis());
 		return r;
