@@ -97,9 +97,25 @@ public class VisualizerPanel extends JPanel implements Observer {
 	private void drawRobotTrail(Graphics2D g2, List<Robot> states) {
 		g2.setColor(Color.gray);
 		Robot lastState = null;
+		float distanceSoFar = 0.0f;
+		float lastDistanceString = -100.0f;
+		boolean drawDistanceString = false;
+		float distanceMarkerSize = 4.0f;
 		for (Robot state : states) {
 			if (lastState != null) {
 				drawLine(g2, lastState.getPosition(), state.getPosition());
+				distanceSoFar += lastState.getPosition().distance(state.getPosition());
+			}
+			if (distanceSoFar - lastDistanceString >= 100.0f) {
+				drawDistanceString = true;
+			}
+			if (drawDistanceString) {
+				String distanceString = String.format("%3.1f m", distanceSoFar / 100);
+				Float screenPosition = toScreen(state.getPosition());
+				g2.fillRect((int)(screenPosition.x - 0.5f * distanceMarkerSize), (int)(screenPosition.y - 0.5f * distanceMarkerSize), (int)distanceMarkerSize, (int)distanceMarkerSize);
+				g2.drawString(distanceString, (int)screenPosition.x, (int)screenPosition.y);
+				drawDistanceString = false;
+				lastDistanceString = distanceSoFar;
 			}
 			lastState = state;
 		}
