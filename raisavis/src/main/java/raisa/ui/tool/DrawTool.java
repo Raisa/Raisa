@@ -14,17 +14,24 @@ public class DrawTool extends BasicTool {
 	@Override
 	public void mouseDragged(MouseEvent mouseEvent, Float mouseFrom, Float mouseTo) {
 		if ((mouseEvent.getModifiersEx() & MouseEvent.BUTTON1_DOWN_MASK) > 0) {
-			int length = (int)mouseTo.distance(mouseFrom);
-			float dx = (mouseTo.x - mouseFrom.x) / length;
-			float dy = (mouseTo.y - mouseFrom.y) / length;
-			Float position = new Float();
-			for (int i = 0; i < length; ++i) {
-				position.x = mouseFrom.x + i * dx;
-				position.y = mouseFrom.y + i * dy;
-				drawPoint(position, !mouseEvent.isShiftDown());
+			if (mouseEvent.isControlDown()) {
+			} else {
+				drawLine(mouseEvent, mouseFrom, mouseTo);
 			}
 		} else {
 			super.mouseDragged(mouseEvent, mouseFrom, mouseTo);
+		}
+	}
+
+	private void drawLine(MouseEvent mouseEvent, Float mouseFrom, Float mouseTo) {
+		int length = (int) mouseTo.distance(mouseFrom);
+		float dx = (mouseTo.x - mouseFrom.x) / length;
+		float dy = (mouseTo.y - mouseFrom.y) / length;
+		Float position = new Float();
+		for (int i = 0; i < length; ++i) {
+			position.x = mouseFrom.x + i * dx;
+			position.y = mouseFrom.y + i * dy;
+			drawPoint(position, !mouseEvent.isShiftDown());
 		}
 	}
 
@@ -36,9 +43,14 @@ public class DrawTool extends BasicTool {
 	}
 
 	@Override
-	public void mouseReleased(MouseEvent mouseEvent, Float mouse) {
+	public void mouseReleased(MouseEvent mouseEvent, Float mouseFrom, Float mouseTo) {
 		if (mouseEvent.getButton() == MouseEvent.BUTTON1) {
-			drawPoint(mouse, !mouseEvent.isShiftDown());
+			if (mouseEvent.isControlDown()) {
+				System.out.println(mouseFrom + " " + mouseTo);
+				drawLine(mouseEvent, mouseFrom, mouseTo);
+			} else {
+				drawPoint(mouseTo, !mouseEvent.isShiftDown());
+			}
 		}
 	}
 

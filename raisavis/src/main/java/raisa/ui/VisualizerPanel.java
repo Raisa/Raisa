@@ -34,6 +34,7 @@ public class VisualizerPanel extends JPanel implements Observer {
 	private Color measurementColor = new Color(0.4f, 0.4f, 0.4f);
 	private Float camera = new Float();
 	private Float mouse = new Float();
+	private Float mouseDownPosition = new Float();
 	private Float mouseDragStart = new Float();
 	private float scale = 1.0f;
 	private List<Sample> latestIR = new ArrayList<Sample>();
@@ -382,6 +383,8 @@ public class VisualizerPanel extends JPanel implements Observer {
 		public void mousePressed(MouseEvent mouseEvent) {
 			mouseDragStart.x = mouseEvent.getX();
 			mouseDragStart.y = mouseEvent.getY();			
+			mouseDownPosition.x = mouseEvent.getX();
+			mouseDownPosition.y = mouseEvent.getY();			
 			visualizerFrame.getCurrentTool().mousePressed(mouseEvent, mouseDragStart);
 		}
 
@@ -389,7 +392,7 @@ public class VisualizerPanel extends JPanel implements Observer {
 		public void mouseReleased(MouseEvent mouseEvent) {
 			mouse.x = mouseEvent.getX();
 			mouse.y = mouseEvent.getY();
-			visualizerFrame.getCurrentTool().mouseReleased(mouseEvent, mouse);
+			visualizerFrame.getCurrentTool().mouseReleased(mouseEvent, mouseDownPosition, mouse);
 		}
 	}
 
