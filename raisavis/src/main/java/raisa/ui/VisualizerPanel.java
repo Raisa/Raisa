@@ -9,6 +9,8 @@ import java.awt.event.HierarchyBoundsListener;
 import java.awt.event.HierarchyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.event.MouseWheelEvent;
+import java.awt.event.MouseWheelListener;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Path2D;
 import java.awt.geom.Point2D.Float;
@@ -60,6 +62,7 @@ public class VisualizerPanel extends JPanel implements Observer {
 		addHierarchyBoundsListener(new PanelSizeHandler());
 		addMouseMotionListener(new MouseMotionHandler());
 		addMouseListener(new MouseHandler());
+		addMouseWheelListener(new MouseWheelHandler());
 		reset();
 		dashed = new BasicStroke(1.0f, BasicStroke.CAP_BUTT, BasicStroke.JOIN_MITER, 10.0f, new float[] { 15.0f }, 0.0f);
 		arrow = new BasicStroke(2.0f, BasicStroke.CAP_BUTT, BasicStroke.JOIN_MITER, 10.0f);
@@ -357,6 +360,17 @@ public class VisualizerPanel extends JPanel implements Observer {
 		}
 	}
 
+	private final class MouseWheelHandler implements MouseWheelListener {
+		@Override
+		public void mouseWheelMoved(MouseWheelEvent event) {
+			if (event.isShiftDown() || event.isMetaDown() || event.isControlDown() || event.isAltGraphDown() || event.isPopupTrigger()) {
+				camera.x += event.getWheelRotation() * 35.0f / scale;				
+			} else {
+				camera.y += event.getWheelRotation() * 35.0f / scale;
+			}
+		}
+	}
+	
 	private final class MouseHandler extends MouseAdapter {
 		@Override
 		public void mousePressed(MouseEvent mouseEvent) {
