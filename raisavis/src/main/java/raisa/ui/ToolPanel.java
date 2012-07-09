@@ -13,7 +13,7 @@ import javax.swing.border.TitledBorder;
 public class ToolPanel extends JPanel {
 	private static final long serialVersionUID = 1L;
 
-	public ToolPanel(VisualizerFrame frame) {
+	public ToolPanel(final VisualizerFrame frame) {
 		setBorder(new TitledBorder("Tools"));
 		setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
 		JToggleButton measure = new JToggleButton("Measure");
@@ -21,14 +21,18 @@ public class ToolPanel extends JPanel {
 		measure.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent event) {
+				frame.selectedMeasureTool();
 			}
 		});
+		measure.setSelected(true);
+		frame.selectedMeasureTool();
 		add(measure);
 		JToggleButton draw = new JToggleButton("Draw");
 		draw.setAlignmentX(Component.CENTER_ALIGNMENT);
 		draw.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent event) {
+				frame.selectedDrawTool();
 			}
 		});
 		add(draw);

@@ -37,6 +37,8 @@ public class VisualizerFrame extends JFrame {
 	private File defaultDirectory = null;
 	private final WorldModel worldModel;
 	private Tool currentTool;
+	private DrawTool drawTool = new DrawTool();
+	private MeasureTool measureTool = new MeasureTool();
 	
 	public VisualizerFrame(WorldModel worldModel) {
 		visualizer = new VisualizerPanel(worldModel);
@@ -419,5 +421,13 @@ public class VisualizerFrame extends JFrame {
 	
 	private void updateTitle() {
 		setTitle("Raisa Visualizer - " + Math.round(visualizer.getScale() * 100.0f) + "%"); 		
+	}
+	
+	public void selectedMeasureTool() {
+		setCurrentTool(measureTool);
+	}
+
+	public void selectedDrawTool() {
+		setCurrentTool(drawTool);
 	}
 }
