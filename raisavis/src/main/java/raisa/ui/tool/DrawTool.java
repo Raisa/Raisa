@@ -18,6 +18,7 @@ public class DrawTool extends BasicTool {
 			} else {
 				getVisualizerFrame().pushUserEditUndoLevel();
 				drawLine(mouseEvent, mouseFrom, mouseTo);
+				getVisualizerFrame().repaint();
 			}
 		} else {
 			super.mouseDragged(mouseEvent, mouseFrom, mouseTo);
@@ -48,9 +49,11 @@ public class DrawTool extends BasicTool {
 			if (mouseEvent.isControlDown()) {
 				getVisualizerFrame().pushUserEditUndoLevel();
 				drawLine(mouseEvent, mouseFrom, mouseTo);
+				getVisualizerFrame().repaint();
 			} else {
 				getVisualizerFrame().pushUserEditUndoLevel();
 				drawPoint(mouseTo, !mouseEvent.isShiftDown());
+				getVisualizerFrame().repaint();
 			}
 		}
 	}

@@ -58,6 +58,9 @@ public class Grid {
 	}
 
 	public void pushUserUndoLevel() {
+		if (isUserEditRedoable()) {
+			userUndoLevels = userUndoLevels.subList(0, userUndoLevel + 1);
+		}
 		BufferedImage copy = new BufferedImage(getLatestUserImage().getWidth(), getLatestUserImage().getHeight(), getLatestUserImage().getType());
 		copy.setData(getLatestUserImage().getData());
 		userUndoLevels.add(copy);
