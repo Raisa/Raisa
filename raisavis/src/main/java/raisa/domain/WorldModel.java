@@ -12,6 +12,7 @@ public class WorldModel extends Observable implements Serializable {
 	private static final long serialVersionUID = 1L;
 
 	private List<Sample> samples = new ArrayList<Sample>();
+	private List<Robot> states = new ArrayList<Robot>();
 	private Robot robot = new Robot();
 	
 	public Robot getRobot() {
@@ -22,21 +23,27 @@ public class WorldModel extends Observable implements Serializable {
 		return samples;
 	}
 	
+	public List<Robot> getStates() {
+		return states;
+	}
+	
 	public void addSample(String message) {
 		Sample sample = new SampleParser().parse(message);
 		addSample(sample);
 	}
 	
 	public void addSample(Sample sample) {
-		this.robot = robot.moveRobot(sample);
+		robot = robot.moveRobot(sample);
+		states.add(robot);
 		samples.add(sample);		
-		this.setChanged();
-		this.notifyObservers(sample);
+		setChanged();
+		notifyObservers(sample);
 	}
 	
 	public void reset() {
 		robot = new Robot();
 		samples = new ArrayList<Sample>();
+		states = new ArrayList<Robot>();
 	}
 	
 	public void removeOldSamples(int preserveLength) {

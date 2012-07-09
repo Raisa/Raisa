@@ -86,11 +86,29 @@ public class VisualizerPanel extends JPanel implements Observer {
 		Graphics2D g2 = (Graphics2D) g;
 		clearScreen(g);
 		drawGrid(g2);
+		drawRobotTrail(g2, worldModel.getStates());
 		drawRobot(g2);
 		drawArrow(g2);
 		drawMeasurementLine(g, robot.getPosition(), toWorld(mouse));
 		drawUltrasoundResults(g);
 		drawIrResults(g, g2);
+	}
+
+	private void drawRobotTrail(Graphics2D g2, List<Robot> states) {
+		g2.setColor(Color.gray);
+		Robot lastState = null;
+		for (Robot state : states) {
+			if (lastState != null) {
+				drawLine(g2, lastState.getPosition(), state.getPosition());
+			}
+			lastState = state;
+		}
+	}
+
+	private void drawLine(Graphics2D g2, Float from, Float to) {
+		Float screenFrom = toScreen(from);
+		Float screenTo = toScreen(to);
+		g2.drawLine((int)screenFrom.x, (int)screenFrom.y, (int)screenTo.x, (int)screenTo.y);
 	}
 
 	private void clearScreen(Graphics g) {
