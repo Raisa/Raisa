@@ -1,6 +1,5 @@
 package raisa.ui.tool;
 
-import java.awt.MouseInfo;
 import java.awt.event.MouseEvent;
 import java.awt.geom.Point2D.Float;
 
