@@ -38,7 +38,7 @@ import raisa.util.Vector2D;
 public class VisualizerFrame extends JFrame {
 	private static final long serialVersionUID = 1L;
 	private VisualizerPanel visualizerPanel;
-	private File defaultDirectory = null;
+	private File defaultDirectory = new File(".");
 	private final WorldModel worldModel;
 	private Tool currentTool;
 	private DrawTool drawTool = new DrawTool(this);
