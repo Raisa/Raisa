@@ -1,19 +1,11 @@
 package raisa.comms;
 
+import static raisa.comms.ControlMessage.SPEED_STEPS;
+
 import java.util.ArrayList;
 import java.util.List;
 
-
 public class BasicController {
-	private byte [] speedPowerMap = new byte[] {
-			(byte)0,
-			(byte)160,
-			(byte)175,
-			(byte)195,
-			(byte)220,
-			(byte)255
-	};
-
 	private Communicator communicator;
 	
 	private int leftSpeed;
@@ -27,28 +19,17 @@ public class BasicController {
 	}
 	
 	private int checkSpeed(int speed) {
-		if (speed > speedPowerMap.length - 1) {
-			speed = speedPowerMap.length - 1;
+		if (speed > SPEED_STEPS - 1) {
+			speed = SPEED_STEPS - 1;
 		}
-		if (speed < -speedPowerMap.length + 1) {
-			speed = -speedPowerMap.length + 1;			
+		if (speed < -SPEED_STEPS + 1) {
+			speed = -SPEED_STEPS + 1;			
 		}
 		return speed;
 	}
 
-	private byte[] createPackage() {
-		byte[] bytes = new byte[] {
-				'R',
-				'a',
-				speedPowerMap[Math.abs(leftSpeed)],
-				(byte)(leftSpeed >= 0 ? 'F' : 'B'),
-				speedPowerMap[Math.abs(rightSpeed)],
-				(byte)(rightSpeed >= 0 ? 'F' : 'B'),
-				(byte)(lights ? 2 : 1),
-				'i',
-				's',
-		};
-		return bytes;
+	private ControlMessage createPackage() {
+		return new ControlMessage(leftSpeed, rightSpeed, lights);
 	}
 
 	public void sendForward() {
