@@ -38,7 +38,6 @@ public class DrawTool extends BasicTool {
 	@Override
 	public void mousePressed(MouseEvent mouseEvent, Float mouse) {
 		if ((mouseEvent.getModifiersEx() & MouseEvent.BUTTON1_DOWN_MASK) > 0) {
-			drawPoint(mouse, !mouseEvent.isShiftDown());
 		}
 	}
 
@@ -46,7 +45,6 @@ public class DrawTool extends BasicTool {
 	public void mouseReleased(MouseEvent mouseEvent, Float mouseFrom, Float mouseTo) {
 		if (mouseEvent.getButton() == MouseEvent.BUTTON1) {
 			if (mouseEvent.isControlDown()) {
-				System.out.println(mouseFrom + " " + mouseTo);
 				drawLine(mouseEvent, mouseFrom, mouseTo);
 			} else {
 				drawPoint(mouseTo, !mouseEvent.isShiftDown());
