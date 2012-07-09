@@ -45,6 +45,9 @@ int encoderLeftLastValue = 0;
 // sound sensors
 const int soundPin1 = 6;
 const int soundPin2 = 7;
+long soundMeasurement1Sum = 0;
+long soundMeasurement2Sum = 0;
+short soundMeasurementCount = 0;
 
 // compass and accelometer
 LSM303 compass;
@@ -62,6 +65,7 @@ Timer t;
 int encoderEvent;
 int imuReadEvent;
 int readIncomingDataEvent;
+int readSoundEvent;
 long timeMillisBefore;
 
 void configureCompass() {
@@ -96,12 +100,19 @@ void setup()
   
   encoderEvent = t.every(20, doEncoderRead);
   readIncomingDataEvent = t.every(20, readIncomingData);
-  imuReadEvent = t.every(5, measureCompassAndAccelerometer);
+  imuReadEvent = t.every(10, measureCompassAndAccelerometer);
+  readSoundEvent = t.every(20, readSoundIntensity);
   
   pinMode(blueLedPin, OUTPUT);
   digitalWrite(blueLedPin, HIGH);
   Serial.println("RaisaSweep starting");
 } 
+
+void readSoundIntensity() {
+  soundMeasurement1Sum = analogRead(soundPin1);
+  soundMeasurement2Sum = analogRead(soundPin2);
+  soundMeasurementCount++;
+}
 
 void doEncoderRead() {
   //Min value is 400 and max value is 800, so state chance can be done at 600.
@@ -260,8 +271,11 @@ void scan(int angle, int scanDelay) {
     t.update();
   }
 
-  long soundValue1 = analogRead(soundPin1);
-  long soundValue2 = analogRead(soundPin2);
+  long soundValue1 = soundMeasurement1Sum / soundMeasurementCount;
+  long soundValue2 = soundMeasurement2Sum / soundMeasurementCount;
+  soundMeasurement1Sum = 0;
+  soundMeasurement2Sum = 0;
+  soundMeasurementCount = 0;
 
   int tmpEncoderLeftCount = encoderLeftCount;
   encoderLeftCount = 0;
