@@ -17,30 +17,11 @@ public class Visualizer {
 	private static List<Sample> getExampleSamples() {
 		ExampleWorld1 world = new ExampleWorld1();
 		List<Sample> samples = new ArrayList<Sample>();
-		scenario2(world, samples);
+		scenario1(world, samples);
 		return samples;
 	}
 
 	private static void scenario1(ExampleWorld1 world, List<Sample> samples) {
-		float x = 0.0f;
-		float y = 0.0f;
-		float heading = 0.0f;
-		for (int o = 0; o < 50; ++o) {
-			x = -100 + (o / 2) * 10;
-			for (int i = 0; i < 50; ++i) {
-				float angle = (3.0f * (float) Math.PI / 2.0f + i / 50.0f * (float) Math.PI) % (2.0f * (float) Math.PI);
-				if (o % 2 == 1) {
-					angle = 4.0f * (float) Math.PI - angle;
-				}
-				Robot r = new Robot(heading, new Float(x, y));
-				Sample s = new Sample(world.sample(x, y, heading, angle));
-				s.setRobot(r);
-				samples.add(s);
-			}
-		}
-	}
-
-	private static void scenario2(ExampleWorld1 world, List<Sample> samples) {
 		float x = 0.0f;
 		float y = 0.0f;
 		float heading = (float)Math.toRadians(90.0f);
@@ -65,7 +46,6 @@ public class Visualizer {
 		final WorldModel worldModel = new WorldModel();
 		final VisualizerFrame frame = new VisualizerFrame(worldModel);
 
-		final List<String> samples = new ArrayList<String>();
 		if (args.length == 0) {
 		} else {
 			String inputMode = args[0];

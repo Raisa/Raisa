@@ -135,7 +135,8 @@ public class MeasurementsPanel extends JPanel implements Observer {
 	}
 	
 	class AccelerationGraphPanel extends JPanel {
-		
+		private static final long serialVersionUID = 1L;
+
 		private List<Float> measurements = new LinkedList<Float>();
 		
 		public AccelerationGraphPanel() {

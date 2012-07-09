@@ -17,11 +17,7 @@ import raisa.comms.ControllerListener;
 public class MovementPanel extends JPanel {
 	private static final long serialVersionUID = 1L;
 
-	private BasicController controller;
-	
 	public MovementPanel(final BasicController controller) {
-		this.controller = controller;
-
 		setBorder(new TitledBorder("Movement"));
 		JButton forwardButton = new JButton("F");
 		forwardButton.addActionListener(new ActionListener() {
