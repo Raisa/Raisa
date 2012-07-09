@@ -33,6 +33,7 @@ import raisa.domain.WorldModel;
 import raisa.ui.tool.DrawTool;
 import raisa.ui.tool.MeasureTool;
 import raisa.ui.tool.Tool;
+import raisa.util.Vector2D;
 
 public class VisualizerFrame extends JFrame {
 	private static final long serialVersionUID = 1L;
@@ -443,5 +444,17 @@ public class VisualizerFrame extends JFrame {
 
 	public void panCameraBy(float dx, float dy) {
 		visualizerPanel.panCameraBy(dx, dy);
+	}
+
+	public void setPosition(Vector2D position) {
+		visualizerPanel.setPosition(position);
+	}
+
+	public Vector2D toWorld(Vector2D screenPosition) {
+		return visualizerPanel.toWorld(screenPosition);
+	}
+
+	public float toWorld(float screenDistance) {
+		return visualizerPanel.toWorld(screenDistance);
 	}
 }

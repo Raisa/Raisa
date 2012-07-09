@@ -94,7 +94,6 @@ public class VisualizerPanel extends JPanel implements Observer {
 		drawRobotTrail(g2, worldModel.getStates());
 		drawRobot(g2);
 		drawArrow(g2);
-		drawMeasurementLine(g, robot.getPosition(), toWorld(mouse));
 		drawUltrasoundResults(g);
 		drawIrResults(g, g2);
 	}
@@ -305,12 +304,17 @@ public class VisualizerPanel extends JPanel implements Observer {
 		}
 	}
 
-	public Float toWorld(Float screen) {
+	public float toWorld(float screenDistance) {
+		return screenDistance / scale;
+	}
+	
+	public Vector2D toWorld(Vector2D screen) {
 		int screenWidth = getBounds().width;
 		int screenHeight = getBounds().height;
-		return new Float(camera.x + (screen.x - screenWidth * 0.5f) / scale, camera.y
+		return new Vector2D(camera.x + (screen.x - screenWidth * 0.5f) / scale, camera.y
 				+ (screen.y - screenHeight * 0.5f) / scale);
 	}
+
 
 	public float toScreen(float size) {
 		return size * scale;
@@ -416,5 +420,9 @@ public class VisualizerPanel extends JPanel implements Observer {
 	public void panCameraBy(float dx, float dy) {
 		camera.x += dx;
 		camera.y += dy;
+	}
+
+	public void setPosition(Vector2D position) {
+		grid.setPosition(position, true);
 	}
 }

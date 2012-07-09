@@ -7,9 +7,15 @@ import raisa.ui.VisualizerFrame;
 
 public abstract class BasicTool implements Tool {
 	private VisualizerFrame visualizerFrame;
+
 	public BasicTool(VisualizerFrame frame) {
 		this.visualizerFrame = frame;
 	}
+
+	public VisualizerFrame getVisualizerFrame() {
+		return visualizerFrame;
+	}
+
 	@Override
 	public void mouseMoved(MouseEvent mouseEvent, Float mouse) {
 	}

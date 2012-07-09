@@ -8,4 +8,11 @@ public class Vector2D extends Point2D.Float {
 	public Vector2D(float x, float y) {
 		super(x, y);
 	}
+
+	public Vector2D(Float mouse) {
+		this(mouse.x, mouse.y);
+	}
+
+	public Vector2D() {
+	}
 }
