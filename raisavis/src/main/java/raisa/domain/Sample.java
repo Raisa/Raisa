@@ -16,6 +16,7 @@ public class Sample {
 	private Vector3D gyro = new Vector3D();
 	private int leftTrackTicks;
 	private int rightTrackTicks;
+	private int soundIntensity;
 	
 	public String getSampleString() {
 		return sampleString;
@@ -89,6 +90,10 @@ public class Sample {
 		rightTrackTicks = ticks;
 	}
 
+	public void setSoundIntensity(int intensity) {
+		soundIntensity = intensity;
+	}	
+	
 	public float getInfrared1Angle() {
 		return infrared1Angle;
 	}
@@ -128,4 +133,9 @@ public class Sample {
 	public boolean isInfrared1MeasurementValid() {
 		return infrared1MeasurementValid;
 	}
+
+	public int getSoundIntensity() {
+		return soundIntensity;
+	}		
+	
 }

@@ -21,6 +21,7 @@ public class MeasurementsPanel extends JPanel implements Observer {
 
 	private AccelerationPanel accelerationPanel; 
 	private GyroscopePanel gyroscopePanel; 
+	private SoundPanel soundPanel; 	
 	
 	public MeasurementsPanel(WorldModel worldModel) {
 		worldModel.addObserver(this);
@@ -33,12 +34,15 @@ public class MeasurementsPanel extends JPanel implements Observer {
 		accelerationPanel = new AccelerationPanel(worldModel);
 		this.add(accelerationPanel);
 		gyroscopePanel = new GyroscopePanel();
-		this.add(gyroscopePanel);		
+		this.add(gyroscopePanel);	
+		soundPanel = new SoundPanel(worldModel);
+		this.add(soundPanel);				
 	}
 	
 	public void update(Observable worldModel, Object sample) {
 		accelerationPanel.update((WorldModel)worldModel, (Sample)sample);
 		gyroscopePanel.update((WorldModel)worldModel, (Sample)sample);
+		soundPanel.update((WorldModel)worldModel, (Sample)sample);
 	}
 	
 	class AccelerationPanel extends JPanel {
@@ -47,14 +51,14 @@ public class MeasurementsPanel extends JPanel implements Observer {
 		private JLabel accXField;
 		private JLabel accYField;
 		private JLabel accZField;
-		private AccelerationGraphPanel accXPanel;
-		private AccelerationGraphPanel accYPanel;
-		private AccelerationGraphPanel accZPanel;
+		private MeasurementGraphPanel accXPanel;
+		private MeasurementGraphPanel accYPanel;
+		private MeasurementGraphPanel accZPanel;
 
 		public AccelerationPanel(WorldModel worldModel) {
-			this.setMinimumSize(new Dimension(190, 240));
-			this.setPreferredSize(new Dimension(190, 240));
-			this.setMaximumSize(new Dimension(190, 240));
+			this.setMinimumSize(new Dimension(190, 230));
+			this.setPreferredSize(new Dimension(190, 230));
+			this.setMaximumSize(new Dimension(190, 230));
 			TitledBorder border = new TitledBorder("Acceleration (m/s^2)");
 			setBorder(border);
 			setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
@@ -64,11 +68,11 @@ public class MeasurementsPanel extends JPanel implements Observer {
 			accYField.setAlignmentX(LEFT_ALIGNMENT);
 			accZField = new JLabel("Z: -");
 			accZField.setAlignmentX(LEFT_ALIGNMENT);
-			accXPanel = new AccelerationGraphPanel();
+			accXPanel = new MeasurementGraphPanel(20f);
 			accXPanel.setAlignmentX(LEFT_ALIGNMENT);
-			accYPanel = new AccelerationGraphPanel();
+			accYPanel = new MeasurementGraphPanel(20f);
 			accYPanel.setAlignmentX(LEFT_ALIGNMENT);
-			accZPanel = new AccelerationGraphPanel();	
+			accZPanel = new MeasurementGraphPanel(20f);	
 			accZPanel.setAlignmentX(LEFT_ALIGNMENT);
 			this.add(accXField);		
 			this.add(accXPanel);
@@ -133,15 +137,51 @@ public class MeasurementsPanel extends JPanel implements Observer {
 		}
 		
 	}
-	
-	class AccelerationGraphPanel extends JPanel {
+
+	class SoundPanel extends JPanel {
 		private static final long serialVersionUID = 1L;
 
-		private List<Float> measurements = new LinkedList<Float>();
+		private JLabel soundField;
+		private MeasurementGraphPanel soundGraphPanel;
+
+		public SoundPanel(WorldModel worldModel) {
+			this.setMinimumSize(new Dimension(190, 90));
+			this.setPreferredSize(new Dimension(190, 90));
+			this.setMaximumSize(new Dimension(190, 90));
+			TitledBorder border = new TitledBorder("Sound intensity");
+			setBorder(border);
+			setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
+			soundField = new JLabel("Value: -");
+			soundField.setAlignmentX(LEFT_ALIGNMENT);
+			soundGraphPanel = new MeasurementGraphPanel(-0.3f);	
+			soundGraphPanel.setAlignmentX(LEFT_ALIGNMENT);
+			this.add(soundField);		
+			this.add(soundGraphPanel);
+		}
+			
+		public void update(WorldModel worldModel, Sample sample) {
+			DecimalFormat format = new DecimalFormat("0000");			
+			soundField.setText("Value: " + format.format(sample.getSoundIntensity()));
+			List<Sample> samples = worldModel.getLastSamples(120);
+			List<Float> soundIntensities = new LinkedList<Float>();
+			for (Sample s : samples) {
+				soundIntensities.add((float)s.getSoundIntensity());
+			}
+			soundGraphPanel.setMeasurements(soundIntensities);
+			repaint();
+		}
 		
-		public AccelerationGraphPanel() {
+	}	
+	
+	class MeasurementGraphPanel extends JPanel {
+		
+		private List<Float> measurements = new LinkedList<Float>();
+		private float scaleFactor;
+		
+		public MeasurementGraphPanel(float scaleFactor) {
 			this.setPreferredSize(new Dimension(190, 50));
 			this.setMaximumSize(new Dimension(190, 50));
+			this.scaleFactor = scaleFactor;
 		}
 		
 	    public Dimension getPreferredSize() {
@@ -155,7 +195,7 @@ public class MeasurementsPanel extends JPanel implements Observer {
 	    protected void paintComponent(Graphics g) {
 	        super.paintComponent(g);   
 	        for (int i=0; i<measurements.size(); i++) {
-	        	g.drawLine(20 + i, 25, 20 + i, 25 + (int)(20 * measurements.get(i).floatValue()));
+	        	g.drawLine(20 + i, 25, 20 + i, 25 + (int)(scaleFactor * measurements.get(i).floatValue()));
 	        }
 	    }  
 	    
