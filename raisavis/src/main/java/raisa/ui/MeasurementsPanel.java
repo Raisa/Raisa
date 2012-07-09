@@ -19,6 +19,7 @@ import raisa.util.Vector3D;
 public class MeasurementsPanel extends JPanel implements Observer {
 	private static final long serialVersionUID = 1L;
 
+	private SpeedPanel speedPanel; 	
 	private AccelerationPanel accelerationPanel; 
 	private GyroscopePanel gyroscopePanel; 
 	private SoundPanel soundPanel; 	
@@ -31,6 +32,8 @@ public class MeasurementsPanel extends JPanel implements Observer {
 		this.setMinimumSize(new Dimension(200, 300));
 		this.setPreferredSize(new Dimension(200, 300));
 		this.setMaximumSize(new Dimension(200, 300));
+		speedPanel = new SpeedPanel(worldModel);
+		this.add(speedPanel);						
 		accelerationPanel = new AccelerationPanel(worldModel);
 		this.add(accelerationPanel);
 		gyroscopePanel = new GyroscopePanel();
@@ -40,6 +43,7 @@ public class MeasurementsPanel extends JPanel implements Observer {
 	}
 	
 	public void update(Observable worldModel, Object sample) {
+		speedPanel.update((WorldModel)worldModel, (Sample)sample);
 		accelerationPanel.update((WorldModel)worldModel, (Sample)sample);
 		gyroscopePanel.update((WorldModel)worldModel, (Sample)sample);
 		soundPanel.update((WorldModel)worldModel, (Sample)sample);
@@ -171,7 +175,7 @@ public class MeasurementsPanel extends JPanel implements Observer {
 			repaint();
 		}
 		
-	}	
+	}		
 	
 	private final static class MeasurementGraphPanel extends JPanel {
 		private static final long serialVersionUID = 1L;
@@ -201,5 +205,35 @@ public class MeasurementsPanel extends JPanel implements Observer {
 	    }  
 	    
 	}
+
+	class SpeedPanel extends JPanel {
+		private static final long serialVersionUID = 1L;
+
+		private JLabel speedLeftTrackField;
+		private JLabel speedRightTrackField;		
+
+		public SpeedPanel(WorldModel worldModel) {
+			this.setMinimumSize(new Dimension(190, 70));
+			this.setPreferredSize(new Dimension(190, 70));
+			this.setMaximumSize(new Dimension(190, 70));
+			TitledBorder border = new TitledBorder("Track speeds (m/s)");
+			setBorder(border);
+			setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
+			speedLeftTrackField = new JLabel("Left: -");
+			speedLeftTrackField.setAlignmentX(LEFT_ALIGNMENT);
+			speedRightTrackField = new JLabel("Right: -");
+			speedRightTrackField.setAlignmentX(LEFT_ALIGNMENT);
+			this.add(speedLeftTrackField);	
+			this.add(speedRightTrackField);					
+		}
+			
+		public void update(WorldModel worldModel, Sample sample) {
+			DecimalFormat format = new DecimalFormat("0.000");			
+			speedLeftTrackField.setText("Left: " + format.format(worldModel.getRobot().getSpeedLeftTrack()));
+			speedRightTrackField.setText("Right: " + format.format(worldModel.getRobot().getSpeedRightTrack()));
+			repaint();
+		}
+		
+	}		
 	
 }

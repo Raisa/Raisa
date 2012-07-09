@@ -17,6 +17,7 @@ public class Sample {
 	private int leftTrackTicks;
 	private int rightTrackTicks;
 	private int soundIntensity;
+	private long timestampMillis;
 	
 	public String getSampleString() {
 		return sampleString;
@@ -93,6 +94,10 @@ public class Sample {
 	public void setSoundIntensity(int intensity) {
 		soundIntensity = intensity;
 	}	
+
+	public void setTimestampMillis(long timestamp) {
+		timestampMillis = timestamp;
+	}		
 	
 	public float getInfrared1Angle() {
 		return infrared1Angle;
@@ -137,5 +142,9 @@ public class Sample {
 	public int getSoundIntensity() {
 		return soundIntensity;
 	}		
+
+	public long getTimestampMillis() {
+		return timestampMillis;
+	}
 	
 }
