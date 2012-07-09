@@ -23,8 +23,12 @@ public class WorldModel extends Observable implements Serializable {
 		return samples;
 	}
 	
-	public List<Robot> getStates() {
-		return states;
+	public List<Robot> getStates() {		
+		List<Robot> copy = new ArrayList<Robot>();
+		synchronized(states) {
+			copy.addAll(states);
+		}
+		return copy;
 	}
 	
 	public void addSample(String message) {
@@ -34,7 +38,9 @@ public class WorldModel extends Observable implements Serializable {
 	
 	public void addSample(Sample sample) {
 		robot = robot.moveRobot(sample);
-		states.add(robot);
+		synchronized(states) {
+			states.add(robot);
+		}
 		samples.add(sample);		
 		setChanged();
 		notifyObservers(sample);
