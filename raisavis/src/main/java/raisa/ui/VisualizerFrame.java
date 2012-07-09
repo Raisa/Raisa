@@ -176,6 +176,8 @@ public class VisualizerFrame extends JFrame {
 		final int FORWARD_ACTION_KEY = ++nextFreeActionKey;
 		final int BACK_ACTION_KEY = ++nextFreeActionKey;
 		final int LIGHTS_ACTION_KEY = ++nextFreeActionKey;		
+		final int UNDO_ACTION_KEY = ++nextFreeActionKey;		
+		final int REDO_ACTION_KEY = ++nextFreeActionKey;		
 		
 		visualizerPanel.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke('+'), ZOOM_IN_ACTION_KEY);
 		visualizerPanel.getActionMap().put(ZOOM_IN_ACTION_KEY, new AbstractAction() {
@@ -273,6 +275,31 @@ public class VisualizerFrame extends JFrame {
 			}
 		});
 		
+		visualizerPanel.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_Z, KeyEvent.CTRL_DOWN_MASK), UNDO_ACTION_KEY);
+		visualizerPanel.getActionMap().put(UNDO_ACTION_KEY, new AbstractAction() {
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public void actionPerformed(ActionEvent event) {
+				if (isUserEditUndoable()) {
+					popUserEditUndoLevel();
+					VisualizerFrame.this.repaint();
+				}
+			}
+		});
+
+		visualizerPanel.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_Y, KeyEvent.CTRL_DOWN_MASK), REDO_ACTION_KEY);
+		visualizerPanel.getActionMap().put(REDO_ACTION_KEY, new AbstractAction() {
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public void actionPerformed(ActionEvent event) {
+				if (isUserEditRedoable()) {
+					redoUserEditUndoLevel();
+					VisualizerFrame.this.repaint();
+				}
+			}
+		});
 
 		updateTitle();
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
