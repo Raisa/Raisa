@@ -5,6 +5,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Observable;
 
+import raisa.comms.SampleParser;
+
 
 public class WorldModel extends Observable implements Serializable {
 	private static final long serialVersionUID = 1L;
@@ -21,13 +23,12 @@ public class WorldModel extends Observable implements Serializable {
 	}
 	
 	public void addSample(String message) {
-		Sample sample = new Sample(message);
+		Sample sample = new SampleParser().parse(message);
 		addSample(sample);
 	}
 	
 	public void addSample(Sample sample) {
 		this.robot = robot.moveRobot(sample);
-		sample.setRobot(robot);	
 		samples.add(sample);		
 		this.setChanged();
 		this.notifyObservers(sample);

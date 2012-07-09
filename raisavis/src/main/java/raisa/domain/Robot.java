@@ -31,23 +31,32 @@ public class Robot {
 	
 	public Float getPosition() {
 		return new Float(
-				(positionLeftWheel.x + positionRightWheel.x) / 2,
-				(positionLeftWheel.y + positionRightWheel.y) / 2);
+				(positionLeftWheel.x + positionRightWheel.x) / 2.0f,
+				(positionLeftWheel.y + positionRightWheel.y) / 2.0f);
 	}
 	
+	public float getHeading() {
+		return heading;
+	}
+
+	public void setHeading(float heading) {
+		this.heading = heading;
+	}
+
 	public Robot moveRobot(Sample sample) {
-		Robot r = new Robot();
-		float leftWheelTrip = (WHEEL_DIAMETER * sample.getLeftWheelTicks() * TICK_RADIANS) / 2.0f;
-		float rightWheelTrip = (WHEEL_DIAMETER * sample.getRightWheelTicks() * TICK_RADIANS) / 2.0f;
+		Robot r = new Robot();		
+		float leftWheelTrip = (WHEEL_DIAMETER * sample.getLeftTrackTicks() * TICK_RADIANS) / 2.0f;
+		float rightWheelTrip = (WHEEL_DIAMETER * sample.getRightTrackTicks() * TICK_RADIANS) / 2.0f;
 		
+		float h = sample.getCompassDirection();
 		r.positionLeftWheel = new Float(
-				this.positionLeftWheel.x + leftWheelTrip * (float)Math.sin(sample.getHeading()),
-				this.positionLeftWheel.y - leftWheelTrip * (float)Math.cos(sample.getHeading()));
+				this.positionLeftWheel.x + leftWheelTrip * (float)Math.sin(h),
+				this.positionLeftWheel.y - leftWheelTrip * (float)Math.cos(h));
 				
 		r.positionRightWheel = new Float(
-				this.positionRightWheel.x + rightWheelTrip * (float)Math.sin(sample.getHeading()),
-				this.positionRightWheel.y - rightWheelTrip * (float)Math.cos(sample.getHeading()));
-		r.heading = sample.getHeading();
+				this.positionRightWheel.x + rightWheelTrip * (float)Math.sin(h),
+				this.positionRightWheel.y - rightWheelTrip * (float)Math.cos(h));
+		r.heading = h;
 		return r;
 	}
 	

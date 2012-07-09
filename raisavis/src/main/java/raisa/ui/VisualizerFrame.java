@@ -26,6 +26,7 @@ import javax.swing.KeyStroke;
 import raisa.comms.BasicController;
 import raisa.comms.ConsoleCommunicator;
 import raisa.comms.FailoverCommunicator;
+import raisa.comms.SampleParser;
 import raisa.comms.SerialCommunicator;
 import raisa.domain.Sample;
 import raisa.domain.WorldModel;
@@ -319,7 +320,7 @@ public class VisualizerFrame extends JFrame {
 	private void internalSave(String fileName) throws Exception {
 		BufferedWriter writer = new BufferedWriter(new FileWriter(fileName));
 		for (Sample sample : worldModel.getSamples()) {
-			writer.write(sample.sampleString);
+			writer.write(sample.getSampleString());
 			writer.newLine();
 		}
 		writer.close();
@@ -329,8 +330,9 @@ public class VisualizerFrame extends JFrame {
 		BufferedReader fr = new BufferedReader(new FileReader(fileName));
 		List<String> sampleStrings = new ArrayList<String>();
 		String line = fr.readLine();
+		SampleParser parser = new SampleParser();
 		while (line != null) {
-			if (!Sample.isValid(line)) {
+			if (!parser.isValid(line)) {
 				System.out.println("Invalid sample! \"" + line + "\"");
 			} else {
 				sampleStrings.add(line);
