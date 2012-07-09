@@ -85,6 +85,21 @@ public class VisualizerFrame extends JFrame {
 				save(null);
 			}
 		});
+		JMenuItem loadMap = new JMenuItem("Load map...");
+		loadMap.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				loadMap(null);
+				VisualizerFrame.this.repaint();
+			}
+		});		
+		JMenuItem saveMapAs = new JMenuItem("Save map as...");
+		saveMapAs.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				saveMap(null);
+			}
+		});		
 		JMenuItem exit = new JMenuItem("Exit");
 		exit.setMnemonic('x');
 		exit.addActionListener(new ActionListener() {
@@ -98,6 +113,9 @@ public class VisualizerFrame extends JFrame {
 		mainMenu.add(loadSimulation);
 		mainMenu.add(loadData);
 		mainMenu.add(saveAs);
+		mainMenu.addSeparator();
+		mainMenu.add(loadMap);
+		mainMenu.add(saveMapAs);
 		mainMenu.addSeparator();
 		mainMenu.add(exit);
 		menuBar.add(mainMenu);
@@ -255,6 +273,56 @@ public class VisualizerFrame extends JFrame {
 		setVisible(true);
 		setLocationRelativeTo(null);
 		setExtendedState(JFrame.MAXIMIZED_BOTH);
+	}
+
+	protected void loadMap(String fileName) {
+		if (fileName == null) {
+			final JFileChooser chooser = new JFileChooser(defaultDirectory);
+			chooser.addActionListener(new ActionListener() {
+				@Override
+				public void actionPerformed(ActionEvent arg0) {
+					String fileName = chooser.getSelectedFile().getAbsolutePath();
+					try {
+						saveDefaultDirectory(fileName);
+						visualizerPanel.loadMap(fileName);
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
+				}
+			});
+			chooser.showOpenDialog(this);
+		} else {
+			try {
+				visualizerPanel.loadMap(fileName);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+	}
+
+	protected void saveMap(String fileName) {
+		if (fileName == null) {
+			final JFileChooser chooser = new JFileChooser(defaultDirectory);
+			chooser.addActionListener(new ActionListener() {
+				@Override
+				public void actionPerformed(ActionEvent arg0) {
+					String fileName = chooser.getSelectedFile().getAbsolutePath();
+					try {
+						saveDefaultDirectory(fileName);
+						visualizerPanel.saveMap(fileName);
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
+				}
+			});
+			chooser.showSaveDialog(this);
+		} else {
+			try {
+				visualizerPanel.saveMap(fileName);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
 	}
 
 	private void setCurrentTool(Tool tool) {

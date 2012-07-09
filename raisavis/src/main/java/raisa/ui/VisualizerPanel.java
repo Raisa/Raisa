@@ -14,12 +14,16 @@ import java.awt.event.MouseWheelListener;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Path2D;
 import java.awt.geom.Point2D.Float;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Observable;
 import java.util.Observer;
 
+import javax.imageio.ImageIO;
 import javax.swing.JPanel;
 
 import raisa.domain.Grid;
@@ -466,5 +470,23 @@ public class VisualizerPanel extends JPanel implements Observer {
 
 	public int getUserRedoLevels() {
 		return grid.getUserRedoLevels();
+	}
+
+	public void saveMap(String fileName) {
+		try {
+			ImageIO.write(grid.getUserImage(), "PNG", new File(fileName));
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+
+	public void loadMap(String fileName) {
+		try {
+			BufferedImage mapImage = ImageIO.read(new File(fileName));
+			grid.pushUserUndoLevel();
+			grid.setUserImage(mapImage);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 }

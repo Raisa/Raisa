@@ -95,4 +95,8 @@ public class Grid {
 	public int getUserRedoLevels() {
 		return userUndoLevels.size() - userUndoLevel - 1;
 	}
+
+	public void setUserImage(BufferedImage mapImage) {
+		getUserImage().setData(mapImage.getData());
+	}
 }
