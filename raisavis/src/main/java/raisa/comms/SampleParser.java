@@ -77,6 +77,9 @@ public class SampleParser {
 				} else if (part.startsWith("RR")) {
 					int ticks = Integer.parseInt(value);
 					sample.setRightTrackTicks(ticks);
+				} else if (part.startsWith("SB")) {
+					int intensity = Integer.parseInt(value);
+					sample.setSoundIntensity(intensity);					
 				} else {
 				}
 			}
