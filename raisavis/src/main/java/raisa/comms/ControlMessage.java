@@ -11,20 +11,16 @@ public class ControlMessage {
 	};
 
 	public static final int SPEED_STEPS = speedPowerMap.length; 
-	private static long firstMessageTimestamp = -1;
 	
 	private final int leftSpeed;
 	private final int rightSpeed;
 	private final boolean lights;
 	private final long timestamp;
-	public ControlMessage(int leftSpeed, int rightSpeed, boolean lights) {
+	public ControlMessage(long timestamp, int leftSpeed, int rightSpeed, boolean lights) {
 		this.leftSpeed = leftSpeed;
 		this.rightSpeed = rightSpeed;
 		this.lights = lights;
-		this.timestamp = System.currentTimeMillis();
-		if(firstMessageTimestamp < 0) {
-			firstMessageTimestamp = timestamp;
-		}
+		this.timestamp = timestamp;
 	}
 	
 	public byte[] toSerialMessage() {
@@ -43,7 +39,7 @@ public class ControlMessage {
 	}
 	
 	public long getTimestamp() {
-		return timestamp - firstMessageTimestamp;
+		return timestamp;
 	}
 	
 	@Override
