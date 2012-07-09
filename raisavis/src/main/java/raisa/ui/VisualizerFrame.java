@@ -43,6 +43,7 @@ public class VisualizerFrame extends JFrame {
 	private Tool currentTool;
 	private DrawTool drawTool = new DrawTool(this);
 	private MeasureTool measureTool = new MeasureTool(this);
+	private List<UserEditUndoListener> userEditUndoListeners = new ArrayList<UserEditUndoListener>();
 	
 	public VisualizerFrame(WorldModel worldModel) {
 		visualizerPanel = new VisualizerPanel(this, worldModel);
@@ -446,8 +447,12 @@ public class VisualizerFrame extends JFrame {
 		visualizerPanel.panCameraBy(dx, dy);
 	}
 
-	public void setPosition(Vector2D position) {
-		visualizerPanel.setPosition(position);
+	public void setGridPosition(Vector2D position, boolean isBlocked) {
+		visualizerPanel.setGridPosition(position, isBlocked);
+	}
+
+	public void setUserPosition(Vector2D position, boolean isBlocked) {
+		visualizerPanel.setUserPosition(position, isBlocked);
 	}
 
 	public Vector2D toWorld(Vector2D screenPosition) {
@@ -456,5 +461,38 @@ public class VisualizerFrame extends JFrame {
 
 	public float toWorld(float screenDistance) {
 		return visualizerPanel.toWorld(screenDistance);
+	}
+	
+	public void pushUserEditUndoLevel() {
+		visualizerPanel.pushUserEditUndoLevel();
+		notifyUserEditUndoAction();
+	}
+	
+	private void notifyUserEditUndoAction() {
+		for (UserEditUndoListener listener : userEditUndoListeners) {
+			listener.usedEditUndoAction();
+		}
+	}
+	
+	public void addUserEditUndoListener(UserEditUndoListener listener) {
+		userEditUndoListeners.add(listener);
+	}
+
+	public void popUserEditUndoLevel() {
+		visualizerPanel.popUserEditUndoLevel();
+		notifyUserEditUndoAction();
+	}
+
+	public void redoUserEditUndoLevel() {
+		visualizerPanel.redoUserEditUndoLevel();
+		notifyUserEditUndoAction();
+	}
+
+	public boolean isUserEditUndoable() {
+		return visualizerPanel.isUserEditUndoable();
+	}
+
+	public boolean isUserEditRedoable() {
+		return visualizerPanel.isUserEditRedoable();
 	}
 }

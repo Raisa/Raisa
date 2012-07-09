@@ -7,6 +7,7 @@ import java.util.Observable;
 import java.awt.geom.Point2D.Float;
 
 import raisa.comms.SampleParser;
+import raisa.util.CollectionUtil;
 
 
 public class WorldModel extends Observable implements Serializable {
@@ -49,10 +50,13 @@ public class WorldModel extends Observable implements Serializable {
 		notifyObservers(sample);
 	}
 	
+	/**
+	 * Calculate speed for tracks based on locations and timestamps of the previous states.
+	 */
 	private void calculateSpeed() {
 		float currentSpeedLeftTrack = 0.0f;
 		float currentSpeedRightTrack = 0.0f;
-		List<Robot> pastStates = takeLast(states, 5);
+		List<Robot> pastStates = CollectionUtil.takeLast(states, 5);
 		if (pastStates.size() > 1) {
 			boolean isFirst = true;
 			Float previousPositionLeftTrack = new Float(), previousPositionRightTrack = new Float();
@@ -84,7 +88,7 @@ public class WorldModel extends Observable implements Serializable {
 	}
 	
 	public void removeOldSamples(int preserveLength) {
-		samples = takeLast(samples, preserveLength);
+		samples = CollectionUtil.takeLast(samples, preserveLength);
 	}
 	
 	public void clearSamples() {
@@ -92,18 +96,7 @@ public class WorldModel extends Observable implements Serializable {
 	}
 	
 	public List<Sample> getLastSamples(int numberOfSamples) {
-		return takeLast(samples, numberOfSamples);
-	}
-	
-	public static <T> List<T> takeLast(List<T> samples, int length) {
-		if (samples.size() > length) {
-			int fromIndex = Math.max(0, samples.size() - length);
-			int toIndex = samples.size();
-			List<T> newSamples = new ArrayList<T>();
-			newSamples.addAll(samples.subList(fromIndex, toIndex));
-			return newSamples;
-		}
-		return samples;
+		return CollectionUtil.takeLast(samples, numberOfSamples);
 	}	
 	
 }

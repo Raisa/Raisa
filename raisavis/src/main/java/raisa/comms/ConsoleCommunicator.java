@@ -3,8 +3,8 @@ package raisa.comms;
 public class ConsoleCommunicator implements Communicator {
 
 	@Override
-	public void sendPackage(byte[] bytes) {
-		System.out.println(new String(bytes));
+	public void sendPackage(ControlMessage controlMessage) {
+		System.out.println(controlMessage);
 	}
 
 	@Override

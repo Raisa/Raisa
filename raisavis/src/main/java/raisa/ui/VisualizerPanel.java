@@ -26,6 +26,7 @@ import raisa.domain.Grid;
 import raisa.domain.Robot;
 import raisa.domain.Sample;
 import raisa.domain.WorldModel;
+import raisa.util.CollectionUtil;
 import raisa.util.GeometryUtil;
 import raisa.util.Vector2D;
 
@@ -34,7 +35,9 @@ public class VisualizerPanel extends JPanel implements Observer {
 	private Color measurementColor = new Color(0.4f, 0.4f, 0.4f);
 	private Float camera = new Float();
 	private Float mouse = new Float();
+	private Float mouseDownPosition = new Float();
 	private Float mouseDragStart = new Float();
+	private boolean mouseDragging = false;
 	private float scale = 1.0f;
 	private List<Sample> latestIR = new ArrayList<Sample>();
 	private List<Sample> latestSR = new ArrayList<Sample>();
@@ -74,20 +77,19 @@ public class VisualizerPanel extends JPanel implements Observer {
 		Sample sample = (Sample)s;
 		if (sample.isInfrared1MeasurementValid()) {
 			Vector2D spotPosition = GeometryUtil.calculatePosition(worldModel.getRobot().getPosition(), worldModel.getRobot().getHeading() + sample.getInfrared1Angle(), sample.getInfrared1Distance());
-			grid.setPosition(spotPosition, true);
+			grid.setGridPosition(spotPosition, true);
 			latestIR.add(sample);
-			latestIR = WorldModel.takeLast(latestIR, 10);
+			latestIR = CollectionUtil.takeLast(latestIR, 10);
 		}
 		if (sample.isUltrasound1MeasurementValid()) {
 			//grid.addSpot(sample.getSrSpot());
 			latestSR.add(sample);
-			latestSR = WorldModel.takeLast(latestSR, 10);
+			latestSR = CollectionUtil.takeLast(latestSR, 10);
 		}
 		repaint();
 	}
 
 	public void paintComponent(Graphics g) {
-		Robot robot = worldModel.getRobot();
 		Graphics2D g2 = (Graphics2D) g;
 		clearScreen(g);
 		drawGrid(g2);
@@ -96,6 +98,9 @@ public class VisualizerPanel extends JPanel implements Observer {
 		drawArrow(g2);
 		drawUltrasoundResults(g);
 		drawIrResults(g, g2);
+		if (mouseDragging) {
+			drawMeasurementLine(g2, toWorld(new Vector2D(mouseDownPosition)), toWorld(new Vector2D(mouse)));
+		}
 	}
 
 	private void drawRobotTrail(Graphics2D g2, List<Robot> states) {
@@ -141,6 +146,7 @@ public class VisualizerPanel extends JPanel implements Observer {
 		float size = Grid.GRID_SIZE * Grid.CELL_SIZE;
 		Float screen = toScreen(new Float(- size * 0.5f, - size * 0.5f));
 		int screenSize = (int)toScreen(size);
+		g2.drawImage(grid.getUserImage(), (int)screen.x, (int)screen.y, screenSize, screenSize, null);
 		g2.drawImage(grid.getBlockedImage(), (int)screen.x, (int)screen.y, screenSize, screenSize, null);
 	}
 	
@@ -382,6 +388,9 @@ public class VisualizerPanel extends JPanel implements Observer {
 		public void mousePressed(MouseEvent mouseEvent) {
 			mouseDragStart.x = mouseEvent.getX();
 			mouseDragStart.y = mouseEvent.getY();			
+			mouseDownPosition.x = mouseEvent.getX();
+			mouseDownPosition.y = mouseEvent.getY();
+			mouseDragging = true;
 			visualizerFrame.getCurrentTool().mousePressed(mouseEvent, mouseDragStart);
 		}
 
@@ -389,7 +398,8 @@ public class VisualizerPanel extends JPanel implements Observer {
 		public void mouseReleased(MouseEvent mouseEvent) {
 			mouse.x = mouseEvent.getX();
 			mouse.y = mouseEvent.getY();
-			visualizerFrame.getCurrentTool().mouseReleased(mouseEvent, mouse);
+			mouseDragging = false;
+			visualizerFrame.getCurrentTool().mouseReleased(mouseEvent, mouseDownPosition, mouse);
 		}
 	}
 
@@ -422,7 +432,31 @@ public class VisualizerPanel extends JPanel implements Observer {
 		camera.y += dy;
 	}
 
-	public void setPosition(Vector2D position) {
-		grid.setPosition(position, true);
+	public void setGridPosition(Vector2D position, boolean isBlocked) {
+		grid.setGridPosition(position, isBlocked);
+	}
+
+	public void setUserPosition(Vector2D position, boolean isBlocked) {
+		grid.setUserPosition(position, isBlocked);
+	}
+	
+	public void pushUserEditUndoLevel() {
+		grid.pushUserUndoLevel();
+	}
+	
+	public void popUserEditUndoLevel() {
+		grid.popUserUndoLevel();
+	}
+
+	public void redoUserEditUndoLevel() {
+		grid.redoUserUndoLevel();
+	}
+
+	public boolean isUserEditUndoable() {
+		return grid.isUserEditUndoable();
+	}
+
+	public boolean isUserEditRedoable() {
+		return grid.isUserEditRedoable();
 	}
 }

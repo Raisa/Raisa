@@ -11,20 +11,7 @@ public class MeasureTool extends BasicTool {
 	}
 
 	@Override
-	public void mouseMoved(MouseEvent mouseEvent, Float mouse) {
-	}
-
-	@Override
 	public void mouseDragged(MouseEvent mouseEvent, Float mouseFrom, Float mouseTo) {
 		super.mouseDragged(mouseEvent, mouseFrom, mouseTo);
 	}
-
-	@Override
-	public void mousePressed(MouseEvent mouseEvent, Float mouse) {
-	}
-
-	@Override
-	public void mouseReleased(MouseEvent mouseEvent, Float mouseDragStart) {
-	}
-
 }

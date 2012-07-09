@@ -7,5 +7,5 @@ public interface Tool {
 	void mouseMoved(MouseEvent mouseEvent, Float mouse);
 	void mouseDragged(MouseEvent mouseEvent, Float mouseFrom, Float mouseTo);
 	void mousePressed(MouseEvent mouseEvent, Float mouse);
-	void mouseReleased(MouseEvent mouseEvent, Float mouseDragStart);
+	void mouseReleased(MouseEvent mouseEvent, Float mouseFrom, Float mouseTo);
 }

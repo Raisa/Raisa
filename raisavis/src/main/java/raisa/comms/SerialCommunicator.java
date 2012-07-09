@@ -120,9 +120,9 @@ public class SerialCommunicator implements SerialPortEventListener, Communicator
 	}
 
 	@Override
-	public void sendPackage(byte[] bytes) {
+	public void sendPackage(ControlMessage controlMessage) {
 		try {
-			serialPort.getOutputStream().write(bytes);
+			serialPort.getOutputStream().write(controlMessage.toSerialMessage());
 			serialPort.getOutputStream().flush();
 		} catch (IOException e) {
 			e.printStackTrace();

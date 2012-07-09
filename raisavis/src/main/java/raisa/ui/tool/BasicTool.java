@@ -34,7 +34,7 @@ public abstract class BasicTool implements Tool {
 	}
 
 	@Override
-	public void mouseReleased(MouseEvent mouseEvent, Float mouseDragStart) {
+	public void mouseReleased(MouseEvent mouseEvent, Float mouseFrom, Float mouseTo) {
 	}
 
 }

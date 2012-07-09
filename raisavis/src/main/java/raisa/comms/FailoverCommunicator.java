@@ -12,9 +12,9 @@ public class FailoverCommunicator implements Communicator {
 	}
 
 	@Override
-	public void sendPackage(byte[] bytes) {
+	public void sendPackage(ControlMessage controlMessage) {
 		if (currentCommunicator != null) {
-			currentCommunicator.sendPackage(bytes);
+			currentCommunicator.sendPackage(controlMessage);
 		}
 	}
 

@@ -6,6 +6,7 @@ import java.awt.event.ActionListener;
 
 import javax.swing.BoxLayout;
 import javax.swing.ButtonGroup;
+import javax.swing.JButton;
 import javax.swing.JPanel;
 import javax.swing.JToggleButton;
 import javax.swing.border.TitledBorder;
@@ -39,6 +40,34 @@ public class ToolPanel extends JPanel {
 		ButtonGroup toolGroup = new ButtonGroup();
 		toolGroup.add(measure);
 		toolGroup.add(draw);
+		
+		JPanel undoRedo = new JPanel();
+		final JButton undo = new JButton("Undo");
+		undo.setEnabled(false);
+		undo.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent event) {
+				frame.popUserEditUndoLevel();
+			}			
+		});
+		undoRedo.add(undo);
+		final JButton redo = new JButton("Redo");
+		redo.setEnabled(false);
+		redo.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent event) {
+				frame.redoUserEditUndoLevel();
+			}			
+		});
+		undoRedo.add(redo);
+		add(undoRedo);
+		frame.addUserEditUndoListener(new UserEditUndoListener() {
+			@Override
+			public void usedEditUndoAction() {
+				undo.setEnabled(frame.isUserEditUndoable());
+				redo.setEnabled(frame.isUserEditRedoable());
+			}
+		});
 	}
 
 }
