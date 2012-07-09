@@ -446,8 +446,8 @@ public class VisualizerFrame extends JFrame {
 		visualizerPanel.panCameraBy(dx, dy);
 	}
 
-	public void setPosition(Vector2D position) {
-		visualizerPanel.setPosition(position);
+	public void setPosition(Vector2D position, boolean isBlocked) {
+		visualizerPanel.setPosition(position, isBlocked);
 	}
 
 	public Vector2D toWorld(Vector2D screenPosition) {

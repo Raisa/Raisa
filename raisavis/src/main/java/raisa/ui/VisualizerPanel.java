@@ -422,7 +422,7 @@ public class VisualizerPanel extends JPanel implements Observer {
 		camera.y += dy;
 	}
 
-	public void setPosition(Vector2D position) {
-		grid.setPosition(position, true);
+	public void setPosition(Vector2D position, boolean isBlocked) {
+		grid.setPosition(position, isBlocked);
 	}
 }

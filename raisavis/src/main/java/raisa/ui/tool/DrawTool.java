@@ -21,7 +21,7 @@ public class DrawTool extends BasicTool {
 			for (int i = 0; i < length; ++i) {
 				position.x = mouseFrom.x + i * dx;
 				position.y = mouseFrom.y + i * dy;
-				drawPoint(position);
+				drawPoint(position, !mouseEvent.isShiftDown());
 			}
 		} else {
 			super.mouseDragged(mouseEvent, mouseFrom, mouseTo);
@@ -31,19 +31,19 @@ public class DrawTool extends BasicTool {
 	@Override
 	public void mousePressed(MouseEvent mouseEvent, Float mouse) {
 		if ((mouseEvent.getModifiersEx() & MouseEvent.BUTTON1_DOWN_MASK) > 0) {
-			drawPoint(mouse);
+			drawPoint(mouse, !mouseEvent.isShiftDown());
 		}
 	}
 
 	@Override
 	public void mouseReleased(MouseEvent mouseEvent, Float mouse) {
 		if (mouseEvent.getButton() == MouseEvent.BUTTON1) {
-			drawPoint(mouse);
+			drawPoint(mouse, !mouseEvent.isShiftDown());
 		}
 	}
 
-	private void drawPoint(Float mouse) {
+	private void drawPoint(Float mouse, boolean isBlocked) {
 		Vector2D worldPosition = getVisualizerFrame().toWorld(new Vector2D(mouse));
-		getVisualizerFrame().setPosition(worldPosition);
+		getVisualizerFrame().setPosition(worldPosition, isBlocked);
 	}
 }
