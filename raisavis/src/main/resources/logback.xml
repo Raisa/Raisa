@@ -1,0 +1,27 @@
+<configuration scan="true" scanPeriod="10 seconds">
+
+	<appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+		<!-- encoders are assigned the type ch.qos.logback.classic.encoder.PatternLayoutEncoder 
+			by default -->
+		<encoder>
+			<!-- <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern> -->
+			<pattern>%d{HH:mm:ss.SSS} %-5level %logger{20}: %msg%n</pattern>
+		</encoder>
+	</appender>
+	<appender name="TO-ARDUINO" class="ch.qos.logback.core.ConsoleAppender">
+		<encoder>
+			<pattern>-&gt;robot: %msg%n</pattern>
+		</encoder>
+	</appender>
+
+	<logger name="ch.qos.logback" level="warn" />
+	<logger name="logback.classic" level = "warn" />
+	
+	<logger name="raisa.comms.ConsoleCommunicator" level="INFO" additivity="false">
+		<appender-ref ref="TO-ARDUINO" />
+	</logger>
+
+	<root level="INFO">
+		<appender-ref ref="STDOUT" />
+	</root>
+</configuration>

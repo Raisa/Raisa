@@ -2,17 +2,13 @@ package raisa.comms;
 
 import static raisa.comms.ControlMessage.SPEED_STEPS;
 
-import java.util.ArrayList;
-import java.util.List;
-
-public class BasicController {
+public class BasicController extends Controller {
 	private Communicator communicator;
 	
 	private int leftSpeed;
 	private int rightSpeed;
 	private boolean lights;
 	private long sessionStartTimestamp = -1;
-	private List<ControllerListener> controlListeners = new ArrayList<ControllerListener>();
 	
 	public BasicController(Communicator communicator) {
 		this.communicator = communicator;
@@ -83,16 +79,6 @@ public class BasicController {
 		notifyControlListeners();
 	}
 
-	private void notifyControlListeners() {
-		for (ControllerListener listener : controlListeners) {
-			listener.controlsChanged(this);
-		}
-	}
-
-	public void addContolListener(ControllerListener controlListener) {
-		controlListeners.add(controlListener);
-	}
-
 	public int getLeftSpeed() {
 		return leftSpeed;
 	}
@@ -103,5 +89,11 @@ public class BasicController {
 
 	public boolean getLights() {
 		return lights;
+	}
+
+	public void copyListenersTo(Controller targetController) {
+		for(ControllerListener controlListener : controlListeners ) {
+			targetController.addContolListener(controlListener);
+		}
 	}
 }

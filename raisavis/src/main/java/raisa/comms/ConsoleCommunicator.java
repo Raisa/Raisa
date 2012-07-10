@@ -1,10 +1,13 @@
 package raisa.comms;
 
-public class ConsoleCommunicator implements Communicator {
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+public class ConsoleCommunicator implements Communicator {
+	private static final Logger log = LoggerFactory.getLogger(ConsoleCommunicator.class);
 	@Override
 	public void sendPackage(ControlMessage controlMessage) {
-		System.out.println(controlMessage.toJson());
+		log.info("{}", controlMessage.toJson());
 	}
 
 	@Override

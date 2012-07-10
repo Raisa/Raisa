@@ -12,6 +12,7 @@ import javax.swing.JSeparator;
 import javax.swing.border.TitledBorder;
 
 import raisa.comms.BasicController;
+import raisa.comms.Controller;
 import raisa.comms.ControllerListener;
 
 public class MovementPanel extends JPanel {
@@ -74,9 +75,9 @@ public class MovementPanel extends JPanel {
 		controller.addContolListener(new ControllerListener() {
 
 			@Override
-			public void controlsChanged(BasicController basicController) {
-				leftSpeedLabel.setText(""+basicController.getLeftSpeed());
-				rightSpeedLabel.setText(""+basicController.getRightSpeed());
+			public void controlsChanged(Controller controller) {
+				leftSpeedLabel.setText(""+controller.getLeftSpeed());
+				rightSpeedLabel.setText(""+controller.getRightSpeed());
 			}
 			
 		});

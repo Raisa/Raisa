@@ -9,6 +9,7 @@ import javax.swing.JToggleButton;
 import javax.swing.border.TitledBorder;
 
 import raisa.comms.BasicController;
+import raisa.comms.Controller;
 import raisa.comms.ControllerListener;
 
 public class OtherControlsPanel extends JPanel {
@@ -28,8 +29,8 @@ public class OtherControlsPanel extends JPanel {
 		add(lightsButton);
 		controller.addContolListener(new ControllerListener() {
 			@Override
-			public void controlsChanged(BasicController basicController) {
-				lightsButton.setSelected(basicController.getLights());
+			public void controlsChanged(Controller controller) {
+				lightsButton.setSelected(controller.getLights());
 			}			
 		});
 	}

@@ -23,9 +23,15 @@ import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.KeyStroke;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import raisa.comms.BasicController;
+import raisa.comms.Communicator;
 import raisa.comms.ConsoleCommunicator;
+import raisa.comms.ControlMessage;
 import raisa.comms.FailoverCommunicator;
+import raisa.comms.ReplayController;
 import raisa.comms.SampleParser;
 import raisa.comms.SerialCommunicator;
 import raisa.domain.Sample;
@@ -36,6 +42,7 @@ import raisa.ui.tool.Tool;
 import raisa.util.Vector2D;
 
 public class VisualizerFrame extends JFrame {
+	private static final Logger log = LoggerFactory.getLogger(VisualizerFrame.class);
 	private static final long serialVersionUID = 1L;
 	private VisualizerPanel visualizerPanel;
 	private File defaultDirectory = new File(".");
@@ -44,6 +51,8 @@ public class VisualizerFrame extends JFrame {
 	private DrawTool drawTool = new DrawTool(this);
 	private MeasureTool measureTool = new MeasureTool(this);
 	private List<UserEditUndoListener> userEditUndoListeners = new ArrayList<UserEditUndoListener>();
+	private final Communicator communicator;
+	private final BasicController controller;
 	
 	public VisualizerFrame(WorldModel worldModel) {
 		visualizerPanel = new VisualizerPanel(this, worldModel);
@@ -77,6 +86,14 @@ public class VisualizerFrame extends JFrame {
 				loadData(null);
 			}
 		});
+		JMenuItem loadReplay = new JMenuItem("Load replay...");
+		loadReplay.setMnemonic('p');
+		loadReplay.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				loadReplay();
+			}
+		});
 		JMenuItem saveAs = new JMenuItem("Save as...");
 		saveAs.setMnemonic('a');
 		saveAs.addActionListener(new ActionListener() {
@@ -93,7 +110,7 @@ public class VisualizerFrame extends JFrame {
 				notifyUserEditUndoAction();
 				VisualizerFrame.this.repaint();
 			}
-		});		
+		});
 		JMenuItem resetMap = new JMenuItem("Reset map");
 		resetMap.addActionListener(new ActionListener() {
 			@Override
@@ -122,6 +139,7 @@ public class VisualizerFrame extends JFrame {
 		mainMenu.addSeparator();
 		mainMenu.add(loadSimulation);
 		mainMenu.add(loadData);
+		mainMenu.add(loadReplay);
 		mainMenu.add(saveAs);
 		mainMenu.addSeparator();
 		mainMenu.add(resetMap);
@@ -156,10 +174,10 @@ public class VisualizerFrame extends JFrame {
 		viewMenu.add(zoomOut);
 		menuBar.add(viewMenu);
 
-		FailoverCommunicator communicator = new FailoverCommunicator(new SerialCommunicator(worldModel), new ConsoleCommunicator());;
+		communicator = new FailoverCommunicator(new SerialCommunicator(worldModel), new ConsoleCommunicator());;
 		communicator.connect();
 
-		final BasicController controller = new BasicController(communicator);
+		controller = new BasicController(communicator);
 		
 		setCurrentTool(drawTool);
 		
@@ -442,6 +460,46 @@ public class VisualizerFrame extends JFrame {
 		}
 	}
 
+	public void loadReplay() {
+		final JFileChooser chooser = new JFileChooser(defaultDirectory);
+		chooser.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				if(chooser.getSelectedFile() == null) {
+					log.debug("Canceled replay file selection");
+					return;
+				}
+				String fileName = chooser.getSelectedFile().getAbsolutePath();
+				try {
+					saveDefaultDirectory(fileName);
+					internalLoadReplay(fileName);
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
+		});
+		chooser.showOpenDialog(this);
+	}
+	private void internalLoadReplay(String fileName) throws FileNotFoundException, IOException {
+		log.debug("Loading replay file {}", fileName);
+		BufferedReader fr = new BufferedReader(new FileReader(fileName));
+		List<ControlMessage> controlMessages = new ArrayList<ControlMessage>();
+		String line = fr.readLine();
+		while (line != null) {
+			// TODO error handling
+			ControlMessage controlMessage = ControlMessage.fromJson(line);
+			if(controlMessage != null) {
+				controlMessages.add(controlMessage);
+			}
+			line = fr.readLine();
+		}
+		log.info("Replaying {} control messages", controlMessages.size());
+		ReplayController replayController = new ReplayController(communicator, controlMessages);
+		controller.copyListenersTo(replayController);
+		replayController.start();
+	}
+	
+	
 	private void internalSave(String fileName) throws Exception {
 		BufferedWriter writer = new BufferedWriter(new FileWriter(fileName));
 		for (Sample sample : worldModel.getSamples()) {
