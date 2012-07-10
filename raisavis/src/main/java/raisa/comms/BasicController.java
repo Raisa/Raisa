@@ -11,11 +11,15 @@ public class BasicController {
 	private int leftSpeed;
 	private int rightSpeed;
 	private boolean lights;
-	
+	private long sessionStartTimestamp = -1;
 	private List<ControllerListener> controlListeners = new ArrayList<ControllerListener>();
 	
 	public BasicController(Communicator communicator) {
 		this.communicator = communicator;
+	}
+
+	public void resetSession() {
+		this.sessionStartTimestamp = System.currentTimeMillis();
 	}
 	
 	private int checkSpeed(int speed) {
@@ -29,7 +33,11 @@ public class BasicController {
 	}
 
 	private ControlMessage createPackage() {
-		return new ControlMessage(leftSpeed, rightSpeed, lights);
+		if(sessionStartTimestamp  < 0) {
+			resetSession();
+		}
+		long relativeTimestamp = System.currentTimeMillis() - sessionStartTimestamp;
+		return new ControlMessage(relativeTimestamp, leftSpeed, rightSpeed, lights);
 	}
 
 	public void sendForward() {

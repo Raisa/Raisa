@@ -1,5 +1,10 @@
 package raisa.comms;
 
+import static org.apache.commons.lang3.builder.EqualsBuilder.reflectionEquals;
+import static org.apache.commons.lang3.builder.HashCodeBuilder.reflectionHashCode;
+
+import com.google.gson.Gson;
+
 public class ControlMessage {
 	private static final byte [] speedPowerMap = new byte[] {
 		(byte)0,
@@ -11,20 +16,20 @@ public class ControlMessage {
 	};
 
 	public static final int SPEED_STEPS = speedPowerMap.length; 
-	private static long firstMessageTimestamp = -1;
 	
 	private final int leftSpeed;
 	private final int rightSpeed;
 	private final boolean lights;
 	private final long timestamp;
-	public ControlMessage(int leftSpeed, int rightSpeed, boolean lights) {
+	public ControlMessage(long timestamp, int leftSpeed, int rightSpeed, boolean lights) {
 		this.leftSpeed = leftSpeed;
 		this.rightSpeed = rightSpeed;
 		this.lights = lights;
-		this.timestamp = System.currentTimeMillis();
-		if(firstMessageTimestamp < 0) {
-			firstMessageTimestamp = timestamp;
-		}
+		this.timestamp = timestamp;
+	}
+	
+	public static ControlMessage fromJson(String json) {
+		return new Gson().fromJson(json, ControlMessage.class);
 	}
 	
 	public byte[] toSerialMessage() {
@@ -43,11 +48,25 @@ public class ControlMessage {
 	}
 	
 	public long getTimestamp() {
-		return timestamp - firstMessageTimestamp;
+		return timestamp;
 	}
 	
 	@Override
 	public String toString() {
 		return String.format("time:%s,left:%s,right:%s,lights:%s", getTimestamp(), leftSpeed, rightSpeed, lights);
+	}
+	
+	public String toJson() {
+		return new Gson().toJson(this); 
+	}
+	
+	@Override
+	public boolean equals(Object obj) {
+		return reflectionEquals(this, obj);
+	}
+	
+	@Override
+	public int hashCode() {
+		return reflectionHashCode(this);
 	}
 }
