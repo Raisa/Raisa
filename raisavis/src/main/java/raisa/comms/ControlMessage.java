@@ -1,5 +1,10 @@
 package raisa.comms;
 
+import static org.apache.commons.lang3.builder.EqualsBuilder.reflectionEquals;
+import static org.apache.commons.lang3.builder.HashCodeBuilder.reflectionHashCode;
+
+import com.google.gson.Gson;
+
 public class ControlMessage {
 	private static final byte [] speedPowerMap = new byte[] {
 		(byte)0,
@@ -21,6 +26,10 @@ public class ControlMessage {
 		this.rightSpeed = rightSpeed;
 		this.lights = lights;
 		this.timestamp = timestamp;
+	}
+	
+	public static ControlMessage fromJson(String json) {
+		return new Gson().fromJson(json, ControlMessage.class);
 	}
 	
 	public byte[] toSerialMessage() {
@@ -45,5 +54,19 @@ public class ControlMessage {
 	@Override
 	public String toString() {
 		return String.format("time:%s,left:%s,right:%s,lights:%s", getTimestamp(), leftSpeed, rightSpeed, lights);
+	}
+	
+	public String toJson() {
+		return new Gson().toJson(this); 
+	}
+	
+	@Override
+	public boolean equals(Object obj) {
+		return reflectionEquals(this, obj);
+	}
+	
+	@Override
+	public int hashCode() {
+		return reflectionHashCode(this);
 	}
 }
