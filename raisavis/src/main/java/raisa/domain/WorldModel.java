@@ -173,4 +173,8 @@ public class WorldModel extends Observable implements Serializable {
 	public Image getBlockedImage() {
 		return grid.getBlockedImage();
 	}
+	
+	public float traceRay(Vector2D from, float angle) {
+		return grid.traceRay(from, angle);
+	}
 }

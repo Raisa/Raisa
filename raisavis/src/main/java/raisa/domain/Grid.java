@@ -108,4 +108,27 @@ public class Grid {
 	public void resetUserImage() {
 		resetImage(getUserImage());
 	}
+
+	public float traceRay(Vector2D from, float angle) {
+		angle = angle - (float)Math.PI * 0.5f;
+		float x = from.x / CELL_SIZE;
+		float y = from.y / CELL_SIZE;
+		float dx = (float)Math.cos(angle);
+		float dy = (float)Math.sin(angle);
+		float maxDistanceInGrid = GRID_SIZE;
+		BufferedImage userImage = getUserImage();
+		int blockedRgb = userBlockedColor.getRGB();
+		
+		for (float currentDistance = 0.0f; currentDistance < maxDistanceInGrid; currentDistance += 1.0f) {
+			x += dx;
+			y += dy;
+			
+			int rgb = userImage.getRGB((int)x, (int)y);
+			if (rgb == blockedRgb) {
+				return currentDistance * CELL_SIZE;
+			}
+		}
+		
+		return maxDistanceInGrid * CELL_SIZE;
+	}
 }
