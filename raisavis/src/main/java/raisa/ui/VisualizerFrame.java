@@ -198,7 +198,8 @@ public class VisualizerFrame extends JFrame {
 		final int BACK_ACTION_KEY = ++nextFreeActionKey;
 		final int LIGHTS_ACTION_KEY = ++nextFreeActionKey;		
 		final int UNDO_ACTION_KEY = ++nextFreeActionKey;		
-		final int REDO_ACTION_KEY = ++nextFreeActionKey;		
+		final int REDO_ACTION_KEY = ++nextFreeActionKey;
+		final int PARTICLE_FILTER_STEP_ACTION_KEY = ++nextFreeActionKey;
 		
 		visualizerPanel.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke('+'), ZOOM_IN_ACTION_KEY);
 		visualizerPanel.getActionMap().put(ZOOM_IN_ACTION_KEY, new AbstractAction() {
@@ -319,6 +320,17 @@ public class VisualizerFrame extends JFrame {
 					redoUserEditUndoLevel();
 					VisualizerFrame.this.repaint();
 				}
+			}
+		});
+
+		visualizerPanel.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke('p'), PARTICLE_FILTER_STEP_ACTION_KEY);
+		visualizerPanel.getActionMap().put(PARTICLE_FILTER_STEP_ACTION_KEY, new AbstractAction() {
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public void actionPerformed(ActionEvent event) {
+				particleFilter.update(worldModel.getSamples());
+				VisualizerFrame.this.repaint();
 			}
 		});
 
