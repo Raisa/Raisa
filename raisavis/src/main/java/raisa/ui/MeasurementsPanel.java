@@ -169,39 +169,6 @@ public class MeasurementsPanel extends JPanel implements Observer {
 		}
 		
 	}
-	
-	class GyroscopePanel_old extends JPanel {
-		private static final long serialVersionUID = 1L;
-
-		private JLabel gyroXField;
-		private JLabel gyroYField;
-		private JLabel gyroZField;
-		
-		public GyroscopePanel_old() {
-			this.setMinimumSize(new Dimension(190,80));
-			this.setPreferredSize(new Dimension(190,80));
-			this.setMaximumSize(new Dimension(190, 80));
-			TitledBorder border = new TitledBorder("Gyroscope (dps)");
-			setBorder(border);
-			setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
-			gyroXField = new JLabel("X: -");
-			gyroYField = new JLabel("Y: -");
-			gyroZField = new JLabel("Z: -");
-			this.add(gyroXField);		
-			this.add(gyroYField);			
-			this.add(gyroZField);						
-		}
-			
-		public void update(WorldModel worldModel, Sample sample) {
-			DecimalFormat format = new DecimalFormat("0.00");			
-			Vector3D angularAcceleration = sample.getGyro();
-			gyroXField.setText("X: " + format.format(angularAcceleration.getX()));
-			gyroYField.setText("Y: " + format.format(angularAcceleration.getY()));
-			gyroZField.setText("Z: " + format.format(angularAcceleration.getZ()));	
-			repaint();
-		}
-		
-	}
 
 	class SoundPanel extends JPanel {
 		private static final long serialVersionUID = 1L;
