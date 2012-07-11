@@ -29,6 +29,7 @@ import raisa.domain.Sample;
 import raisa.domain.WorldModel;
 import raisa.util.CollectionUtil;
 import raisa.util.GeometryUtil;
+import raisa.util.GraphicsUtil;
 import raisa.util.Vector2D;
 
 public class VisualizerPanel extends JPanel implements Observer {
@@ -175,7 +176,7 @@ public class VisualizerPanel extends JPanel implements Observer {
 			for (Sample sample : irs) {
 				Robot robot = worldModel.getRobot();
 				if (sample.isInfrared1MeasurementValid()) {
-					g2.setColor(new Color(1.0f, 0.0f, 0.0f, ir));
+					g2.setColor(GraphicsUtil.makeTransparentColor(measurementColor, ir));
 					Float spot = GeometryUtil.calculatePosition(robot.getPosition(), robot.getHeading() + sample.getInfrared1Angle(), sample.getInfrared1Distance());
 					if (ir >= 1.0f) {
 						drawMeasurementLine(g2, robot.getPosition(), spot);
@@ -314,7 +315,7 @@ public class VisualizerPanel extends JPanel implements Observer {
 	}
 
 	private void drawMeasurementLine(Graphics g, Float from, Float to, boolean drawDistanceString) {
-		g.setColor(measurementColor);
+		//g.setColor(measurementColor);
 		Float p1 = toScreen(from);
 		Float p2 = toScreen(to);
 		g.drawLine((int) p1.x, (int) p1.y, (int) p2.x, (int) p2.y);
