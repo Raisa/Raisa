@@ -10,21 +10,21 @@ import raisa.util.Vector2D;
 public class ParticleFilter {
 	private WorldModel world;
 	private List<Particle> particles;
-	
+
 	public ParticleFilter(WorldModel world, int nparticles) {
 		this.world = world;
 		randomizeParticles(nparticles);
 	}
 
 	public void randomizeParticles(int nparticles) {
-		particles =  new ArrayList<Particle>();
-		float width = world.getWidth();
-		float height = world.getHeight();		
+		particles = new ArrayList<Particle>();
+		float width = world.getWidth() * 0.5f;
+		float height = world.getHeight() * 0.5f;
 		for (int i = 0; i < nparticles; ++i) {
 			Particle particle = new Particle();
-			float x = (float)Math.random() * width - 0.5f * width;
-			float y = (float)Math.random() * height - 0.5f * height;
-			float heading = (float)Math.random() * (float)Math.PI * 2.0f;
+			float x = (float) Math.random() * width - 0.5f * width;
+			float y = (float) Math.random() * height - 0.5f * height;
+			float heading = (float) Math.random() * (float) Math.PI * 2.0f;
 			Robot robot = new Robot(new Vector2D(x, y), heading);
 			particle.addState(robot);
 			particles.add(particle);
@@ -39,30 +39,37 @@ public class ParticleFilter {
 			float weight = particle.calculateWeight(world, samples);
 			weights.put(particle, weight);
 			totalWeights += weight;
+			System.out.println(weight);
 		}
-		// normalize weights
-		for (Particle particle : particles) {
-			weights.put(particle, weights.get(particle) / totalWeights);
-		}
-		// sample new particles with replacement
-		List<Particle> newParticles = new ArrayList<Particle>();
-		
-		for (int i = 0; i < particles.size(); ++i) {			
-			float r = (float)Math.random();
-			float s = 0.0f;
-			for (Particle particle : weights.keySet()) {
-				float weight = weights.get(particle);
-				s += weight;
-				if (r <= s) {
-					newParticles.add(particle);
-					break;
+		if (totalWeights > 0.0f) {
+			// normalize weights
+			for (Particle particle : particles) {
+				weights.put(particle, weights.get(particle) / totalWeights);
+			}
+			// sample new particles with replacement
+			List<Particle> newParticles = new ArrayList<Particle>();
+
+			for (int i = 0; i < particles.size(); ++i) {
+				float r = (float) Math.random();
+				float s = 0.0f;
+				Particle selectedParticle = null;
+				for (Particle particle : weights.keySet()) {
+					float weight = weights.get(particle);
+					s += weight;
+					if (r <= s) {
+						selectedParticle = particle;
+						break;
+					}
+				}
+				if (selectedParticle != null) {
+					newParticles.add(selectedParticle.copy());
 				}
 			}
+
+			this.particles = newParticles;
 		}
-		
-		this.particles = newParticles;
 	}
-	
+
 	public List<Particle> getParticles() {
 		return particles;
 	}

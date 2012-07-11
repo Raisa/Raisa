@@ -10,6 +10,13 @@ public class Particle {
 	private int maxStates = 10;
 	private List<Robot> states = new ArrayList<Robot>();
 	
+	public Particle copy() {
+		Particle newParticle = new Particle();
+		newParticle.maxStates = maxStates;
+		newParticle.states = new ArrayList<Robot>(states);
+		return newParticle;
+	}
+
 	public void addState(Robot robot) {
 		states.add(robot);
 		states = CollectionUtil.takeLast(states, maxStates);
