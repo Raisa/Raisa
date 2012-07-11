@@ -34,6 +34,7 @@ import raisa.util.Vector2D;
 public class VisualizerPanel extends JPanel implements Observer {
 	private static final long serialVersionUID = 1L;
 	private Color measurementColor = new Color(0.4f, 0.4f, 0.4f);
+	private Color particleColor = new Color(0.6f, 0.0f, 0.6f);
 	private Float camera = new Float();
 	private Float mouse = new Float();
 	private Float mouseDownPosition = new Float();
@@ -104,7 +105,7 @@ public class VisualizerPanel extends JPanel implements Observer {
 	}
 
 	private void drawParticles(Graphics2D g2) {
-		g2.setColor(Color.magenta);
+		g2.setColor(particleColor);
 		for (Particle particle : visualizerFrame.getParticleFilter().getParticles()) {			
 			drawParticle(g2, particle);
 		}
