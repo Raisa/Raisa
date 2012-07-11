@@ -392,9 +392,11 @@ public class VisualizerPanel extends JPanel implements Observer {
 		@Override
 		public void mouseWheelMoved(MouseWheelEvent event) {
 			if (event.isShiftDown() || event.isMetaDown() || event.isControlDown() || event.isAltGraphDown() || event.isPopupTrigger()) {
-				camera.x += event.getWheelRotation() * 35.0f / scale;				
+				camera.x += event.getWheelRotation() * 10.0f / scale;				
+				VisualizerPanel.this..repaint();
 			} else {
-				camera.y += event.getWheelRotation() * 35.0f / scale;
+				camera.y += event.getWheelRotation() * 10.0f / scale;
+				VisualizerPanel.this..repaint();
 			}
 		}
 	}
