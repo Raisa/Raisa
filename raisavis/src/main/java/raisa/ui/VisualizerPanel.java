@@ -14,16 +14,12 @@ import java.awt.event.MouseWheelListener;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Path2D;
 import java.awt.geom.Point2D.Float;
-import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Observable;
 import java.util.Observer;
 
-import javax.imageio.ImageIO;
 import javax.swing.JPanel;
 
 import raisa.domain.Grid;
@@ -45,7 +41,6 @@ public class VisualizerPanel extends JPanel implements Observer {
 	private float scale = 1.0f;
 	private List<Sample> latestIR = new ArrayList<Sample>();
 	private List<Sample> latestSR = new ArrayList<Sample>();
-	private Grid grid = new Grid();
 	private Stroke dashed;
 	private Stroke arrow;
 	private VisualizerFrame visualizerFrame;
@@ -59,7 +54,6 @@ public class VisualizerPanel extends JPanel implements Observer {
 		scale = 1.0f;
 		latestIR = new ArrayList<Sample>();
 		latestSR = new ArrayList<Sample>();
-		grid = new Grid();
 	}
 
 	public VisualizerPanel(VisualizerFrame frame, WorldModel worldModel) {
@@ -81,7 +75,7 @@ public class VisualizerPanel extends JPanel implements Observer {
 		Sample sample = (Sample)s;
 		if (sample.isInfrared1MeasurementValid()) {
 			Vector2D spotPosition = GeometryUtil.calculatePosition(worldModel.getRobot().getPosition(), worldModel.getRobot().getHeading() + sample.getInfrared1Angle(), sample.getInfrared1Distance());
-			grid.setGridPosition(spotPosition, true);
+			worldModel.setGridPosition(spotPosition, true);
 			latestIR.add(sample);
 			latestIR = CollectionUtil.takeLast(latestIR, 10);
 		}
@@ -150,8 +144,8 @@ public class VisualizerPanel extends JPanel implements Observer {
 		float size = Grid.GRID_SIZE * Grid.CELL_SIZE;
 		Float screen = toScreen(new Float(- size * 0.5f, - size * 0.5f));
 		int screenSize = (int)toScreen(size);
-		g2.drawImage(grid.getUserImage(), (int)screen.x, (int)screen.y, screenSize, screenSize, null);
-		g2.drawImage(grid.getBlockedImage(), (int)screen.x, (int)screen.y, screenSize, screenSize, null);
+		g2.drawImage(worldModel.getUserImage(), (int)screen.x, (int)screen.y, screenSize, screenSize, null);
+		g2.drawImage(worldModel.getBlockedImage(), (int)screen.x, (int)screen.y, screenSize, screenSize, null);
 	}
 	
 	private void drawIrResults(Graphics g, Graphics2D g2) {
@@ -434,63 +428,5 @@ public class VisualizerPanel extends JPanel implements Observer {
 	public void panCameraBy(float dx, float dy) {
 		camera.x += dx;
 		camera.y += dy;
-	}
-
-	public void setGridPosition(Vector2D position, boolean isBlocked) {
-		grid.setGridPosition(position, isBlocked);
-	}
-
-	public void setUserPosition(Vector2D position, boolean isBlocked) {
-		grid.setUserPosition(position, isBlocked);
-	}
-	
-	public void pushUserEditUndoLevel() {
-		grid.pushUserUndoLevel();
-	}
-	
-	public void popUserEditUndoLevel() {
-		grid.popUserUndoLevel();
-	}
-
-	public void redoUserEditUndoLevel() {
-		grid.redoUserUndoLevel();
-	}
-
-	public boolean isUserEditUndoable() {
-		return grid.isUserEditUndoable();
-	}
-
-	public boolean isUserEditRedoable() {
-		return grid.isUserEditRedoable();
-	}
-
-	public int getUserUndoLevels() {
-		return grid.getUserUndoLevels();
-	}
-
-	public int getUserRedoLevels() {
-		return grid.getUserRedoLevels();
-	}
-
-	public void saveMap(String fileName) {
-		try {
-			ImageIO.write(grid.getUserImage(), "PNG", new File(fileName));
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-	}
-
-	public void loadMap(String fileName) {
-		try {
-			BufferedImage mapImage = ImageIO.read(new File(fileName));
-			grid.pushUserUndoLevel();
-			grid.setUserImage(mapImage);
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-	}
-
-	public void resetMap() {
-		grid.resetUserImage();
 	}
 }

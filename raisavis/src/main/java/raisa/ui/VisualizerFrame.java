@@ -54,7 +54,7 @@ public class VisualizerFrame extends JFrame {
 	private final Communicator communicator;
 	private final BasicController controller;
 	
-	public VisualizerFrame(WorldModel worldModel) {
+	public VisualizerFrame(final WorldModel worldModel) {
 		visualizerPanel = new VisualizerPanel(this, worldModel);
 		MeasurementsPanel measurementsPanel = new MeasurementsPanel(worldModel);
 		this.worldModel = worldModel;
@@ -116,7 +116,7 @@ public class VisualizerFrame extends JFrame {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				pushUserEditUndoLevel();
-				visualizerPanel.resetMap();
+				worldModel.resetMap();
 				VisualizerFrame.this.repaint();
 			}
 		});		
@@ -340,7 +340,7 @@ public class VisualizerFrame extends JFrame {
 					String fileName = chooser.getSelectedFile().getAbsolutePath();
 					try {
 						saveDefaultDirectory(fileName);
-						visualizerPanel.loadMap(fileName);
+						worldModel.loadMap(fileName);
 					} catch (Exception e) {
 						e.printStackTrace();
 					}
@@ -349,7 +349,7 @@ public class VisualizerFrame extends JFrame {
 			chooser.showOpenDialog(this);
 		} else {
 			try {
-				visualizerPanel.loadMap(fileName);
+				worldModel.loadMap(fileName);
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
@@ -365,7 +365,7 @@ public class VisualizerFrame extends JFrame {
 					String fileName = chooser.getSelectedFile().getAbsolutePath();
 					try {
 						saveDefaultDirectory(fileName);
-						visualizerPanel.saveMap(fileName);
+						worldModel.saveMap(fileName);
 					} catch (Exception e) {
 						e.printStackTrace();
 					}
@@ -374,7 +374,7 @@ public class VisualizerFrame extends JFrame {
 			chooser.showSaveDialog(this);
 		} else {
 			try {
-				visualizerPanel.saveMap(fileName);
+				worldModel.saveMap(fileName);
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
@@ -612,11 +612,11 @@ public class VisualizerFrame extends JFrame {
 	}
 
 	public void setGridPosition(Vector2D position, boolean isBlocked) {
-		visualizerPanel.setGridPosition(position, isBlocked);
+		worldModel.setGridPosition(position, isBlocked);
 	}
 
 	public void setUserPosition(Vector2D position, boolean isBlocked) {
-		visualizerPanel.setUserPosition(position, isBlocked);
+		worldModel.setUserPosition(position, isBlocked);
 	}
 
 	public Vector2D toWorld(Vector2D screenPosition) {
@@ -628,7 +628,7 @@ public class VisualizerFrame extends JFrame {
 	}
 	
 	public void pushUserEditUndoLevel() {
-		visualizerPanel.pushUserEditUndoLevel();
+		worldModel.pushUserEditUndoLevel();
 		notifyUserEditUndoAction();
 	}
 	
@@ -643,28 +643,28 @@ public class VisualizerFrame extends JFrame {
 	}
 
 	public void popUserEditUndoLevel() {
-		visualizerPanel.popUserEditUndoLevel();
+		worldModel.popUserEditUndoLevel();
 		notifyUserEditUndoAction();
 	}
 
 	public void redoUserEditUndoLevel() {
-		visualizerPanel.redoUserEditUndoLevel();
+		worldModel.redoUserEditUndoLevel();
 		notifyUserEditUndoAction();
 	}
 
 	public boolean isUserEditUndoable() {
-		return visualizerPanel.isUserEditUndoable();
+		return worldModel.isUserEditUndoable();
 	}
 
 	public boolean isUserEditRedoable() {
-		return visualizerPanel.isUserEditRedoable();
+		return worldModel.isUserEditRedoable();
 	}
 
 	public int getUserUndoLevels() {
-		return visualizerPanel.getUserUndoLevels();
+		return worldModel.getUserUndoLevels();
 	}
 
 	public int getUserRedoLevels() {
-		return visualizerPanel.getUserRedoLevels();
+		return worldModel.getUserRedoLevels();
 	}
 }

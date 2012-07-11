@@ -1,13 +1,20 @@
 package raisa.domain;
 
+import java.io.File;
+import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Observable;
+import java.awt.Image;
 import java.awt.geom.Point2D.Float;
+import java.awt.image.BufferedImage;
+
+import javax.imageio.ImageIO;
 
 import raisa.comms.SampleParser;
 import raisa.util.CollectionUtil;
+import raisa.util.Vector2D;
 
 
 public class WorldModel extends Observable implements Serializable {
@@ -16,6 +23,8 @@ public class WorldModel extends Observable implements Serializable {
 	private List<Sample> samples = new ArrayList<Sample>();
 	private List<Robot> states = new ArrayList<Robot>();
 	private Robot robot = new Robot();
+
+	private Grid grid = new Grid();
 	
 	public Robot getRobot() {
 		return robot;
@@ -84,6 +93,7 @@ public class WorldModel extends Observable implements Serializable {
 		robot = new Robot();
 		samples = new ArrayList<Sample>();
 		states = new ArrayList<Robot>();
+		grid = new Grid();
 	}
 	
 	public void removeOldSamples(int preserveLength) {
@@ -96,6 +106,71 @@ public class WorldModel extends Observable implements Serializable {
 	
 	public List<Sample> getLastSamples(int numberOfSamples) {
 		return CollectionUtil.takeLast(samples, numberOfSamples);
+	}
+
+	public void setGridPosition(Vector2D position, boolean isBlocked) {
+		grid.setGridPosition(position, isBlocked);
 	}	
 	
+	public void setUserPosition(Vector2D position, boolean isBlocked) {
+		grid.setUserPosition(position, isBlocked);
+	}
+	
+	public void pushUserEditUndoLevel() {
+		grid.pushUserUndoLevel();
+	}
+	
+	public void popUserEditUndoLevel() {
+		grid.popUserUndoLevel();
+	}
+
+	public void redoUserEditUndoLevel() {
+		grid.redoUserUndoLevel();
+	}
+
+	public boolean isUserEditUndoable() {
+		return grid.isUserEditUndoable();
+	}
+
+	public boolean isUserEditRedoable() {
+		return grid.isUserEditRedoable();
+	}
+
+	public int getUserUndoLevels() {
+		return grid.getUserUndoLevels();
+	}
+
+	public int getUserRedoLevels() {
+		return grid.getUserRedoLevels();
+	}
+
+	public void saveMap(String fileName) {
+		try {
+			ImageIO.write(grid.getUserImage(), "PNG", new File(fileName));
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+
+	public void loadMap(String fileName) {
+		try {
+			BufferedImage mapImage = ImageIO.read(new File(fileName));
+			grid.pushUserUndoLevel();
+			grid.setUserImage(mapImage);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+
+	public void resetMap() {
+		grid.resetUserImage();
+	}
+
+	public Image getUserImage() {
+		return grid.getUserImage();
+	}
+
+	public Image getBlockedImage() {
+		return grid.getBlockedImage();
+	}
 }
