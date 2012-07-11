@@ -56,8 +56,8 @@ public class VisualizerFrame extends JFrame {
 	private final BasicController controller;
 	private ParticleFilter particleFilter;
 	private boolean stepSimulation = true;
-	
-	public VisualizerFrame(final WorldModel worldModel) {		
+
+	public VisualizerFrame(final WorldModel worldModel) {
 		this.worldModel = worldModel;
 		this.particleFilter = new ParticleFilter(worldModel, 100);
 		visualizerPanel = new VisualizerPanel(this, worldModel);
@@ -123,14 +123,14 @@ public class VisualizerFrame extends JFrame {
 				worldModel.resetMap();
 				VisualizerFrame.this.repaint();
 			}
-		});		
+		});
 		JMenuItem saveMapAs = new JMenuItem("Save map as...");
 		saveMapAs.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				saveMap(null);
 			}
-		});		
+		});
 		JMenuItem exit = new JMenuItem("Exit");
 		exit.setMnemonic('x');
 		exit.addActionListener(new ActionListener() {
@@ -173,20 +173,21 @@ public class VisualizerFrame extends JFrame {
 			}
 		});
 		zoomOut.setMnemonic('o');
-		
+
 		viewMenu.add(zoomIn);
 		viewMenu.add(zoomOut);
 		menuBar.add(viewMenu);
 
-		communicator = new FailoverCommunicator(new SerialCommunicator(worldModel), new ConsoleCommunicator());;
+		communicator = new FailoverCommunicator(new SerialCommunicator(worldModel), new ConsoleCommunicator());
+		;
 		communicator.connect();
 
 		controller = new BasicController(communicator);
-		
+
 		setCurrentTool(drawTool);
-		
+
 		ControlPanel controlPanel = new ControlPanel(this, visualizerPanel, controller, communicator);
-		
+
 		int nextFreeActionKey = 0;
 		final int ZOOM_IN_ACTION_KEY = ++nextFreeActionKey;
 		final int ZOOM_OUT_ACTION_KEY = ++nextFreeActionKey;
@@ -197,12 +198,13 @@ public class VisualizerFrame extends JFrame {
 		final int RIGHT_ACTION_KEY = ++nextFreeActionKey;
 		final int FORWARD_ACTION_KEY = ++nextFreeActionKey;
 		final int BACK_ACTION_KEY = ++nextFreeActionKey;
-		final int LIGHTS_ACTION_KEY = ++nextFreeActionKey;		
-		final int UNDO_ACTION_KEY = ++nextFreeActionKey;		
+		final int LIGHTS_ACTION_KEY = ++nextFreeActionKey;
+		final int UNDO_ACTION_KEY = ++nextFreeActionKey;
 		final int REDO_ACTION_KEY = ++nextFreeActionKey;
 		final int PARTICLE_FILTER_STEP_ACTION_KEY = ++nextFreeActionKey;
-		
-		visualizerPanel.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke('+'), ZOOM_IN_ACTION_KEY);
+
+		visualizerPanel.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke('+'),
+				ZOOM_IN_ACTION_KEY);
 		visualizerPanel.getActionMap().put(ZOOM_IN_ACTION_KEY, new AbstractAction() {
 			private static final long serialVersionUID = 1L;
 
@@ -212,7 +214,8 @@ public class VisualizerFrame extends JFrame {
 				updateTitle();
 			}
 		});
-		visualizerPanel.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke('-'), ZOOM_OUT_ACTION_KEY);
+		visualizerPanel.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke('-'),
+				ZOOM_OUT_ACTION_KEY);
 		visualizerPanel.getActionMap().put(ZOOM_OUT_ACTION_KEY, new AbstractAction() {
 			private static final long serialVersionUID = 1L;
 
@@ -222,7 +225,8 @@ public class VisualizerFrame extends JFrame {
 				updateTitle();
 			}
 		});
-		visualizerPanel.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke('c'), CLEAR_HISTORY_ACTION_KEY);
+		visualizerPanel.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke('c'),
+				CLEAR_HISTORY_ACTION_KEY);
 		visualizerPanel.getActionMap().put(CLEAR_HISTORY_ACTION_KEY, new AbstractAction() {
 			private static final long serialVersionUID = 1L;
 
@@ -231,7 +235,8 @@ public class VisualizerFrame extends JFrame {
 				visualizerPanel.clear();
 			}
 		});
-		visualizerPanel.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke('h'), LIMIT_HISTORY_ACTION_KEY);
+		visualizerPanel.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke('h'),
+				LIMIT_HISTORY_ACTION_KEY);
 		visualizerPanel.getActionMap().put(LIMIT_HISTORY_ACTION_KEY, new AbstractAction() {
 			private static final long serialVersionUID = 1L;
 
@@ -240,7 +245,8 @@ public class VisualizerFrame extends JFrame {
 				visualizerPanel.removeOldSamples();
 			}
 		});
-		visualizerPanel.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_LEFT, 0), LEFT_ACTION_KEY);
+		visualizerPanel.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_LEFT, 0),
+				LEFT_ACTION_KEY);
 		visualizerPanel.getActionMap().put(LEFT_ACTION_KEY, new AbstractAction() {
 			private static final long serialVersionUID = 1L;
 
@@ -249,7 +255,8 @@ public class VisualizerFrame extends JFrame {
 				controller.sendLeft();
 			}
 		});
-		visualizerPanel.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_RIGHT, 0), RIGHT_ACTION_KEY);
+		visualizerPanel.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(
+				KeyStroke.getKeyStroke(KeyEvent.VK_RIGHT, 0), RIGHT_ACTION_KEY);
 		visualizerPanel.getActionMap().put(RIGHT_ACTION_KEY, new AbstractAction() {
 			private static final long serialVersionUID = 1L;
 
@@ -258,7 +265,8 @@ public class VisualizerFrame extends JFrame {
 				controller.sendRight();
 			}
 		});
-		visualizerPanel.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_SPACE, 0), STOP_ACTION_KEY);
+		visualizerPanel.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(
+				KeyStroke.getKeyStroke(KeyEvent.VK_SPACE, 0), STOP_ACTION_KEY);
 		visualizerPanel.getActionMap().put(STOP_ACTION_KEY, new AbstractAction() {
 			private static final long serialVersionUID = 1L;
 
@@ -268,7 +276,8 @@ public class VisualizerFrame extends JFrame {
 			}
 		});
 
-		visualizerPanel.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_UP, 0), FORWARD_ACTION_KEY);
+		visualizerPanel.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_UP, 0),
+				FORWARD_ACTION_KEY);
 		visualizerPanel.getActionMap().put(FORWARD_ACTION_KEY, new AbstractAction() {
 			private static final long serialVersionUID = 1L;
 
@@ -278,7 +287,8 @@ public class VisualizerFrame extends JFrame {
 			}
 		});
 
-		visualizerPanel.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_DOWN, 0), BACK_ACTION_KEY);
+		visualizerPanel.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_DOWN, 0),
+				BACK_ACTION_KEY);
 		visualizerPanel.getActionMap().put(BACK_ACTION_KEY, new AbstractAction() {
 			private static final long serialVersionUID = 1L;
 
@@ -288,7 +298,8 @@ public class VisualizerFrame extends JFrame {
 			}
 		});
 
-		visualizerPanel.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke('l'), LIGHTS_ACTION_KEY);
+		visualizerPanel.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke('l'),
+				LIGHTS_ACTION_KEY);
 		visualizerPanel.getActionMap().put(LIGHTS_ACTION_KEY, new AbstractAction() {
 			private static final long serialVersionUID = 1L;
 
@@ -297,8 +308,9 @@ public class VisualizerFrame extends JFrame {
 				controller.sendLights();
 			}
 		});
-		
-		visualizerPanel.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_Z, KeyEvent.CTRL_DOWN_MASK), UNDO_ACTION_KEY);
+
+		visualizerPanel.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(
+				KeyStroke.getKeyStroke(KeyEvent.VK_Z, KeyEvent.CTRL_DOWN_MASK), UNDO_ACTION_KEY);
 		visualizerPanel.getActionMap().put(UNDO_ACTION_KEY, new AbstractAction() {
 			private static final long serialVersionUID = 1L;
 
@@ -311,7 +323,8 @@ public class VisualizerFrame extends JFrame {
 			}
 		});
 
-		visualizerPanel.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_Y, KeyEvent.CTRL_DOWN_MASK), REDO_ACTION_KEY);
+		visualizerPanel.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(
+				KeyStroke.getKeyStroke(KeyEvent.VK_Y, KeyEvent.CTRL_DOWN_MASK), REDO_ACTION_KEY);
 		visualizerPanel.getActionMap().put(REDO_ACTION_KEY, new AbstractAction() {
 			private static final long serialVersionUID = 1L;
 
@@ -324,7 +337,8 @@ public class VisualizerFrame extends JFrame {
 			}
 		});
 
-		visualizerPanel.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke('p'), PARTICLE_FILTER_STEP_ACTION_KEY);
+		visualizerPanel.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke('p'),
+				PARTICLE_FILTER_STEP_ACTION_KEY);
 		visualizerPanel.getActionMap().put(PARTICLE_FILTER_STEP_ACTION_KEY, new AbstractAction() {
 			private static final long serialVersionUID = 1L;
 
@@ -482,7 +496,7 @@ public class VisualizerFrame extends JFrame {
 		chooser.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				if(chooser.getSelectedFile() == null) {
+				if (chooser.getSelectedFile() == null) {
 					log.debug("Canceled replay file selection");
 					return;
 				}
@@ -497,6 +511,7 @@ public class VisualizerFrame extends JFrame {
 		});
 		chooser.showOpenDialog(this);
 	}
+
 	private void internalLoadReplay(String fileName) throws FileNotFoundException, IOException {
 		log.debug("Loading replay file {}", fileName);
 		BufferedReader fr = new BufferedReader(new FileReader(fileName));
@@ -505,7 +520,7 @@ public class VisualizerFrame extends JFrame {
 		while (line != null) {
 			// TODO error handling
 			ControlMessage controlMessage = ControlMessage.fromJson(line);
-			if(controlMessage != null) {
+			if (controlMessage != null) {
 				controlMessages.add(controlMessage);
 			}
 			line = fr.readLine();
@@ -515,8 +530,7 @@ public class VisualizerFrame extends JFrame {
 		controller.copyListenersTo(replayController);
 		replayController.start();
 	}
-	
-	
+
 	private void internalSave(String fileName) throws Exception {
 		BufferedWriter writer = new BufferedWriter(new FileWriter(fileName));
 		for (Sample sample : worldModel.getSamples()) {
@@ -582,14 +596,16 @@ public class VisualizerFrame extends JFrame {
 				@Override
 				public void run() {
 					while (nextSample < samples.size()) {
-						while (stepSimulation) {
-							try {
-								Thread.sleep(100);
-							} catch (InterruptedException e) {
-								e.printStackTrace();
-							}							
+						if (delayed) {
+							while (stepSimulation) {
+								try {
+									Thread.sleep(100);
+								} catch (InterruptedException e) {
+									e.printStackTrace();
+								}
+							}
+							stepSimulation = true;
 						}
-						stepSimulation = true;
 						worldModel.addSample(samples.get(nextSample));
 						++nextSample;
 						if (delayed) {
@@ -607,15 +623,15 @@ public class VisualizerFrame extends JFrame {
 	public VisualizerPanel getVisualizer() {
 		return visualizerPanel;
 	}
-	
+
 	private void saveDefaultDirectory(String filename) {
 		defaultDirectory = new File(filename).getParentFile();
 	}
-	
+
 	private void updateTitle() {
-		setTitle("Raisa Visualizer - " + Math.round(visualizerPanel.getScale() * 100.0f) + "%"); 		
+		setTitle("Raisa Visualizer - " + Math.round(visualizerPanel.getScale() * 100.0f) + "%");
 	}
-	
+
 	public void selectedMeasureTool() {
 		setCurrentTool(measureTool);
 	}
@@ -651,18 +667,18 @@ public class VisualizerFrame extends JFrame {
 	public float toWorld(float screenDistance) {
 		return visualizerPanel.toWorld(screenDistance);
 	}
-	
+
 	public void pushUserEditUndoLevel() {
 		worldModel.pushUserEditUndoLevel();
 		notifyUserEditUndoAction();
 	}
-	
+
 	private void notifyUserEditUndoAction() {
 		for (UserEditUndoListener listener : userEditUndoListeners) {
 			listener.usedEditUndoAction();
 		}
 	}
-	
+
 	public void addUserEditUndoListener(UserEditUndoListener listener) {
 		userEditUndoListeners.add(listener);
 	}
