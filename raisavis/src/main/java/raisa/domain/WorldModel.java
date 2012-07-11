@@ -177,4 +177,12 @@ public class WorldModel extends Observable implements Serializable {
 	public float traceRay(Vector2D from, float angle) {
 		return grid.traceRay(from, angle);
 	}
+
+	public float getWidth() {
+		return grid.getWidth();
+	}
+
+	public float getHeight() {
+		return grid.getHeight();
+	}
 }

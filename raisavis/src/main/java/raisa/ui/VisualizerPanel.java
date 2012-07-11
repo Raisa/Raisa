@@ -23,6 +23,7 @@ import java.util.Observer;
 import javax.swing.JPanel;
 
 import raisa.domain.Grid;
+import raisa.domain.Particle;
 import raisa.domain.Robot;
 import raisa.domain.Sample;
 import raisa.domain.WorldModel;
@@ -95,9 +96,26 @@ public class VisualizerPanel extends JPanel implements Observer {
 		drawRobot(g2);
 		drawArrow(g2);
 		drawUltrasoundResults(g);
-		drawIrResults(g, g2);
+		drawIrResults(g2);
+		drawParticles(g2);
 		if (mouseDragging) {
 			drawMeasurementLine(g2, toWorld(new Vector2D(mouseDownPosition)), toWorld(new Vector2D(mouse)));
+		}
+	}
+
+	private void drawParticles(Graphics2D g2) {
+		g2.setColor(Color.magenta);
+		for (Particle particle : visualizerFrame.getParticleFilter().getParticles()) {			
+			drawParticle(g2, particle);
+		}
+	}
+
+	private void drawParticle(Graphics2D g2, Particle particle) {
+		Robot robot = particle.getLastSample();
+		if (robot != null) {
+			Vector2D to = GeometryUtil.calculatePosition(robot.getPosition(), robot.getHeading(), toWorld(10.0f));
+			drawPoint(g2, robot.getPosition());
+			drawLine(g2, robot.getPosition(), to);
 		}
 	}
 
@@ -148,7 +166,7 @@ public class VisualizerPanel extends JPanel implements Observer {
 		g2.drawImage(worldModel.getBlockedImage(), (int)screen.x, (int)screen.y, screenSize, screenSize, null);
 	}
 	
-	private void drawIrResults(Graphics g, Graphics2D g2) {
+	private void drawIrResults(Graphics2D g2) {
 		if (!latestIR.isEmpty()) {
 			List<Sample> irs = new ArrayList<Sample>(latestIR);
 			Collections.reverse(irs);
@@ -156,17 +174,17 @@ public class VisualizerPanel extends JPanel implements Observer {
 			for (Sample sample : irs) {
 				Robot robot = worldModel.getRobot();
 				if (sample.isInfrared1MeasurementValid()) {
-					g.setColor(new Color(1.0f, 0.0f, 0.0f, ir));
+					g2.setColor(new Color(1.0f, 0.0f, 0.0f, ir));
 					Float spot = GeometryUtil.calculatePosition(robot.getPosition(), robot.getHeading() + sample.getInfrared1Angle(), sample.getInfrared1Distance());
 					if (ir >= 1.0f) {
-						drawMeasurementLine(g, robot.getPosition(), spot);
+						drawMeasurementLine(g2, robot.getPosition(), spot);
 					} else {
-						drawMeasurementLine(g, robot.getPosition(), spot, false);
+						drawMeasurementLine(g2, robot.getPosition(), spot, false);
 					}
-					drawPoint(g, spot);
+					drawPoint(g2, spot);
 					ir *= 0.8f;
 				} else {
-					g.setColor(new Color(1.0f, 0.0f, 0.0f, ir));
+					g2.setColor(new Color(1.0f, 0.0f, 0.0f, ir));
 					Stroke stroke = g2.getStroke();
 					g2.setStroke(dashed);
 					float angle = robot.getHeading() + sample.getInfrared1Angle() - (float) Math.PI * 0.5f;
@@ -174,7 +192,7 @@ public class VisualizerPanel extends JPanel implements Observer {
 					float dy = (float) Math.sin(angle) * 250.0f;
 					Float position = robot.getPosition();
 					Float away = new Float(position.x + dx, position.y + dy);
-					drawMeasurementLine(g, position, away, false);
+					drawMeasurementLine(g2, position, away, false);
 					g2.setStroke(stroke);
 				}
 			}

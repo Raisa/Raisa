@@ -18,10 +18,10 @@ public class Robot {
 	private boolean directionRightTrackForward;	
 
 	public Robot() {
-		this((float)Math.PI, new Float());		
+		this(new Float(), (float)Math.PI);		
 	}
 	
-	public Robot(float heading, Float position) {
+	public Robot(Float position, float heading) {
 		this.heading = heading;
 		float tmpX = position.x - ROBOT_WIDTH/2.0f;
 		float tmpY = position.y;

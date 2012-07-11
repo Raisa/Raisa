@@ -131,4 +131,12 @@ public class Grid {
 		
 		return maxDistanceInGrid * CELL_SIZE;
 	}
+
+	public float getWidth() {
+		return GRID_SIZE * CELL_SIZE;
+	}
+	
+	public float getHeight() {
+		return GRID_SIZE * CELL_SIZE;
+	}
 }

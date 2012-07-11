@@ -34,6 +34,7 @@ import raisa.comms.FailoverCommunicator;
 import raisa.comms.ReplayController;
 import raisa.comms.SampleParser;
 import raisa.comms.SerialCommunicator;
+import raisa.domain.ParticleFilter;
 import raisa.domain.Sample;
 import raisa.domain.WorldModel;
 import raisa.ui.tool.DrawTool;
@@ -53,11 +54,13 @@ public class VisualizerFrame extends JFrame {
 	private List<UserEditUndoListener> userEditUndoListeners = new ArrayList<UserEditUndoListener>();
 	private final Communicator communicator;
 	private final BasicController controller;
+	private ParticleFilter particleFilter;
 	
-	public VisualizerFrame(final WorldModel worldModel) {
+	public VisualizerFrame(final WorldModel worldModel) {		
+		this.worldModel = worldModel;
+		this.particleFilter = new ParticleFilter(worldModel, 100);
 		visualizerPanel = new VisualizerPanel(this, worldModel);
 		MeasurementsPanel measurementsPanel = new MeasurementsPanel(worldModel);
-		this.worldModel = worldModel;
 		JMenuBar menuBar = new JMenuBar();
 		JMenu mainMenu = new JMenu("Main");
 		mainMenu.setMnemonic('m');
@@ -666,5 +669,9 @@ public class VisualizerFrame extends JFrame {
 
 	public int getUserRedoLevels() {
 		return worldModel.getUserRedoLevels();
+	}
+
+	public ParticleFilter getParticleFilter() {
+		return particleFilter;
 	}
 }

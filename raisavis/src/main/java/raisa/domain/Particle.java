@@ -42,4 +42,8 @@ public class Particle {
 		
 		return weights;
 	}
+
+	public Robot getLastSample() {
+		return states.isEmpty() ? null : states.get(states.size() - 1);
+	}
 }
