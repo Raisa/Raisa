@@ -123,9 +123,13 @@ public class Grid {
 			x += dx;
 			y += dy;
 			
-			int rgb = userImage.getRGB((int)x, (int)y);
-			if (rgb == blockedRgb) {
-				return currentDistance * CELL_SIZE;
+			if (x >= 0 && x < userImage.getWidth() - 1 && y >= 0 && y < userImage.getHeight() - 1) {
+				int rgb = userImage.getRGB((int)x, (int)y);
+				if (rgb == blockedRgb) {
+					return currentDistance * CELL_SIZE;
+				}				
+			} else {
+				return maxDistanceInGrid;
 			}
 		}
 		
