@@ -36,7 +36,7 @@ public class MeasurementsPanel extends JPanel implements Observer {
 		this.add(speedPanel);						
 		accelerationPanel = new AccelerationPanel(worldModel);
 		this.add(accelerationPanel);
-		gyroscopePanel = new GyroscopePanel();
+		gyroscopePanel = new GyroscopePanel(worldModel);
 		this.add(gyroscopePanel);	
 		soundPanel = new SoundPanel(worldModel);
 		this.add(soundPanel);				
@@ -108,15 +108,76 @@ public class MeasurementsPanel extends JPanel implements Observer {
 		}
 		
 	}
-	
+
 	class GyroscopePanel extends JPanel {
+		private static final long serialVersionUID = 1L;
+
+		private JLabel xField;
+		private JLabel yField;
+		private JLabel zField;
+		private MeasurementGraphPanel xPanel;
+		private MeasurementGraphPanel yPanel;
+		private MeasurementGraphPanel zPanel;
+
+		public GyroscopePanel(WorldModel worldModel) {
+			this.setMinimumSize(new Dimension(190, 230));
+			this.setPreferredSize(new Dimension(190, 230));
+			this.setMaximumSize(new Dimension(190, 230));
+			TitledBorder border = new TitledBorder("Gyroscope (dps)");
+			setBorder(border);
+			setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
+			xField = new JLabel("X: -");
+			xField.setAlignmentX(LEFT_ALIGNMENT);
+			yField = new JLabel("Y: -");
+			yField.setAlignmentX(LEFT_ALIGNMENT);
+			zField = new JLabel("Z: -");
+			zField.setAlignmentX(LEFT_ALIGNMENT);
+			xPanel = new MeasurementGraphPanel(20f);
+			xPanel.setAlignmentX(LEFT_ALIGNMENT);
+			yPanel = new MeasurementGraphPanel(20f);
+			yPanel.setAlignmentX(LEFT_ALIGNMENT);
+			zPanel = new MeasurementGraphPanel(20f);	
+			zPanel.setAlignmentX(LEFT_ALIGNMENT);
+			this.add(xField);		
+			this.add(xPanel);
+			this.add(yField);	
+			this.add(yPanel);	
+			this.add(zField);
+			this.add(zPanel);	
+		}
+			
+		public void update(WorldModel worldModel, Sample sample) {
+			DecimalFormat format = new DecimalFormat("0.000");			
+			Vector3D latestRotation = sample.getGyro();
+			xField.setText("X: " + format.format(latestRotation.getX()));
+			yField.setText("Y: " + format.format(latestRotation.getY()));
+			zField.setText("Z: " + format.format(latestRotation.getZ()));
+			List<Sample> samples = worldModel.getLastSamples(120);
+			List<Float> samplesX = new LinkedList<Float>();
+			List<Float> samplesY = new LinkedList<Float>();
+			List<Float> samplesZ = new LinkedList<Float>();
+			for (Sample s : samples) {
+				Vector3D sampleRotation = s.getGyro();
+				samplesX.add(sampleRotation.getX());
+				samplesY.add(sampleRotation.getY());
+				samplesZ.add(sampleRotation.getZ());
+			}
+			xPanel.setMeasurements(samplesX);
+			yPanel.setMeasurements(samplesY);
+			zPanel.setMeasurements(samplesZ);
+			repaint();
+		}
+		
+	}
+	
+	class GyroscopePanel_old extends JPanel {
 		private static final long serialVersionUID = 1L;
 
 		private JLabel gyroXField;
 		private JLabel gyroYField;
 		private JLabel gyroZField;
 		
-		public GyroscopePanel() {
+		public GyroscopePanel_old() {
 			this.setMinimumSize(new Dimension(190,80));
 			this.setPreferredSize(new Dimension(190,80));
 			this.setMaximumSize(new Dimension(190, 80));
