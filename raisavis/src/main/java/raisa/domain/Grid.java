@@ -117,7 +117,8 @@ public class Grid {
 		float dy = (float)Math.sin(angle);
 		float maxDistanceInGrid = GRID_SIZE;
 		BufferedImage userImage = getUserImage();
-		int blockedRgb = userBlockedColor.getRGB();
+		int clearRgb = clearColor.getRGB();
+		int transparentRgb = transparentColor.getRGB();
 		
 		for (float currentDistance = 0.0f; currentDistance < maxDistanceInGrid; currentDistance += 1.0f) {
 			x += dx;
@@ -125,7 +126,7 @@ public class Grid {
 			
 			if (x >= 0 && x < userImage.getWidth() - 1 && y >= 0 && y < userImage.getHeight() - 1) {
 				int rgb = userImage.getRGB((int)x, (int)y);
-				if (rgb == blockedRgb) {
+				if (rgb != transparentRgb && rgb != clearRgb) {
 					return currentDistance * CELL_SIZE;
 				}				
 			} else {
