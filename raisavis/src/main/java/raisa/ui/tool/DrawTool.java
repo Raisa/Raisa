@@ -16,7 +16,6 @@ public class DrawTool extends BasicTool {
 		if ((mouseEvent.getModifiersEx() & MouseEvent.BUTTON1_DOWN_MASK) > 0) {
 			if (mouseEvent.isControlDown()) {
 			} else {
-				getVisualizerFrame().pushUserEditUndoLevel();
 				drawLine(mouseEvent, mouseFrom, mouseTo);
 				getVisualizerFrame().repaint();
 			}
@@ -40,6 +39,10 @@ public class DrawTool extends BasicTool {
 	@Override
 	public void mousePressed(MouseEvent mouseEvent, Float mouse) {
 		if ((mouseEvent.getModifiersEx() & MouseEvent.BUTTON1_DOWN_MASK) > 0) {
+			if (mouseEvent.isControlDown()) {
+			} else {
+				getVisualizerFrame().pushUserEditUndoLevel();
+			}
 		}
 	}
 
@@ -51,7 +54,6 @@ public class DrawTool extends BasicTool {
 				drawLine(mouseEvent, mouseFrom, mouseTo);
 				getVisualizerFrame().repaint();
 			} else {
-				getVisualizerFrame().pushUserEditUndoLevel();
 				drawPoint(mouseTo, !mouseEvent.isShiftDown());
 				getVisualizerFrame().repaint();
 			}
