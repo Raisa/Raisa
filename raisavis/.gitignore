@@ -1,4 +1,10 @@
 target
 .project
 .classpath
+.settings
+.idea
 *.log
+out
+*.iml
+tmp
+*.tmp
