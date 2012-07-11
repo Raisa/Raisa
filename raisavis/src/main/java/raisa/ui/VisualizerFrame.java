@@ -46,7 +46,7 @@ public class VisualizerFrame extends JFrame {
 	private static final Logger log = LoggerFactory.getLogger(VisualizerFrame.class);
 	private static final long serialVersionUID = 1L;
 	private VisualizerPanel visualizerPanel;
-	private File defaultDirectory = new File(".");
+	private File defaultDirectory = new File(new File("."), "data");
 	private final WorldModel worldModel;
 	private Tool currentTool;
 	private DrawTool drawTool = new DrawTool(this);
