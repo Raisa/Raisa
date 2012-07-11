@@ -30,9 +30,11 @@ float irSensorValue;    //Must be of type float for pow()
 // motors
 const int motorRightSpeedPin = 5;
 const int motorRightDirectionPin = 7;
+boolean motorRightForward = true;
 
 const int motorLeftSpeedPin = 6;
 const int motorLeftDirectionPin = 8;
+boolean motorLeftForward = true;
 
 // encoders
 const int encoderRightPin = 1;
@@ -118,23 +120,23 @@ void doEncoderRead() {
   //Min value is 400 and max value is 800, so state chance can be done at 600.
   if (analogRead(encoderRightPin) < 600) { 
     if (encoderRightLastValue == 0) {
-      encoderRightCount++;
+      encoderRightCount += (motorRightForward ? 1 : -1);
       encoderRightLastValue = 1;
     } 
   } else {
     if (encoderRightLastValue == 1) {
-      encoderRightCount++;
+      encoderRightCount += (motorRightForward ? 1 : -1);
       encoderRightLastValue = 0;
     }
   }  
   if (analogRead(encoderLeftPin) < 600) { 
     if (encoderLeftLastValue == 0) {
-      encoderLeftCount++;
+      encoderLeftCount += (motorLeftForward ? 1 : -1);
       encoderLeftLastValue = 1;
     } 
   } else {
     if (encoderLeftLastValue == 1) {
-      encoderLeftCount++;
+      encoderLeftCount += (motorLeftForward ? 1 : -1);
       encoderLeftLastValue = 0;
     }
   }
@@ -142,13 +144,13 @@ void doEncoderRead() {
 
 void handleMessage(int leftSpeed, int leftDirection, int rightSpeed, int rightDirection, int control) {
   // drive motors
-  int leftForward = (leftDirection == 'B' ? HIGH : LOW);
-  int rightForward = (rightDirection == 'B' ? HIGH: LOW);
-    
+  motorLeftForward = (leftDirection == 'B' ? false : true);
+  motorRightForward = (rightDirection == 'B' ? false : true); 
+  
   analogWrite(motorLeftSpeedPin, leftSpeed);
-  digitalWrite(motorLeftDirectionPin, leftForward);
+  digitalWrite(motorLeftDirectionPin, (motorLeftForward ? LOW : HIGH));
   analogWrite(motorRightSpeedPin, rightSpeed);
-  digitalWrite(motorRightDirectionPin, rightForward);
+  digitalWrite(motorRightDirectionPin, (motorRightForward ? LOW : HIGH));
   
   // turn lights on/off
   int lightBits = (control & 3);

@@ -14,6 +14,8 @@ public class Robot {
 	private Float positionRightTrack;
 	private float speedLeftTrack;
 	private float speedRightTrack;
+	private boolean directionLeftTrackForward;
+	private boolean directionRightTrackForward;	
 
 	public Robot() {
 		this((float)Math.PI, new Float());		
@@ -61,6 +63,14 @@ public class Robot {
 	public long getTimestampMillis() {
 		return timestampMillis;
 	}
+	
+	public boolean isDirectionRightTrackForward() {
+		return directionRightTrackForward;
+	}
+
+	public boolean isDirectionLeftTrackForward() {
+		return directionLeftTrackForward;
+	}	
 
 	public void setSpeedLeftTrack(float speed) {
 		speedLeftTrack = speed;
@@ -77,6 +87,14 @@ public class Robot {
 	public void setTimestampMillis(long timestamp) {
 		timestampMillis = timestamp;
 	}		
+	
+	public void setDirectionRightTrackForward(boolean direction) {
+		directionRightTrackForward = direction;
+	}
+	
+	public void setDirectionLeftTrackForward(boolean direction) {
+		directionLeftTrackForward = direction;
+	}
 
 	public Robot moveRobot(Sample sample) {
 		Robot r = new Robot();		
@@ -93,6 +111,10 @@ public class Robot {
 				this.positionRightTrack.y - rightTrackTrip * (float)Math.cos(h));
 		r.heading = h;
 		r.setTimestampMillis(sample.getTimestampMillis());
+		
+		r.directionLeftTrackForward = (sample.getLeftTrackTicks() >= 0 ? true : false);
+		r.directionRightTrackForward = (sample.getRightTrackTicks() >= 0 ? true : false);
+		
 		return r;
 	}
 	

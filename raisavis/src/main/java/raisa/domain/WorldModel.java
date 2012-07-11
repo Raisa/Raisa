@@ -65,8 +65,8 @@ public class WorldModel extends Observable implements Serializable {
 				if (isFirst) {
 					isFirst = false;
 				} else {
-					accumulatedDistanceLeftTrack += previousPositionLeftTrack.distance(r.getPositionLeftTrack());
-					accumulatedDistanceRightTrack += previousPositionRightTrack.distance(r.getPositionRightTrack());
+					accumulatedDistanceLeftTrack += (r.isDirectionLeftTrackForward() ? 1.0f : -1.0f) * previousPositionLeftTrack.distance(r.getPositionLeftTrack());
+					accumulatedDistanceRightTrack += (r.isDirectionRightTrackForward() ? 1.0f : -1.0f) * previousPositionRightTrack.distance(r.getPositionRightTrack());
 					accumulatedTime += r.getTimestampMillis() - previousTimestamp;
 				}
 				previousPositionLeftTrack = r.getPositionLeftTrack();
