@@ -55,6 +55,7 @@ public class ParticleFilter {
 				s += weight;
 				if (r <= s) {
 					newParticles.add(particle);
+					break;
 				}
 			}
 		}

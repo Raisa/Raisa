@@ -55,6 +55,7 @@ public class VisualizerFrame extends JFrame {
 	private final Communicator communicator;
 	private final BasicController controller;
 	private ParticleFilter particleFilter;
+	private boolean stepSimulation = true;
 	
 	public VisualizerFrame(final WorldModel worldModel) {		
 		this.worldModel = worldModel;
@@ -329,6 +330,7 @@ public class VisualizerFrame extends JFrame {
 
 			@Override
 			public void actionPerformed(ActionEvent event) {
+				stepSimulation = false;
 				particleFilter.update(worldModel.getSamples());
 				VisualizerFrame.this.repaint();
 			}
@@ -580,6 +582,14 @@ public class VisualizerFrame extends JFrame {
 				@Override
 				public void run() {
 					while (nextSample < samples.size()) {
+						while (stepSimulation) {
+							try {
+								Thread.sleep(100);
+							} catch (InterruptedException e) {
+								e.printStackTrace();
+							}							
+						}
+						stepSimulation = true;
 						worldModel.addSample(samples.get(nextSample));
 						++nextSample;
 						if (delayed) {
