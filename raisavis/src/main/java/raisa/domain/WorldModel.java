@@ -212,4 +212,8 @@ public class WorldModel implements Serializable {
 			listener.robotStateChanged(robot);
 		}
 	}
+
+	public boolean isClear(Vector2D position) {
+		return grid.isClear(position);
+	}
 }

@@ -28,20 +28,28 @@ public class ParticleFilter implements SampleListener {
 	}
 
 	public Particle makeRandomParticle() {
-		float width = world.getWidth() * 0.5f;
-		float height = world.getHeight() * 0.5f;
+		float width = world.getWidth();
+		float height = world.getHeight();
+		boolean ok = false;
 		Particle particle = new Particle();
-		float x = (float) Math.random() * width - 0.5f * width;
-		float y = (float) Math.random() * height - 0.5f * height;
-		float heading = (float) Math.random() * (float) Math.PI * 2.0f;
-		Robot robot = new Robot(new Vector2D(x, y), heading);
-		particle.addState(robot);
+		while (!ok) {
+			float x = (float) Math.random() * width - 0.5f * width;
+			float y = (float) Math.random() * height - 0.5f * height;
+			Vector2D position = new Vector2D(x, y);
+			if (world.isClear(position)) {
+				float heading = (float) Math.random() * (float) Math.PI * 2.0f;
+				Robot robot = new Robot(position, heading);
+				particle.addState(robot);
+				ok = true;
+			}
+		}
 		return particle;
 	}
 
 	private void updateParticles(List<Sample> samples) {
-		if (samples.isEmpty()) return;
-		
+		if (samples.isEmpty())
+			return;
+
 		// estimate movement
 		RobotMovementEstimator estimator = new SimpleRobotMovementEstimator();
 		Sample lastSample = samples.get(samples.size() - 1);
@@ -49,7 +57,7 @@ public class ParticleFilter implements SampleListener {
 			Robot newState = estimator.moveRobot(particle.getLastState(), lastSample);
 			particle.addState(newState);
 		}
-		
+
 		// calculate weights
 		float totalWeights = 0.0f;
 		Map<Particle, Float> weights = new LinkedHashMap<Particle, Float>();
@@ -84,10 +92,10 @@ public class ParticleFilter implements SampleListener {
 			}
 
 			// add a few random particles to avoid local maxima
-//			for (int i = 0; i < particles.size() / 50; ++i) {
-//				newParticles.set(i, makeRandomParticle());
-//			}
-			
+			// for (int i = 0; i < particles.size() / 50; ++i) {
+			// newParticles.set(i, makeRandomParticle());
+			// }
+
 			this.particles = newParticles;
 			notifyParticleFilterListeners();
 		}

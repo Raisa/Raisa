@@ -201,7 +201,6 @@ public class VisualizerFrame extends JFrame {
 		menuBar.add(viewMenu);
 
 		communicator = new FailoverCommunicator(new SerialCommunicator(worldModel), new ConsoleCommunicator());
-		;
 		communicator.connect();
 
 		controller = new BasicController(communicator);
@@ -381,16 +380,19 @@ public class VisualizerFrame extends JFrame {
 			}
 		});
 
-		updateTitle();
-		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		setSize(600, 400);
 		getContentPane().add(visualizerPanel, BorderLayout.CENTER);
 		getContentPane().add(controlPanel, BorderLayout.WEST);
 		getContentPane().add(measurementsPanel, BorderLayout.EAST);
 		setJMenuBar(menuBar);
+		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+	}
+	
+	public void open() {
+		updateTitle();
+		setSize(600, 400);
 		setVisible(true);
 		setLocationRelativeTo(null);
-		setExtendedState(JFrame.MAXIMIZED_BOTH);
+		setExtendedState(JFrame.MAXIMIZED_BOTH);		
 	}
 
 	public void loadMap(String fileName) {

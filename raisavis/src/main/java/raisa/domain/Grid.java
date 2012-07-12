@@ -51,7 +51,7 @@ public class Grid {
 	}
 
 	private BufferedImage getLatestUserImage() {
-		return this.userUndoLevels.get(userUndoLevels.size()-1);
+		return this.userUndoLevels.get(userUndoLevels.size() - 1);
 	}
 
 	public BufferedImage getBlockedImage() {
@@ -66,7 +66,8 @@ public class Grid {
 		if (isUserEditRedoable()) {
 			userUndoLevels = userUndoLevels.subList(0, userUndoLevel + 1);
 		}
-		BufferedImage copy = new BufferedImage(getLatestUserImage().getWidth(), getLatestUserImage().getHeight(), getLatestUserImage().getType());
+		BufferedImage copy = new BufferedImage(getLatestUserImage().getWidth(), getLatestUserImage().getHeight(),
+				getLatestUserImage().getType());
 		copy.setData(getLatestUserImage().getData());
 		userUndoLevels.add(copy);
 		userUndoLevels = CollectionUtil.takeLast(userUndoLevels, MAX_UNDO_LEVELS + 1);
@@ -84,13 +85,13 @@ public class Grid {
 			--userUndoLevel;
 		}
 	}
-	
+
 	public boolean isUserEditUndoable() {
 		return userUndoLevel > 0;
 	}
-	
+
 	public boolean isUserEditRedoable() {
-		return userUndoLevel < userUndoLevels.size() - 1;		
+		return userUndoLevel < userUndoLevels.size() - 1;
 	}
 
 	public int getUserUndoLevels() {
@@ -110,39 +111,47 @@ public class Grid {
 	}
 
 	public float traceRay(Vector2D from, float angle) {
-		angle = angle - (float)Math.PI * 0.5f;
+		angle = angle - (float) Math.PI * 0.5f;
 		float x = from.x / CELL_SIZE + GRID_SIZE * 0.5f;
 		float y = from.y / CELL_SIZE + GRID_SIZE * 0.5f;
-		float dx = (float)Math.cos(angle);
-		float dy = (float)Math.sin(angle);
+		float dx = (float) Math.cos(angle);
+		float dy = (float) Math.sin(angle);
 		float maxDistanceInGrid = GRID_SIZE;
 		BufferedImage userImage = getUserImage();
-		int clearRgb = clearColor.getRGB();
-		
 		for (float currentDistance = 0.0f; currentDistance < maxDistanceInGrid; currentDistance += 1.0f) {
 			x += dx;
 			y += dy;
-			
-			if (x >= 0 && x < userImage.getWidth() - 1 && y >= 0 && y < userImage.getHeight() - 1) {
-				int rgb = userImage.getRGB((int)x, (int)y);
-				int alpha = (rgb >> 24) & 0xFF;
-				boolean isOpaque = alpha > 0;
-				if (rgb != clearRgb && isOpaque) {
-					return currentDistance * CELL_SIZE;
-				}
-			} else {
-				return maxDistanceInGrid;
+
+			if (isBlocked(x, y, userImage)) {
+				return currentDistance * CELL_SIZE;
 			}
 		}
-		
+
 		return maxDistanceInGrid * CELL_SIZE;
 	}
 
 	public float getWidth() {
 		return GRID_SIZE * CELL_SIZE;
 	}
-	
+
 	public float getHeight() {
 		return GRID_SIZE * CELL_SIZE;
+	}
+
+	private boolean isBlocked(float x, float y, BufferedImage userImage) {
+		if (x >= 0 && x < userImage.getWidth() - 1 && y >= 0 && y < userImage.getHeight() - 1) {
+			int clearRgb = clearColor.getRGB();
+			int rgb = userImage.getRGB((int) x, (int) y);
+			int alpha = (rgb >> 24) & 0xFF;
+			boolean isOpaque = alpha > 0;
+			return rgb != clearRgb && isOpaque;
+		} else {
+			return true;
+		}
+	}
+
+	public boolean isClear(Vector2D position) {
+		BufferedImage userImage = getUserImage();
+		return !isBlocked(position.x / CELL_SIZE + GRID_SIZE * 0.5f, position.y / CELL_SIZE + GRID_SIZE * 0.5f, userImage);
 	}
 }

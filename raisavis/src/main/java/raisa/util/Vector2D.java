@@ -9,8 +9,8 @@ public class Vector2D extends Point2D.Float {
 		super(x, y);
 	}
 
-	public Vector2D(Float mouse) {
-		this(mouse.x, mouse.y);
+	public Vector2D(Float p) {
+		this(p.x, p.y);
 	}
 
 	public Vector2D() {
