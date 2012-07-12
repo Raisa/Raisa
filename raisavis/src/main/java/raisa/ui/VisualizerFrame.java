@@ -380,7 +380,7 @@ public class VisualizerFrame extends JFrame {
 		setExtendedState(JFrame.MAXIMIZED_BOTH);
 	}
 
-	protected void loadMap(String fileName) {
+	public void loadMap(String fileName) {
 		if (fileName == null) {
 			final JFileChooser chooser = new JFileChooser(defaultDirectory);
 			chooser.addActionListener(new ActionListener() {
