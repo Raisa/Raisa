@@ -10,8 +10,8 @@ public interface RoverState {
 	/**
 	 * degrees
 	 */
-	int getHeading();
+	float getHeading();
 
-	void setHeading(int heading);
+	void setHeading(float heading);
 
 }

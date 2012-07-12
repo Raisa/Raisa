@@ -1,9 +1,9 @@
 package raisa.simulator;
 
 public interface DriveSystem {
-	DriveSystem setLeftWheelSpeed(int speed);
+	DriveSystem setLeftWheelSpeed(float speed);
 
-	DriveSystem setRightWheelSpeed(int speed);
+	DriveSystem setRightWheelSpeed(float speed);
 
 	void move(RoverState roverState, float timestamp);
 }
