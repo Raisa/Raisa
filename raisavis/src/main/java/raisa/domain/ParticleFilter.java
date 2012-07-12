@@ -7,9 +7,11 @@ import java.util.Map;
 
 import raisa.util.Vector2D;
 
-public class ParticleFilter {
+public class ParticleFilter implements SampleListener {
 	private WorldModel world;
 	private List<Particle> particles;
+	private List<Sample> samples = new ArrayList<Sample>();
+	private List<ParticleFilterListener> particleFilterListeners = new ArrayList<ParticleFilterListener>();
 
 	public ParticleFilter(WorldModel world, int nparticles) {
 		this.world = world;
@@ -18,8 +20,9 @@ public class ParticleFilter {
 
 	public void randomizeParticles(int nparticles) {
 		particles = new ArrayList<Particle>();
-		float width = world.getWidth() * 0.5f;
-		float height = world.getHeight() * 0.5f;
+		// assume near origo
+		float width = world.getWidth() * 0.05f;
+		float height = world.getHeight() * 0.05f;
 		for (int i = 0; i < nparticles; ++i) {
 			Particle particle = new Particle();
 			float x = (float) Math.random() * width - 0.5f * width;
@@ -31,15 +34,24 @@ public class ParticleFilter {
 		}
 	}
 
-	public void update(List<Sample> samples) {
+	private void updateParticles(List<Sample> samples) {
+		if (samples.isEmpty()) return;
+		
+		// estimate movement
+		RobotMovementEstimator estimator = new SimpleRobotMovementEstimator();
+		Sample lastSample = samples.get(samples.size() - 1);
+		for (Particle particle : particles) {
+			Robot newState = estimator.moveRobot(particle.getLastState(), lastSample);
+			particle.addState(newState);
+		}
+		
+		// calculate weights
 		float totalWeights = 0.0f;
 		Map<Particle, Float> weights = new LinkedHashMap<Particle, Float>();
-		// calculate weights
 		for (Particle particle : particles) {
 			float weight = particle.calculateWeight(world, samples);
 			weights.put(particle, weight);
 			totalWeights += weight;
-			System.out.println(weight);
 		}
 		if (totalWeights > 0.0f) {
 			// normalize weights
@@ -67,10 +79,27 @@ public class ParticleFilter {
 			}
 
 			this.particles = newParticles;
+			notifyParticleFilterListeners();
+		}
+	}
+
+	private void notifyParticleFilterListeners() {
+		for (ParticleFilterListener listener : particleFilterListeners) {
+			listener.particlesChanged(this);
 		}
 	}
 
 	public List<Particle> getParticles() {
 		return particles;
+	}
+
+	@Override
+	public void sampleAdded(Sample sample) {
+		samples.add(sample);
+		updateParticles(samples);
+	}
+
+	public void addParticleFilterListener(ParticleFilterListener listener) {
+		particleFilterListeners.add(listener);
 	}
 }

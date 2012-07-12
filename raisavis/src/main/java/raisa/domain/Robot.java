@@ -48,6 +48,14 @@ public class Robot {
 		return new Float(positionRightTrack.x, positionRightTrack.y);
 	}	
 	
+	public void setPositionLeftTrack(Float positionLeftTrack) {
+		this.positionLeftTrack = positionLeftTrack;
+	}
+
+	public void setPositionRightTrack(Float positionRightTrack) {
+		this.positionRightTrack = positionRightTrack;
+	}
+
 	public float getSpeedLeftTrack() {
 		return speedLeftTrack;
 	}	
@@ -96,28 +104,6 @@ public class Robot {
 		directionLeftTrackForward = direction;
 	}
 
-	public Robot moveRobot(Sample sample) {
-		Robot r = new Robot();		
-		float leftTrackTrip = (WHEEL_DIAMETER * sample.getLeftTrackTicks() * TICK_RADIANS) / 2.0f;
-		float rightTrackTrip = (WHEEL_DIAMETER * sample.getRightTrackTicks() * TICK_RADIANS) / 2.0f;
-		
-		float h = sample.getCompassDirection();
-		r.positionLeftTrack = new Float(
-				this.positionLeftTrack.x + leftTrackTrip * (float)Math.sin(h),
-				this.positionLeftTrack.y - leftTrackTrip * (float)Math.cos(h));
-				
-		r.positionRightTrack = new Float(
-				this.positionRightTrack.x + rightTrackTrip * (float)Math.sin(h),
-				this.positionRightTrack.y - rightTrackTrip * (float)Math.cos(h));
-		r.heading = h;
-		r.setTimestampMillis(sample.getTimestampMillis());
-		
-		r.directionLeftTrackForward = (sample.getLeftTrackTicks() >= 0 ? true : false);
-		r.directionRightTrackForward = (sample.getRightTrackTicks() >= 0 ? true : false);
-		
-		return r;
-	}
-	
 	public String toString() {
 		return 				
 			"position (x=" + getPosition().x + ",y=" + getPosition().y + "), " +

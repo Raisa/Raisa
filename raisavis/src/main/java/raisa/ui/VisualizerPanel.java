@@ -17,8 +17,6 @@ import java.awt.geom.Point2D.Float;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Observable;
-import java.util.Observer;
 
 import javax.swing.JPanel;
 
@@ -26,13 +24,14 @@ import raisa.domain.Grid;
 import raisa.domain.Particle;
 import raisa.domain.Robot;
 import raisa.domain.Sample;
+import raisa.domain.SampleListener;
 import raisa.domain.WorldModel;
 import raisa.util.CollectionUtil;
 import raisa.util.GeometryUtil;
 import raisa.util.GraphicsUtil;
 import raisa.util.Vector2D;
 
-public class VisualizerPanel extends JPanel implements Observer {
+public class VisualizerPanel extends JPanel implements SampleListener {
 	private static final long serialVersionUID = 1L;
 	private Color measurementColor = new Color(0.4f, 0.4f, 0.4f);
 	private Color particleColor = new Color(0.3f, 0.3f, 0.3f);
@@ -62,7 +61,7 @@ public class VisualizerPanel extends JPanel implements Observer {
 	public VisualizerPanel(VisualizerFrame frame, WorldModel worldModel) {
 		this.visualizerFrame = frame;
 		this.worldModel = worldModel;
-		worldModel.addObserver(this);
+		worldModel.addSampleListener(this);
 		setBackground(Color.gray);
 		setFocusable(true);
 		addHierarchyBoundsListener(new PanelSizeHandler());
@@ -74,10 +73,9 @@ public class VisualizerPanel extends JPanel implements Observer {
 		arrow = new BasicStroke(2.0f, BasicStroke.CAP_BUTT, BasicStroke.JOIN_MITER, 10.0f);
 	}
 
-	public void update(Observable model, Object s) {
-		Sample sample = (Sample)s;
+	public void sampleAdded(Sample sample) {
 		if (sample.isInfrared1MeasurementValid()) {
-			Vector2D spotPosition = GeometryUtil.calculatePosition(worldModel.getRobot().getPosition(), worldModel.getRobot().getHeading() + sample.getInfrared1Angle(), sample.getInfrared1Distance());
+			Vector2D spotPosition = GeometryUtil.calculatePosition(worldModel.getLatestState().getPosition(), worldModel.getLatestState().getHeading() + sample.getInfrared1Angle(), sample.getInfrared1Distance());
 			worldModel.setGridPosition(spotPosition, true);
 			latestIR.add(sample);
 			latestIR = CollectionUtil.takeLast(latestIR, 10);
@@ -113,7 +111,7 @@ public class VisualizerPanel extends JPanel implements Observer {
 	}
 
 	private void drawParticle(Graphics2D g2, Particle particle) {
-		Robot robot = particle.getLastSample();
+		Robot robot = particle.getLastState();
 		if (robot != null) {
 			Vector2D to = GeometryUtil.calculatePosition(robot.getPosition(), robot.getHeading(), toWorld(10.0f));
 			drawPoint(g2, robot.getPosition());
@@ -174,7 +172,7 @@ public class VisualizerPanel extends JPanel implements Observer {
 			Collections.reverse(irs);
 			float ir = 1.0f;
 			for (Sample sample : irs) {
-				Robot robot = worldModel.getRobot();
+				Robot robot = worldModel.getLatestState();
 				if (sample.isInfrared1MeasurementValid()) {
 					g2.setColor(GraphicsUtil.makeTransparentColor(measurementColor, ir));
 					Float spot = GeometryUtil.calculatePosition(robot.getPosition(), robot.getHeading() + sample.getInfrared1Angle(), sample.getInfrared1Distance());
@@ -202,7 +200,7 @@ public class VisualizerPanel extends JPanel implements Observer {
 	}
 
 	private void drawUltrasoundResults(Graphics g) {
-		Robot robot = worldModel.getRobot();
+		Robot robot = worldModel.getLatestState();
 		if (!latestSR.isEmpty()) {
 			float sonarWidth = 42.0f;
 			List<Sample> srs = new ArrayList<Sample>(latestSR);
@@ -228,7 +226,7 @@ public class VisualizerPanel extends JPanel implements Observer {
 	}
 
 	private void drawRobot(Graphics2D g2) {
-		Robot robot = worldModel.getRobot();	
+		Robot robot = worldModel.getLatestState();	
 		
 		g2.setColor(Color.gray);
 		Float robotScreen = toScreen(robot.getPosition());
@@ -275,7 +273,7 @@ public class VisualizerPanel extends JPanel implements Observer {
 	}
 
 	private void drawArrow(Graphics2D g2) {
-		Robot robot = worldModel.getRobot();
+		Robot robot = worldModel.getLatestState();
 		g2.setColor(Color.black);
 		Float robotScreen = toScreen(robot.getPosition());
 		Path2D.Float p = new Path2D.Float();

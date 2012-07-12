@@ -34,8 +34,13 @@ import raisa.comms.FailoverCommunicator;
 import raisa.comms.ReplayController;
 import raisa.comms.SampleParser;
 import raisa.comms.SerialCommunicator;
+import raisa.domain.Particle;
 import raisa.domain.ParticleFilter;
+import raisa.domain.ParticleFilterListener;
+import raisa.domain.Robot;
+import raisa.domain.RobotStateEstimator;
 import raisa.domain.Sample;
+import raisa.domain.SimpleRobotStateEstimator;
 import raisa.domain.WorldModel;
 import raisa.ui.tool.DrawTool;
 import raisa.ui.tool.MeasureTool;
@@ -55,11 +60,27 @@ public class VisualizerFrame extends JFrame {
 	private final Communicator communicator;
 	private final BasicController controller;
 	private ParticleFilter particleFilter;
+	private RobotStateEstimator robotStateEstimator;
 	private boolean stepSimulation = true;
 
 	public VisualizerFrame(final WorldModel worldModel) {
 		this.worldModel = worldModel;
 		this.particleFilter = new ParticleFilter(worldModel, 100);
+		this.robotStateEstimator = new SimpleRobotStateEstimator();
+		worldModel.addSampleListener(particleFilter);
+		particleFilter.addParticleFilterListener(new ParticleFilterListener() {
+			@Override
+			public void particlesChanged(ParticleFilter filter) {
+				List<Robot> states = new ArrayList<Robot>();
+				for (Particle particle : filter.getParticles()) {
+					Robot robot = particle.getLastState();
+					states.add(robot);
+				}
+				
+				Robot estimatedState = robotStateEstimator.estimateState(states);
+				worldModel.addState(estimatedState);
+			}			
+		});
 		visualizerPanel = new VisualizerPanel(this, worldModel);
 		MeasurementsPanel measurementsPanel = new MeasurementsPanel(worldModel);
 		JMenuBar menuBar = new JMenuBar();
@@ -201,7 +222,7 @@ public class VisualizerFrame extends JFrame {
 		final int LIGHTS_ACTION_KEY = ++nextFreeActionKey;
 		final int UNDO_ACTION_KEY = ++nextFreeActionKey;
 		final int REDO_ACTION_KEY = ++nextFreeActionKey;
-		final int PARTICLE_FILTER_STEP_ACTION_KEY = ++nextFreeActionKey;
+		final int STEP_SIMULATION_ACTION_KEY = ++nextFreeActionKey;
 
 		visualizerPanel.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke('+'),
 				ZOOM_IN_ACTION_KEY);
@@ -337,16 +358,13 @@ public class VisualizerFrame extends JFrame {
 			}
 		});
 
-		visualizerPanel.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke('p'),
-				PARTICLE_FILTER_STEP_ACTION_KEY);
-		visualizerPanel.getActionMap().put(PARTICLE_FILTER_STEP_ACTION_KEY, new AbstractAction() {
+		visualizerPanel.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke('p'), STEP_SIMULATION_ACTION_KEY);
+		visualizerPanel.getActionMap().put(STEP_SIMULATION_ACTION_KEY, new AbstractAction() {
 			private static final long serialVersionUID = 1L;
 
 			@Override
 			public void actionPerformed(ActionEvent event) {
 				stepSimulation = false;
-				particleFilter.update(worldModel.getSamples());
-				VisualizerFrame.this.repaint();
 			}
 		});
 
