@@ -608,7 +608,7 @@ public class VisualizerFrame extends JFrame {
 							}
 							stepSimulation = true;
 						}
-						worldModel.addSample(samples.get(nextSample));
+						worldModel.sampleReceived(samples.get(nextSample));
 						++nextSample;
 						if (delayed) {
 							try {

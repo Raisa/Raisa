@@ -13,11 +13,12 @@ import java.awt.image.BufferedImage;
 import javax.imageio.ImageIO;
 
 import raisa.comms.SampleParser;
+import raisa.comms.SensorListener;
 import raisa.util.CollectionUtil;
 import raisa.util.Vector2D;
 
 
-public class WorldModel extends Observable implements Serializable {
+public class WorldModel extends Observable implements Serializable, SensorListener {
 	private static final long serialVersionUID = 1L;
 
 	private List<Sample> samples = new ArrayList<Sample>();
@@ -42,7 +43,7 @@ public class WorldModel extends Observable implements Serializable {
 		return copy;
 	}
 	
-	public void addSample(String message) {
+	public void sampleReceived(String message) {
 		Sample sample = new SampleParser().parse(message);
 		addSample(sample);
 	}

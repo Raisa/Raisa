@@ -7,36 +7,35 @@ import gnu.io.SerialPortEventListener;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Enumeration;
+import java.util.List;
 import java.util.Scanner;
 
-import raisa.domain.WorldModel;
-
 public class SerialCommunicator implements SerialPortEventListener, Communicator {
-    /** The port we're normally going to use. */
+	/** The port we're normally going to use. */
 	private SerialPort serialPort;
-	private static final String PORT_NAMES[] = { 
-			"/dev/tty.usbserial-A9007UX1", // Mac OS X
-			"/dev/tty.usbmodemfa131",
-			"/dev/tty.usbmodemfd111",
-			"/dev/ttys0",
-			"/dev/ttys000",
-			"/dev/tty001",			
-			"/dev/ttyUSB0", // Linux
+	private static final String PORT_NAMES[] = { "/dev/tty.usbserial-A9007UX1", // Mac
+																				// OS
+																				// X
+			"/dev/tty.usbmodemfa131", "/dev/tty.usbmodemfd111", "/dev/ttys0", "/dev/ttys000", "/dev/tty001", "/dev/ttyUSB0", // Linux
 			"COM3", // Windows
-			};
+	};
 	/** Buffered input stream from the port */
 	private InputStream input;
 	/** Milliseconds to block while waiting for port open */
 	private static final int TIME_OUT = 2000;
 	/** Default bits per second for COM port. */
 	private static final int DATA_RATE = 111111;
-	private WorldModel worldModel;
-	
-	public SerialCommunicator(WorldModel worldModel) {
-		this.worldModel = worldModel;
+	private List<SensorListener> sensorListeners = new ArrayList<SensorListener>();
+
+	// TODO use add/remove listeners functionality for this
+	public SerialCommunicator(SensorListener... sensorListeners) {
+		this.sensorListeners = Arrays.asList(sensorListeners);
 	}
-	
+
+	@Override
 	public boolean connect() {
 		CommPortIdentifier portId = null;
 		Enumeration<?> portEnum = CommPortIdentifier.getPortIdentifiers();
@@ -59,14 +58,10 @@ public class SerialCommunicator implements SerialPortEventListener, Communicator
 
 		try {
 			// open serial port, and use class name for the appName.
-			serialPort = (SerialPort) portId.open(this.getClass().getName(),
-					TIME_OUT);
+			serialPort = (SerialPort) portId.open(this.getClass().getName(), TIME_OUT);
 
 			// set port parameters
-			serialPort.setSerialPortParams(DATA_RATE,
-					SerialPort.DATABITS_8,
-					SerialPort.STOPBITS_1,
-					SerialPort.PARITY_NONE);
+			serialPort.setSerialPortParams(DATA_RATE, SerialPort.DATABITS_8, SerialPort.STOPBITS_1, SerialPort.PARITY_NONE);
 
 			// open the streams
 			input = serialPort.getInputStream();
@@ -78,13 +73,13 @@ public class SerialCommunicator implements SerialPortEventListener, Communicator
 			System.err.println(e.toString());
 			return false;
 		}
-		
+
 		return true;
 	}
 
 	/**
-	 * This should be called when you stop using the port.
-	 * This will prevent port locking on platforms like Linux.
+	 * This should be called when you stop using the port. This will prevent
+	 * port locking on platforms like Linux.
 	 */
 	public synchronized void close() {
 		if (serialPort != null) {
@@ -96,6 +91,7 @@ public class SerialCommunicator implements SerialPortEventListener, Communicator
 	/**
 	 * Handle an event on the serial port. Read the data and print it.
 	 */
+	@Override
 	public synchronized void serialEvent(SerialPortEvent oEvent) {
 		System.out.println("Serial event: " + oEvent.getEventType());
 		if (oEvent.getEventType() == SerialPortEvent.DATA_AVAILABLE) {
@@ -103,12 +99,14 @@ public class SerialCommunicator implements SerialPortEventListener, Communicator
 				Scanner scanner = new Scanner(input).useDelimiter("\n");
 				String line = scanner.next();
 				SampleParser parser = new SampleParser();
-				while (line!=null) {
-					System.out.println(new String(line));							
+				while (line != null) {
+					System.out.println(new String(line));
 					if (!parser.isValid(line)) {
 						System.out.println("Invalid sample!");
 					} else {
-						this.worldModel.addSample(line);
+						for (SensorListener sensorListener : sensorListeners) {
+							sensorListener.sampleReceived(line);
+						}
 					}
 					line = scanner.next();
 				}
@@ -116,7 +114,8 @@ public class SerialCommunicator implements SerialPortEventListener, Communicator
 				System.err.println(e.toString());
 			}
 		}
-		// Ignore all the other eventTypes, but you should consider the other ones.
+		// Ignore all the other eventTypes, but you should consider the other
+		// ones.
 	}
 
 	@Override
@@ -128,5 +127,14 @@ public class SerialCommunicator implements SerialPortEventListener, Communicator
 			e.printStackTrace();
 		}
 	}
-}
 
+	@Override
+	public void addSensorListener(SensorListener sensorListener) {
+		sensorListeners.add(sensorListener);
+	}
+
+	@Override
+	public void removeSensorListener(SensorListener sensorListener) {
+		sensorListeners.remove(sensorListener);
+	}
+}

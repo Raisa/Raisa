@@ -14,5 +14,15 @@ public class ConsoleCommunicator implements Communicator {
 	public boolean connect() {
 		return true;
 	}
+	
+	@Override
+	public void addSensorListener(SensorListener sensorListener) {
+		// no-op
+	}
+	
+	@Override
+	public void removeSensorListener(SensorListener sensorListener) {
+		// no-op
+	}
 
 }

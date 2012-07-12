@@ -34,4 +34,19 @@ public class FailoverCommunicator implements Communicator {
 
 		return false;
 	}
+
+	@Override
+	public void addSensorListener(SensorListener sensorListener) {
+		for (Communicator communicator : communicators) {
+			communicator.addSensorListener(sensorListener);
+		}
+	}
+
+	@Override
+	public void removeSensorListener(SensorListener sensorListener) {
+		for (Communicator communicator : communicators) {
+			communicator.removeSensorListener(sensorListener);
+		}
+	}
+
 }
