@@ -1,7 +1,6 @@
 package raisa.domain;
 
 import java.awt.Image;
-import java.awt.geom.Point2D.Float;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -72,7 +71,7 @@ public class WorldModel implements Serializable, SensorListener {
 		List<Robot> pastStates = CollectionUtil.takeLast(states, 5);
 		if (pastStates.size() > 1) {
 			boolean isFirst = true;
-			Float previousPositionLeftTrack = new Float(), previousPositionRightTrack = new Float();
+			Vector2D previousPositionLeftTrack = new Vector2D(), previousPositionRightTrack = new Vector2D();
 			long accumulatedTime = 0, previousTimestamp = 0;
 			float accumulatedDistanceLeftTrack = 0.0f, accumulatedDistanceRightTrack = 0.0f;
 			for (Robot r : pastStates) {
@@ -102,7 +101,7 @@ public class WorldModel implements Serializable, SensorListener {
 		samples = new ArrayList<Sample>();
 		states = new ArrayList<Robot>();
 		grid = new Grid();
-		addState(new Robot(new Float(-100.0f, 600.0f), 0.5f));
+		addState(new Robot(new Vector2D(-100.0f, 600.0f), 0.5f));
 	}
 	
 	public void removeOldSamples(int preserveLength) {

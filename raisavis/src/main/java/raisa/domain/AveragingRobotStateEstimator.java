@@ -1,24 +1,25 @@
 package raisa.domain;
 
-import java.awt.geom.Point2D.Float;
 import java.util.List;
+
+import raisa.util.Vector2D;
 
 
 public class AveragingRobotStateEstimator implements RobotStateEstimator {
 	@Override
 	public Robot estimateState(List<Robot> states) {
 		Robot averageState = new Robot();
-		Float averageLeftTrack = new Float();
-		Float averageRightTrack = new Float();
+		Vector2D averageLeftTrack = new Vector2D();
+		Vector2D averageRightTrack = new Vector2D();
 		float averageHeading = 0.0f;
 		float ax = 0.0f;
 		float ay = 0.0f;
 		float scale = 1.0f / states.size();
 		for (Robot state : states) {
-			Float leftTrack = state.getPositionLeftTrack();
+			Vector2D leftTrack = state.getPositionLeftTrack();
 			averageLeftTrack.x += (leftTrack.x) * scale;
 			averageLeftTrack.y += (leftTrack.y) * scale;
-			Float rightTrack = state.getPositionRightTrack();
+			Vector2D rightTrack = state.getPositionRightTrack();
 			averageRightTrack.x += (rightTrack.x) * scale;
 			averageRightTrack.y += (rightTrack.y) * scale;
 			ax += (float)Math.cos(state.getHeading());  

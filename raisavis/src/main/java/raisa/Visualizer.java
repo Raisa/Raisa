@@ -33,7 +33,7 @@ public class Visualizer {
 					angleDegrees = 0.0f - angleDegrees;
 				}
 				float angle = (float)Math.toRadians(angleDegrees);
-				//Robot r = new Robot(heading, new Float(x, y));
+				//Robot r = new Robot(heading, new Vector2D(x, y));
 				Sample s = new SampleParser().parse(world.sample(x, y, heading, angle));
 				samples.add(s);
 			}

@@ -1,6 +1,6 @@
 package raisa.domain;
 
-import java.awt.geom.Point2D.Float;
+import raisa.util.Vector2D;
 
 public class SimpleRobotMovementEstimator implements RobotMovementEstimator {
 
@@ -11,10 +11,10 @@ public class SimpleRobotMovementEstimator implements RobotMovementEstimator {
 		float rightTrackTrip = (Robot.WHEEL_DIAMETER * sample.getRightTrackTicks() * Robot.TICK_RADIANS) / 2.0f;
 
 		float h = state.getHeading();
-		Float positionLeftTrack = new Float(state.getPositionLeftTrack().x + leftTrackTrip * (float) Math.sin(h),
+		Vector2D positionLeftTrack = new Vector2D(state.getPositionLeftTrack().x + leftTrackTrip * (float) Math.sin(h),
 				state.getPositionLeftTrack().y - leftTrackTrip * (float) Math.cos(h));
 
-		Float positionRightTrack = new Float(state.getPositionRightTrack().x + rightTrackTrip * (float) Math.sin(h),
+		Vector2D positionRightTrack = new Vector2D(state.getPositionRightTrack().x + rightTrackTrip * (float) Math.sin(h),
 				state.getPositionRightTrack().y - rightTrackTrip * (float) Math.cos(h));
 		
 		robot.setTimestampMillis(sample.getTimestampMillis());

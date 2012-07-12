@@ -1,6 +1,6 @@
 package raisa.domain;
 
-import java.awt.geom.Point2D.Float;
+import raisa.util.Vector2D;
 
 public class Robot {
 	public final static float ROBOT_WIDTH = 10f;
@@ -10,46 +10,46 @@ public class Robot {
 
 	private long timestampMillis;
 	private float heading;
-	private Float positionLeftTrack;
-	private Float positionRightTrack;
+	private Vector2D positionLeftTrack;
+	private Vector2D positionRightTrack;
 	private float speedLeftTrack;
 	private float speedRightTrack;
 	private boolean directionLeftTrackForward;
 	private boolean directionRightTrackForward;
 
 	public Robot() {
-		this(new Float(), (float) Math.PI);
+		this(new Vector2D(), (float) Math.PI);
 	}
 
-	public Robot(Float position, float heading) {
+	public Robot(Vector2D position, float heading) {
 		this.heading = heading;
 		float tmpX = -ROBOT_WIDTH / 2.0f;
 		float tmpY = 0.0f;
-		this.positionLeftTrack = new Float(position.x + (float) Math.cos(heading) * tmpX - (float) Math.sin(heading)
+		this.positionLeftTrack = new Vector2D(position.x + (float) Math.cos(heading) * tmpX - (float) Math.sin(heading)
 				* tmpY, position.y + (float) Math.sin(heading) * tmpX + (float) Math.cos(heading) * tmpY);
 		tmpX = ROBOT_WIDTH / 2.0f;
-		this.positionRightTrack = new Float(position.x + (float) Math.cos(heading) * tmpX - (float) Math.sin(heading)
+		this.positionRightTrack = new Vector2D(position.x + (float) Math.cos(heading) * tmpX - (float) Math.sin(heading)
 				* tmpY, position.y + (float) Math.sin(heading) * tmpX + (float) Math.cos(heading) * tmpY);
 	}
 
-	public Float getPosition() {
-		return new Float((positionLeftTrack.x + positionRightTrack.x) / 2.0f,
+	public Vector2D getPosition() {
+		return new Vector2D((positionLeftTrack.x + positionRightTrack.x) / 2.0f,
 				(positionLeftTrack.y + positionRightTrack.y) / 2.0f);
 	}
 
-	public Float getPositionLeftTrack() {
-		return new Float(positionLeftTrack.x, positionLeftTrack.y);
+	public Vector2D getPositionLeftTrack() {
+		return new Vector2D(positionLeftTrack.x, positionLeftTrack.y);
 	}
 
-	public Float getPositionRightTrack() {
-		return new Float(positionRightTrack.x, positionRightTrack.y);
+	public Vector2D getPositionRightTrack() {
+		return new Vector2D(positionRightTrack.x, positionRightTrack.y);
 	}
 
-	public void setPositionLeftTrack(Float positionLeftTrack) {
+	public void setPositionLeftTrack(Vector2D positionLeftTrack) {
 		this.positionLeftTrack = positionLeftTrack;
 	}
 
-	public void setPositionRightTrack(Float positionRightTrack) {
+	public void setPositionRightTrack(Vector2D positionRightTrack) {
 		this.positionRightTrack = positionRightTrack;
 	}
 
@@ -101,6 +101,7 @@ public class Robot {
 		directionLeftTrackForward = direction;
 	}
 
+	@Override
 	public String toString() {
 		return "position (x=" + getPosition().x + ",y=" + getPosition().y + "), " + "lefttrack (x="
 				+ positionLeftTrack.x + ",y=" + positionLeftTrack.y + "), " + "righttrack (x=" + positionRightTrack.x
