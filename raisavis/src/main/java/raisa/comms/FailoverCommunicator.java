@@ -36,17 +36,23 @@ public class FailoverCommunicator implements Communicator {
 	}
 
 	@Override
-	public void addSensorListener(SensorListener sensorListener) {
+	public Communicator addSensorListener(SensorListener ... sensorListeners) {
 		for (Communicator communicator : communicators) {
-			communicator.addSensorListener(sensorListener);
+			for(SensorListener sensorListener : sensorListeners) {
+				communicator.addSensorListener(sensorListener);
+			}
 		}
+		return this;
 	}
 
 	@Override
-	public void removeSensorListener(SensorListener sensorListener) {
+	public Communicator removeSensorListener(SensorListener ... sensorListeners) {
 		for (Communicator communicator : communicators) {
-			communicator.removeSensorListener(sensorListener);
+			for(SensorListener listener : sensorListeners) {
+				communicator.removeSensorListener(listener);
+			}
 		}
+		return this;
 	}
 
 }

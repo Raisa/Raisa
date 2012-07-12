@@ -3,11 +3,12 @@ package raisa.session;
 import java.io.BufferedOutputStream;
 import java.io.Closeable;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.Flushable;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
@@ -20,25 +21,35 @@ import raisa.comms.SensorListener;
 
 public class SessionWriter implements Communicator, SensorListener, Closeable, Flushable {
 	private static final Logger logger = LoggerFactory.getLogger(SessionWriter.class);
-	private final File controlDataFile;
-	private final File sensorDataFile;
-	private final File directory;
+	private File controlDataFile;
+	private File sensorDataFile;
 	private PrintWriter controlDataOutput;
 	private PrintWriter sensorDataOutput;
 	private long start;
+	private String prefix;
+	private File sessionDirectory;
+	private File mainDirectory;
 
-	public SessionWriter(File directory, String prefix) {
-		this.directory = directory;
-		controlDataFile = new File(directory, prefix + ".control");
-		sensorDataFile = new File(directory, prefix + ".sensor");
+	public SessionWriter(File mainDirectory, String prefix) {
+		this.mainDirectory = mainDirectory;
+		this.prefix = prefix;
 	}
 
-	synchronized public void start() throws FileNotFoundException {
+	synchronized public void start() throws IOException {
 		logger.info("SessionWriter starting");
-		if (!directory.exists()) {
+		if (isCapturingData()) {
+			logger.warn("Already capturing data");
+			return;
+		}
+
+		sessionDirectory = getSubDirectory(mainDirectory);
+		controlDataFile = new File(sessionDirectory, prefix + ".control");
+		sensorDataFile = new File(sessionDirectory, prefix + ".sensor");
+
+		if (!sessionDirectory.exists()) {
 			try {
-				logger.debug("Creating directory {}", directory);
-				FileUtils.forceMkdir(directory);
+				logger.debug("Creating directory {}", sessionDirectory);
+				FileUtils.forceMkdir(sessionDirectory);
 			} catch (IOException e) {
 				throw new RuntimeException(e);
 			}
@@ -51,21 +62,24 @@ public class SessionWriter implements Communicator, SensorListener, Closeable, F
 
 	@Override
 	synchronized public void sendPackage(ControlMessage message) {
-		if (controlDataOutput == null) {
+		if (!isCapturingData()) {
 			return;
 		}
-		// TODO add getTimestamp() as a new field to data
-		// TODO move controlMessage.timestamp to here
+		// synchronize control messages using same clock as sensor readings
+		message.setTimestamp(getTimestamp());
 		controlDataOutput.println(message.toJson());
+		controlDataOutput.flush();
 	}
 
 	@Override
 	synchronized public void sampleReceived(String sample) {
-		if (sensorDataOutput == null) {
+		if (!isCapturingData()) {
 			return;
 		}
-		// TODO add getTimestamp() as a new field to data
-		sensorDataOutput.println(sample);
+		// synchronize sensor readings using same clock as control messages 
+		String timestampedSample = sample.replaceAll("TI\\d+", "TI" + getTimestamp());
+		sensorDataOutput.println(timestampedSample);
+		sensorDataOutput.flush();
 	}
 
 	@Override
@@ -79,11 +93,15 @@ public class SessionWriter implements Communicator, SensorListener, Closeable, F
 
 	@Override
 	synchronized public void close() throws IOException {
-		logger.info("SessionWriter closed");
 		IOUtils.closeQuietly(controlDataOutput);
 		IOUtils.closeQuietly(sensorDataOutput);
 		controlDataOutput = null;
 		sensorDataOutput = null;
+		logger.info("SessionWriter closed");
+	}
+
+	synchronized public boolean isCapturingData() {
+		return controlDataOutput != null;
 	}
 
 	@Override
@@ -99,12 +117,19 @@ public class SessionWriter implements Communicator, SensorListener, Closeable, F
 	}
 
 	@Override
-	public void addSensorListener(SensorListener sensorListener) {
-		// no-op		
+	public Communicator addSensorListener(SensorListener... sensorListener) {
+		// no-op
+		return this;
 	}
 
 	@Override
-	public void removeSensorListener(SensorListener sensorListener) {
+	public Communicator removeSensorListener(SensorListener... sensorListener) {
 		// no-op
+		return this;
 	}
+
+	private File getSubDirectory(File mainDirectory) {
+		return new File(mainDirectory, new SimpleDateFormat("yyyy-MM-dd_HHmm").format(new Date()));
+	}
+
 }

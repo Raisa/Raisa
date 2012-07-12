@@ -16,13 +16,13 @@ public class ConsoleCommunicator implements Communicator {
 	}
 	
 	@Override
-	public void addSensorListener(SensorListener sensorListener) {
-		// no-op
+	public Communicator addSensorListener(SensorListener ... sensorListener) {
+		return this;
 	}
 	
 	@Override
-	public void removeSensorListener(SensorListener sensorListener) {
-		// no-op
+	public Communicator removeSensorListener(SensorListener ... sensorListener) {
+		return this;
 	}
 
 }

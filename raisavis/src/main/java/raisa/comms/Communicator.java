@@ -6,6 +6,6 @@ public interface Communicator {
 
 	boolean connect();
 	
-	void addSensorListener(SensorListener sensorListener);
-	void removeSensorListener(SensorListener sensorListener);
+	Communicator addSensorListener(SensorListener ... sensorListener);
+	Communicator removeSensorListener(SensorListener ... sensorListener);
 }

@@ -15,14 +15,13 @@ public class ControlMessage {
 	private final int rightSpeed;
 	private final boolean lights;
 
-	private final long timestamp;
+	private long timestamp;
 
-	public ControlMessage(long timestamp, int leftSpeed, int rightSpeed,
+	public ControlMessage(int leftSpeed, int rightSpeed,
 			boolean lights) {
 		this.leftSpeed = leftSpeed;
 		this.rightSpeed = rightSpeed;
 		this.lights = lights;
-		this.timestamp = timestamp;
 	}
 
 	public static ControlMessage fromJson(String json) {
@@ -73,6 +72,10 @@ public class ControlMessage {
 	@Override
 	public int hashCode() {
 		return reflectionHashCode(this);
+	}
+
+	public void setTimestamp(long timestamp) {
+		this.timestamp = timestamp;
 	}
 
 }

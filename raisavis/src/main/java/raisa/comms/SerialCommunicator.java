@@ -8,7 +8,6 @@ import gnu.io.SerialPortEventListener;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.Scanner;
@@ -29,11 +28,6 @@ public class SerialCommunicator implements SerialPortEventListener, Communicator
 	/** Default bits per second for COM port. */
 	private static final int DATA_RATE = 111111;
 	private List<SensorListener> sensorListeners = new ArrayList<SensorListener>();
-
-	// TODO use add/remove listeners functionality for this
-	public SerialCommunicator(SensorListener... sensorListeners) {
-		this.sensorListeners = Arrays.asList(sensorListeners);
-	}
 
 	@Override
 	public boolean connect() {
@@ -129,12 +123,18 @@ public class SerialCommunicator implements SerialPortEventListener, Communicator
 	}
 
 	@Override
-	public void addSensorListener(SensorListener sensorListener) {
-		sensorListeners.add(sensorListener);
+	public Communicator addSensorListener(SensorListener ... sensorListeners) {
+		for(SensorListener sensorListener: sensorListeners) {
+			this.sensorListeners.add(sensorListener);
+		}
+		return this;
 	}
 
 	@Override
-	public void removeSensorListener(SensorListener sensorListener) {
-		sensorListeners.remove(sensorListener);
+	public Communicator removeSensorListener(SensorListener ... sensorListeners) {
+		for(SensorListener sensorListener: sensorListeners) {
+			this.sensorListeners.remove(sensorListener);
+		}
+		return this;
 	}
 }
