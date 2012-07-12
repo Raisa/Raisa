@@ -45,7 +45,8 @@ public class Particle {
 
 			if (Math.max(expectedDistance, measuredDistance) <= 0.0f) continue;
 			
-			weights += Math.min(expectedDistance, measuredDistance) / Math.max(expectedDistance, measuredDistance); 
+			float ratio = Math.min(expectedDistance, measuredDistance) / Math.max(expectedDistance, measuredDistance);
+			weights += ratio * ratio; 
 
 			// weight based on compass reading (take angle between unit vectors)
 			float cosa = (float)(Math.cos(state.getHeading()) * Math.cos(sample.getCompassDirection()) + Math.sin(state.getHeading()) * Math.sin(sample.getCompassDirection()));
