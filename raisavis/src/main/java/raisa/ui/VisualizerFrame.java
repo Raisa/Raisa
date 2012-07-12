@@ -1,6 +1,7 @@
 package raisa.ui;
 
 import java.awt.BorderLayout;
+import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
@@ -23,6 +24,7 @@ import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.KeyStroke;
 
+import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,14 +36,15 @@ import raisa.comms.FailoverCommunicator;
 import raisa.comms.ReplayController;
 import raisa.comms.SampleParser;
 import raisa.comms.SerialCommunicator;
+import raisa.domain.AveragingRobotStateEstimator;
 import raisa.domain.Particle;
 import raisa.domain.ParticleFilter;
 import raisa.domain.ParticleFilterListener;
 import raisa.domain.Robot;
 import raisa.domain.RobotStateEstimator;
 import raisa.domain.Sample;
-import raisa.domain.AveragingRobotStateEstimator;
 import raisa.domain.WorldModel;
+import raisa.session.SessionWriter;
 import raisa.ui.tool.DrawTool;
 import raisa.ui.tool.MeasureTool;
 import raisa.ui.tool.Tool;
@@ -52,7 +55,9 @@ public class VisualizerFrame extends JFrame {
 	private static final long serialVersionUID = 1L;
 	private int nparticles = 1000;
 	private VisualizerPanel visualizerPanel;
-	private File defaultDirectory = new File(new File("."), "data");
+	private final File currentDirectory = new File(".");
+	private File defaultDirectory = new File(currentDirectory, "data");
+	private final File sessionDirectory = new File(currentDirectory, "sessions");
 	private final WorldModel worldModel;
 	private Tool currentTool;
 	private DrawTool drawTool = new DrawTool(this);
@@ -62,9 +67,11 @@ public class VisualizerFrame extends JFrame {
 	private final BasicController controller;
 	private ParticleFilter particleFilter;
 	private RobotStateEstimator robotStateEstimator;
+	private SessionWriter sessionWriter;
 	private boolean stepSimulation = true;
 
 	public VisualizerFrame(final WorldModel worldModel) {
+		addIcon();
 		this.worldModel = worldModel;
 		this.particleFilter = new ParticleFilter(worldModel, nparticles);
 		this.robotStateEstimator = new AveragingRobotStateEstimator();
@@ -77,10 +84,10 @@ public class VisualizerFrame extends JFrame {
 					Robot robot = particle.getLastState();
 					states.add(robot);
 				}
-				
+
 				Robot estimatedState = robotStateEstimator.estimateState(states);
 				worldModel.addState(estimatedState);
-			}			
+			}
 		});
 		visualizerPanel = new VisualizerPanel(this, worldModel);
 		MeasurementsPanel measurementsPanel = new MeasurementsPanel(worldModel);
@@ -200,15 +207,24 @@ public class VisualizerFrame extends JFrame {
 		viewMenu.add(zoomOut);
 		menuBar.add(viewMenu);
 
-		communicator = new FailoverCommunicator(new SerialCommunicator(worldModel), new ConsoleCommunicator());
+		sessionWriter = new SessionWriter(sessionDirectory, "data");
+
+		communicator = new FailoverCommunicator(new SerialCommunicator().addSensorListener(worldModel), new ConsoleCommunicator(), sessionWriter);		
 		communicator.connect();
 
-		controller = new BasicController(communicator);
+		controller = new BasicController(communicator, sessionWriter);
 
 		setCurrentTool(drawTool);
-
-		ControlPanel controlPanel = new ControlPanel(this, visualizerPanel, controller, communicator);
-
+		communicator.addSensorListener(sessionWriter);
+		ControlPanel controlPanel = new ControlPanel(this, visualizerPanel, controller, communicator, sessionWriter);
+		Runtime.getRuntime().addShutdownHook(new Thread() {
+			@Override
+			public void run() {
+				IOUtils.closeQuietly(sessionWriter);
+			}
+		});
+		
+		
 		int nextFreeActionKey = 0;
 		final int ZOOM_IN_ACTION_KEY = ++nextFreeActionKey;
 		final int ZOOM_OUT_ACTION_KEY = ++nextFreeActionKey;
@@ -225,8 +241,7 @@ public class VisualizerFrame extends JFrame {
 		final int STEP_SIMULATION_ACTION_KEY = ++nextFreeActionKey;
 		final int RANDOMIZE_PARTICLES_ACTION_KEY = ++nextFreeActionKey;
 
-		visualizerPanel.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke('+'),
-				ZOOM_IN_ACTION_KEY);
+		visualizerPanel.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke('+'), ZOOM_IN_ACTION_KEY);
 		visualizerPanel.getActionMap().put(ZOOM_IN_ACTION_KEY, new AbstractAction() {
 			private static final long serialVersionUID = 1L;
 
@@ -236,8 +251,7 @@ public class VisualizerFrame extends JFrame {
 				updateTitle();
 			}
 		});
-		visualizerPanel.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke('-'),
-				ZOOM_OUT_ACTION_KEY);
+		visualizerPanel.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke('-'), ZOOM_OUT_ACTION_KEY);
 		visualizerPanel.getActionMap().put(ZOOM_OUT_ACTION_KEY, new AbstractAction() {
 			private static final long serialVersionUID = 1L;
 
@@ -247,8 +261,7 @@ public class VisualizerFrame extends JFrame {
 				updateTitle();
 			}
 		});
-		visualizerPanel.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke('c'),
-				CLEAR_HISTORY_ACTION_KEY);
+		visualizerPanel.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke('c'), CLEAR_HISTORY_ACTION_KEY);
 		visualizerPanel.getActionMap().put(CLEAR_HISTORY_ACTION_KEY, new AbstractAction() {
 			private static final long serialVersionUID = 1L;
 
@@ -257,8 +270,7 @@ public class VisualizerFrame extends JFrame {
 				visualizerPanel.clear();
 			}
 		});
-		visualizerPanel.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke('h'),
-				LIMIT_HISTORY_ACTION_KEY);
+		visualizerPanel.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke('h'), LIMIT_HISTORY_ACTION_KEY);
 		visualizerPanel.getActionMap().put(LIMIT_HISTORY_ACTION_KEY, new AbstractAction() {
 			private static final long serialVersionUID = 1L;
 
@@ -277,8 +289,8 @@ public class VisualizerFrame extends JFrame {
 				controller.sendLeft();
 			}
 		});
-		visualizerPanel.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(
-				KeyStroke.getKeyStroke(KeyEvent.VK_RIGHT, 0), RIGHT_ACTION_KEY);
+		visualizerPanel.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_RIGHT, 0),
+				RIGHT_ACTION_KEY);
 		visualizerPanel.getActionMap().put(RIGHT_ACTION_KEY, new AbstractAction() {
 			private static final long serialVersionUID = 1L;
 
@@ -287,8 +299,8 @@ public class VisualizerFrame extends JFrame {
 				controller.sendRight();
 			}
 		});
-		visualizerPanel.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(
-				KeyStroke.getKeyStroke(KeyEvent.VK_SPACE, 0), STOP_ACTION_KEY);
+		visualizerPanel.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_SPACE, 0),
+				STOP_ACTION_KEY);
 		visualizerPanel.getActionMap().put(STOP_ACTION_KEY, new AbstractAction() {
 			private static final long serialVersionUID = 1L;
 
@@ -320,8 +332,7 @@ public class VisualizerFrame extends JFrame {
 			}
 		});
 
-		visualizerPanel.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke('l'),
-				LIGHTS_ACTION_KEY);
+		visualizerPanel.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke('l'), LIGHTS_ACTION_KEY);
 		visualizerPanel.getActionMap().put(LIGHTS_ACTION_KEY, new AbstractAction() {
 			private static final long serialVersionUID = 1L;
 
@@ -359,7 +370,8 @@ public class VisualizerFrame extends JFrame {
 			}
 		});
 
-		visualizerPanel.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke('p'), STEP_SIMULATION_ACTION_KEY);
+		visualizerPanel.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke('p'),
+				STEP_SIMULATION_ACTION_KEY);
 		visualizerPanel.getActionMap().put(STEP_SIMULATION_ACTION_KEY, new AbstractAction() {
 			private static final long serialVersionUID = 1L;
 
@@ -369,7 +381,8 @@ public class VisualizerFrame extends JFrame {
 			}
 		});
 
-		visualizerPanel.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke('r'), RANDOMIZE_PARTICLES_ACTION_KEY);
+		visualizerPanel.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke('r'),
+				RANDOMIZE_PARTICLES_ACTION_KEY);
 		visualizerPanel.getActionMap().put(RANDOMIZE_PARTICLES_ACTION_KEY, new AbstractAction() {
 			private static final long serialVersionUID = 1L;
 
@@ -580,7 +593,7 @@ public class VisualizerFrame extends JFrame {
 		SampleParser parser = new SampleParser();
 		while (line != null) {
 			if (!parser.isValid(line)) {
-				System.out.println("Invalid sample! \"" + line + "\"");
+				log.warn("Invalid sample! \"{}\"", line);
 			} else {
 				sampleStrings.add(line);
 			}
@@ -640,16 +653,12 @@ public class VisualizerFrame extends JFrame {
 							}
 							stepSimulation = true;
 						}
-						worldModel.addSample(samples.get(nextSample));
+						worldModel.sampleReceived(samples.get(nextSample));
 						++nextSample;
 						/*
-						if (delayed) {
-							try {
-								Thread.sleep(100);
-							} catch (InterruptedException e) {
-							}
-						}
-						*/
+						 * if (delayed) { try { Thread.sleep(100); } catch
+						 * (InterruptedException e) { } }
+						 */
 					}
 				}
 			}).start();
@@ -747,5 +756,9 @@ public class VisualizerFrame extends JFrame {
 
 	public ParticleFilter getParticleFilter() {
 		return particleFilter;
+	}
+
+	private void addIcon() {
+		setIconImage(Toolkit.getDefaultToolkit().getImage(this.getClass().getResource("/raisa-icon.png")));
 	}
 }

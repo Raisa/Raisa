@@ -2,16 +2,20 @@ package raisa.comms;
 
 import static raisa.comms.ControlMessage.SPEED_STEPS;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
 public class BasicController extends Controller {
-	private Communicator communicator;
+	private List<Communicator> communicators = new ArrayList<Communicator>();
 	
 	private int leftSpeed;
 	private int rightSpeed;
 	private boolean lights;
 	private long sessionStartTimestamp = -1;
 	
-	public BasicController(Communicator communicator) {
-		this.communicator = communicator;
+	public BasicController(Communicator ... communicators) {
+		this.communicators.addAll(Arrays.asList(communicators));
 	}
 
 	public void resetSession() {
@@ -32,15 +36,14 @@ public class BasicController extends Controller {
 		if(sessionStartTimestamp  < 0) {
 			resetSession();
 		}
-		long relativeTimestamp = System.currentTimeMillis() - sessionStartTimestamp;
-		return new ControlMessage(relativeTimestamp, leftSpeed, rightSpeed, lights);
+		return new ControlMessage(leftSpeed, rightSpeed, lights);
 	}
 
 	public void sendForward() {
 		leftSpeed = checkSpeed(leftSpeed + 1);
 		rightSpeed = checkSpeed(rightSpeed + 1);
 		
-		communicator.sendPackage(createPackage());
+		sendPackage();
 		notifyControlListeners();
 	}
 
@@ -48,45 +51,54 @@ public class BasicController extends Controller {
 		leftSpeed = 0;
 		rightSpeed = 0;
 		
-		communicator.sendPackage(createPackage());
+		sendPackage();
 		notifyControlListeners();
 	}
 
 	public void sendBack() {
 		leftSpeed = checkSpeed(leftSpeed - 1);
 		rightSpeed = checkSpeed(rightSpeed - 1);
-		communicator.sendPackage(createPackage());
+		sendPackage();
 		notifyControlListeners();
 	}
 
 	public void sendRight() {
 		leftSpeed = checkSpeed(leftSpeed + 1);
 		rightSpeed = checkSpeed(rightSpeed - 1);
-		communicator.sendPackage(createPackage());
+		sendPackage();
 		notifyControlListeners();
 	}
 
 	public void sendLeft() {
 		leftSpeed = checkSpeed(leftSpeed - 1);
 		rightSpeed = checkSpeed(rightSpeed + 1);
-		communicator.sendPackage(createPackage());
+		sendPackage();
 		notifyControlListeners();
 	}
 	
 	public void sendLights() {
 		lights = !lights;
-		communicator.sendPackage(createPackage());
+		sendPackage();
 		notifyControlListeners();
 	}
 
+	private void sendPackage() {
+		for(Communicator communicator :communicators) {
+			communicator.sendPackage(createPackage());
+		}
+	}
+
+	@Override
 	public int getLeftSpeed() {
 		return leftSpeed;
 	}
 
+	@Override
 	public int getRightSpeed() {
 		return rightSpeed;
 	}
 
+	@Override
 	public boolean getLights() {
 		return lights;
 	}
