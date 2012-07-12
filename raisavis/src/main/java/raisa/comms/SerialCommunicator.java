@@ -12,7 +12,11 @@ import java.util.Enumeration;
 import java.util.List;
 import java.util.Scanner;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 public class SerialCommunicator implements SerialPortEventListener, Communicator {
+	private static final Logger log = LoggerFactory.getLogger(SerialCommunicator.class);
 	/** The port we're normally going to use. */
 	private SerialPort serialPort;
 	private static final String PORT_NAMES[] = { "/dev/tty.usbserial-A9007UX1", // Mac
@@ -28,10 +32,10 @@ public class SerialCommunicator implements SerialPortEventListener, Communicator
 	/** Default bits per second for COM port. */
 	private static final int DATA_RATE = 111111;
 	private List<SensorListener> sensorListeners = new ArrayList<SensorListener>();
+	private CommPortIdentifier portId = null;
 
 	@Override
 	public boolean connect() {
-		CommPortIdentifier portId = null;
 		Enumeration<?> portEnum = CommPortIdentifier.getPortIdentifiers();
 
 		// iterate through, looking for the port
@@ -46,14 +50,13 @@ public class SerialCommunicator implements SerialPortEventListener, Communicator
 		}
 
 		if (portId == null) {
-			System.out.println("Could not find COM port.");
+			log.error("Could not find COM port.");
 			return false;
 		}
 
 		try {
 			// open serial port, and use class name for the appName.
 			serialPort = (SerialPort) portId.open(this.getClass().getName(), TIME_OUT);
-
 			// set port parameters
 			serialPort.setSerialPortParams(DATA_RATE, SerialPort.DATABITS_8, SerialPort.STOPBITS_1, SerialPort.PARITY_NONE);
 
@@ -87,17 +90,17 @@ public class SerialCommunicator implements SerialPortEventListener, Communicator
 	 */
 	@Override
 	public synchronized void serialEvent(SerialPortEvent oEvent) {
-		System.out.println("Serial event: " + oEvent.getEventType());
+		log.debug("Serial event: {}", oEvent.getEventType());
 		if (oEvent.getEventType() == SerialPortEvent.DATA_AVAILABLE) {
 			try {
 				Scanner scanner = new Scanner(input).useDelimiter("\n");
 				String line = scanner.next();
 				SampleParser parser = new SampleParser();
 				while (line != null) {
-					System.out.println(new String(line));
 					if (!parser.isValid(line)) {
-						System.out.println("Invalid sample!");
+						log.warn("Invalid sample! {}", line);
 					} else {
+						log.info("Sample {}", line);
 						for (SensorListener sensorListener : sensorListeners) {
 							sensorListener.sampleReceived(line);
 						}
@@ -105,7 +108,7 @@ public class SerialCommunicator implements SerialPortEventListener, Communicator
 					line = scanner.next();
 				}
 			} catch (Exception e) {
-				System.err.println(e.toString());
+				log.error(e.toString());
 			}
 		}
 		// Ignore all the other eventTypes, but you should consider the other
@@ -136,5 +139,15 @@ public class SerialCommunicator implements SerialPortEventListener, Communicator
 			this.sensorListeners.remove(sensorListener);
 		}
 		return this;
+	}
+	
+	@Override
+	public String toString() {
+		StringBuilder builder = new StringBuilder(this.getClass().getSimpleName());
+		if(portId != null) {
+			builder.append(":");
+			builder.append(portId.getName());
+		}
+		return builder.toString();
 	}
 }

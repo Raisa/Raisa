@@ -590,7 +590,7 @@ public class VisualizerFrame extends JFrame {
 		SampleParser parser = new SampleParser();
 		while (line != null) {
 			if (!parser.isValid(line)) {
-				System.out.println("Invalid sample! \"" + line + "\"");
+				log.warn("Invalid sample! \"{}\"", line);
 			} else {
 				sampleStrings.add(line);
 			}

@@ -1,10 +1,13 @@
 package raisa.comms;
 
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import raisa.domain.Sample;
 
 public class SampleParser {
+	private static final Logger log = LoggerFactory.getLogger(SampleParser.class);
 	public String sampleString;
 	private final static float G = 9.80665f;
 
@@ -19,7 +22,7 @@ public class SampleParser {
 		boolean ultrasound1AngleIsValid = false;
 		boolean ultrasound1DistanceIsValid = false;
 		if (!isValid(sampleString)) {
-			System.out.println("INVALID SAMPLE! \"" + sampleString + "\"");
+			log.warn("INVALID SAMPLE! \"{}\"", sampleString);
 		} else {
 			String[] sampleParts = sampleString.split("[;]");
 			for (String part : sampleParts) {

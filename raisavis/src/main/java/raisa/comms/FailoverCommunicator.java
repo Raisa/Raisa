@@ -3,7 +3,11 @@ package raisa.comms;
 import java.util.Arrays;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 public class FailoverCommunicator implements Communicator {
+	private static final Logger log = LoggerFactory.getLogger(FailoverCommunicator.class);
 	private List<Communicator> communicators;
 	private Communicator currentCommunicator = null;
 
@@ -23,12 +27,12 @@ public class FailoverCommunicator implements Communicator {
 		for (Communicator communicator : communicators) {
 			try {
 				if (communicator.connect()) {
-					System.out.println("Connected communicator " + communicator);
+					log.info("Connected communicator {}", communicator);
 					currentCommunicator = communicator;
 					return true;
 				}
 			} catch (Throwable t) {
-				System.out.println("Failed to connect " + communicator);
+				log.warn("Failed to connect {}", communicator);
 			}
 		}
 
