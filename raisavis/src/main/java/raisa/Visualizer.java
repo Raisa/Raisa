@@ -49,6 +49,9 @@ public class Visualizer {
 			String inputMode = args[0];
 			if ("example".equals(inputMode)) {
 				frame.spawnSampleSimulationThread(getExampleSamples(), true);
+			} else if ("test".equals(inputMode)) {
+				frame.loadMap("data/sightseeing1.png");
+				frame.loadData("data/eteinen5.data");
 			} else if ("file".equals(inputMode)) {
 				if (args.length != 2) {
 					System.out.println("Missing filename");

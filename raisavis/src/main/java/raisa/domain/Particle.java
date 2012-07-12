@@ -7,9 +7,16 @@ import raisa.util.CollectionUtil;
 import raisa.util.Vector2D;
 
 public class Particle {
-	private int maxStates = 10;
+	private int maxStates = 50;
 	private List<Robot> states = new ArrayList<Robot>();
 	
+	public Particle copy() {
+		Particle newParticle = new Particle();
+		newParticle.maxStates = maxStates;
+		newParticle.states = new ArrayList<Robot>(states);
+		return newParticle;
+	}
+
 	public void addState(Robot robot) {
 		states.add(robot);
 		states = CollectionUtil.takeLast(states, maxStates);
@@ -28,22 +35,29 @@ public class Particle {
 		float weights = 0.0f;
 		
 		for (int i = 0; i < windowLength; ++i) {
+			// weight based on samples
 			Sample sample = samples.get(i);
-			Robot robot = states.get(i);
+			Robot state = states.get(i);
 			if (!sample.isInfrared1MeasurementValid()) continue;
 			
-			float expectedDistance = world.traceRay(new Vector2D(robot.getPosition()), robot.getHeading() + sample.getInfrared1Angle());			
+			float expectedDistance = world.traceRay(new Vector2D(state.getPosition()), state.getHeading() + sample.getInfrared1Angle());			
 			float measuredDistance = sample.getInfrared1Distance();
 
 			if (Math.max(expectedDistance, measuredDistance) <= 0.0f) continue;
 			
 			weights += Math.min(expectedDistance, measuredDistance) / Math.max(expectedDistance, measuredDistance); 
+
+			// weight based on compass reading (take angle between unit vectors)
+			float cosa = (float)(Math.cos(state.getHeading()) * Math.cos(sample.getCompassDirection()) + Math.sin(state.getHeading()) * Math.sin(sample.getCompassDirection()));
+			// cosinus is -1..+1 and near 1 when angles are close to each other, scale to 0..1
+			weights += (1.0f + cosa) * 0.5f;
 		}
+		
 		
 		return weights;
 	}
 
-	public Robot getLastSample() {
+	public Robot getLastState() {
 		return states.isEmpty() ? null : states.get(states.size() - 1);
 	}
 }

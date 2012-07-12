@@ -5,27 +5,30 @@ import java.awt.Graphics;
 import java.text.DecimalFormat;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Observable;
-import java.util.Observer;
+
 import javax.swing.BoxLayout;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.border.TitledBorder;
 
+import raisa.domain.Robot;
 import raisa.domain.Sample;
+import raisa.domain.SampleListener;
 import raisa.domain.WorldModel;
 import raisa.util.Vector3D;
 
-public class MeasurementsPanel extends JPanel implements Observer {
+public class MeasurementsPanel extends JPanel implements SampleListener {
 	private static final long serialVersionUID = 1L;
 
 	private SpeedPanel speedPanel; 	
 	private AccelerationPanel accelerationPanel; 
 	private GyroscopePanel gyroscopePanel; 
-	private SoundPanel soundPanel; 	
+	private SoundPanel soundPanel;
+	private WorldModel worldModel;
 	
 	public MeasurementsPanel(WorldModel worldModel) {
-		worldModel.addObserver(this);
+		worldModel.addSampleListener(this);
+		this.worldModel = worldModel;
 		TitledBorder border = new TitledBorder("Measurements");
 		setBorder(border);
 		setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
@@ -42,14 +45,14 @@ public class MeasurementsPanel extends JPanel implements Observer {
 		this.add(soundPanel);				
 	}
 	
-	public void update(Observable worldModel, Object sample) {
-		speedPanel.update((WorldModel)worldModel, (Sample)sample);
-		accelerationPanel.update((WorldModel)worldModel, (Sample)sample);
-		gyroscopePanel.update((WorldModel)worldModel, (Sample)sample);
-		soundPanel.update((WorldModel)worldModel, (Sample)sample);
+	public void sampleAdded(Sample sample) {
+		speedPanel.update(sample);
+		accelerationPanel.update(sample);
+		gyroscopePanel.update(sample);
+		soundPanel.update(sample);
 	}
 	
-	class AccelerationPanel extends JPanel {
+	private class AccelerationPanel extends JPanel {
 		private static final long serialVersionUID = 1L;
 
 		private JLabel accXField;
@@ -86,7 +89,7 @@ public class MeasurementsPanel extends JPanel implements Observer {
 			this.add(accZPanel);	
 		}
 			
-		public void update(WorldModel worldModel, Sample sample) {
+		public void update(Sample sample) {
 			DecimalFormat format = new DecimalFormat("0.000");			
 			Vector3D acceleration = sample.getAcceleration();
 			accXField.setText("X: " + format.format(acceleration.getX()));
@@ -109,7 +112,7 @@ public class MeasurementsPanel extends JPanel implements Observer {
 		
 	}
 
-	class GyroscopePanel extends JPanel {
+	private class GyroscopePanel extends JPanel {
 		private static final long serialVersionUID = 1L;
 
 		private JLabel xField;
@@ -146,7 +149,7 @@ public class MeasurementsPanel extends JPanel implements Observer {
 			this.add(zPanel);	
 		}
 			
-		public void update(WorldModel worldModel, Sample sample) {
+		public void update(Sample sample) {
 			DecimalFormat format = new DecimalFormat("0.000");			
 			Vector3D latestRotation = sample.getGyro();
 			xField.setText("X: " + format.format(latestRotation.getX()));
@@ -170,7 +173,7 @@ public class MeasurementsPanel extends JPanel implements Observer {
 		
 	}
 
-	class SoundPanel extends JPanel {
+	private class SoundPanel extends JPanel {
 		private static final long serialVersionUID = 1L;
 
 		private JLabel soundField;
@@ -191,7 +194,7 @@ public class MeasurementsPanel extends JPanel implements Observer {
 			this.add(soundGraphPanel);
 		}
 			
-		public void update(WorldModel worldModel, Sample sample) {
+		public void update(Sample sample) {
 			DecimalFormat format = new DecimalFormat("0000");			
 			soundField.setText("Value: " + format.format(sample.getSoundIntensity()));
 			List<Sample> samples = worldModel.getLastSamples(120);
@@ -234,7 +237,7 @@ public class MeasurementsPanel extends JPanel implements Observer {
 	    
 	}
 
-	class SpeedPanel extends JPanel {
+	private class SpeedPanel extends JPanel {
 		private static final long serialVersionUID = 1L;
 
 		private JLabel speedLeftTrackField;
@@ -255,10 +258,11 @@ public class MeasurementsPanel extends JPanel implements Observer {
 			this.add(speedRightTrackField);					
 		}
 			
-		public void update(WorldModel worldModel, Sample sample) {
+		public void update(Sample sample) {
 			DecimalFormat format = new DecimalFormat("0.000");			
-			speedLeftTrackField.setText("Left: " + format.format(worldModel.getRobot().getSpeedLeftTrack()));
-			speedRightTrackField.setText("Right: " + format.format(worldModel.getRobot().getSpeedRightTrack()));
+			Robot robot = worldModel.getLatestState();
+			speedLeftTrackField.setText("Left: " + format.format(robot.getSpeedLeftTrack()));
+			speedRightTrackField.setText("Right: " + format.format(robot.getSpeedRightTrack()));
 			repaint();
 		}
 		

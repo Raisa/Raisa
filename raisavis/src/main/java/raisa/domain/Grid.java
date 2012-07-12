@@ -111,14 +111,13 @@ public class Grid {
 
 	public float traceRay(Vector2D from, float angle) {
 		angle = angle - (float)Math.PI * 0.5f;
-		float x = from.x / CELL_SIZE;
-		float y = from.y / CELL_SIZE;
+		float x = from.x / CELL_SIZE + GRID_SIZE * 0.5f;
+		float y = from.y / CELL_SIZE + GRID_SIZE * 0.5f;
 		float dx = (float)Math.cos(angle);
 		float dy = (float)Math.sin(angle);
 		float maxDistanceInGrid = GRID_SIZE;
 		BufferedImage userImage = getUserImage();
 		int clearRgb = clearColor.getRGB();
-		int transparentRgb = transparentColor.getRGB();
 		
 		for (float currentDistance = 0.0f; currentDistance < maxDistanceInGrid; currentDistance += 1.0f) {
 			x += dx;
@@ -126,9 +125,11 @@ public class Grid {
 			
 			if (x >= 0 && x < userImage.getWidth() - 1 && y >= 0 && y < userImage.getHeight() - 1) {
 				int rgb = userImage.getRGB((int)x, (int)y);
-				if (rgb != transparentRgb && rgb != clearRgb) {
+				int alpha = (rgb >> 24) & 0xFF;
+				boolean isOpaque = alpha > 0;
+				if (rgb != clearRgb && isOpaque) {
 					return currentDistance * CELL_SIZE;
-				}				
+				}
 			} else {
 				return maxDistanceInGrid;
 			}

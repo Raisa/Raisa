@@ -1,14 +1,13 @@
 package raisa.domain;
 
+import java.awt.Image;
+import java.awt.geom.Point2D.Float;
+import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Observable;
-import java.awt.Image;
-import java.awt.geom.Point2D.Float;
-import java.awt.image.BufferedImage;
 
 import javax.imageio.ImageIO;
 
@@ -18,17 +17,19 @@ import raisa.util.CollectionUtil;
 import raisa.util.Vector2D;
 
 
-public class WorldModel extends Observable implements Serializable, SensorListener {
+public class WorldModel implements Serializable, SensorListener {
 	private static final long serialVersionUID = 1L;
 
 	private List<Sample> samples = new ArrayList<Sample>();
 	private List<Robot> states = new ArrayList<Robot>();
-	private Robot robot = new Robot();
 
 	private Grid grid = new Grid();
 	
-	public Robot getRobot() {
-		return robot;
+	private List<SampleListener> sampleListeners = new ArrayList<SampleListener>();
+	private List<RobotListener> robotListeners = new ArrayList<RobotListener>();
+	
+	public WorldModel() {
+		addState(new Robot());
 	}
 	
 	public List<Sample> getSamples() {
@@ -43,20 +44,23 @@ public class WorldModel extends Observable implements Serializable, SensorListen
 		return copy;
 	}
 	
+	@Override
 	public void sampleReceived(String message) {
 		Sample sample = new SampleParser().parse(message);
 		addSample(sample);
 	}
 	
 	public void addSample(Sample sample) {
-		robot = robot.moveRobot(sample);
-		synchronized(states) {
-			states.add(robot);
-		}
 		samples.add(sample);	
+		notifySampleListeners(sample);
+	}
+
+	public void addState(Robot state) {
+		synchronized(states) {
+			states.add(state);
+		}
 		calculateSpeed();
-		setChanged();
-		notifyObservers(sample);
+		notifyRobotListeners(state);
 	}
 	
 	/**
@@ -83,18 +87,22 @@ public class WorldModel extends Observable implements Serializable, SensorListen
 				previousPositionRightTrack = r.getPositionRightTrack();
 				previousTimestamp = r.getTimestampMillis();				
 			}
-			currentSpeedLeftTrack = accumulatedDistanceLeftTrack / ((float)accumulatedTime / 10.0f);
-			currentSpeedRightTrack = accumulatedDistanceRightTrack / ((float)accumulatedTime / 10.0f);			
+			currentSpeedLeftTrack = accumulatedDistanceLeftTrack / (accumulatedTime / 10.0f);
+			currentSpeedRightTrack = accumulatedDistanceRightTrack / (accumulatedTime / 10.0f);			
 		}
-		robot.setSpeedLeftTrack(currentSpeedLeftTrack);
-		robot.setSpeedRightTrack(currentSpeedRightTrack);		
+		getLatestState().setSpeedLeftTrack(currentSpeedLeftTrack);
+		getLatestState().setSpeedRightTrack(currentSpeedRightTrack);		
 	}
-	
+
+	public Robot getLatestState() {
+		return states.get(states.size() - 1);
+	}
+
 	public void reset() {
-		robot = new Robot();
 		samples = new ArrayList<Sample>();
 		states = new ArrayList<Robot>();
 		grid = new Grid();
+		addState(new Robot(new Float(-100.0f, 600.0f), 0.5f));
 	}
 	
 	public void removeOldSamples(int preserveLength) {
@@ -185,5 +193,25 @@ public class WorldModel extends Observable implements Serializable, SensorListen
 
 	public float getHeight() {
 		return grid.getHeight();
+	}
+
+	public void addSampleListener(SampleListener listener) {
+		this.sampleListeners.add(listener);
+	}
+
+	public void addRobotListener(RobotListener listener) {
+		this.robotListeners.add(listener);
+	}
+	
+	private void notifySampleListeners(Sample sample) {
+		for (SampleListener listener : sampleListeners) {
+			listener.sampleAdded(sample);
+		}
+	}
+	
+	private void notifyRobotListeners(Robot robot) {
+		for (RobotListener listener : robotListeners) {
+			listener.robotStateChanged(robot);
+		}
 	}
 }
