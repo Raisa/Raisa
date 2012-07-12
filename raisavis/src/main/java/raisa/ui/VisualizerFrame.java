@@ -1,6 +1,7 @@
 package raisa.ui;
 
 import java.awt.BorderLayout;
+import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
@@ -58,6 +59,7 @@ public class VisualizerFrame extends JFrame {
 	private boolean stepSimulation = true;
 
 	public VisualizerFrame(final WorldModel worldModel) {
+		createTitleIcon();
 		this.worldModel = worldModel;
 		this.particleFilter = new ParticleFilter(worldModel, 100);
 		visualizerPanel = new VisualizerPanel(this, worldModel);
@@ -631,7 +633,10 @@ public class VisualizerFrame extends JFrame {
 	private void updateTitle() {
 		setTitle("Raisa Visualizer - " + Math.round(visualizerPanel.getScale() * 100.0f) + "%");
 	}
-
+	private void createTitleIcon() {
+		setIconImage(Toolkit.getDefaultToolkit() 
+				  .getImage(this.getClass().getResource("/raisa-icon.png")));
+	}
 	public void selectedMeasureTool() {
 		setCurrentTool(measureTool);
 	}
