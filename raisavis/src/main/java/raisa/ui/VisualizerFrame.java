@@ -40,7 +40,7 @@ import raisa.domain.ParticleFilterListener;
 import raisa.domain.Robot;
 import raisa.domain.RobotStateEstimator;
 import raisa.domain.Sample;
-import raisa.domain.SimpleRobotStateEstimator;
+import raisa.domain.AveragingRobotStateEstimator;
 import raisa.domain.WorldModel;
 import raisa.ui.tool.DrawTool;
 import raisa.ui.tool.MeasureTool;
@@ -50,6 +50,7 @@ import raisa.util.Vector2D;
 public class VisualizerFrame extends JFrame {
 	private static final Logger log = LoggerFactory.getLogger(VisualizerFrame.class);
 	private static final long serialVersionUID = 1L;
+	private int nparticles = 1000;
 	private VisualizerPanel visualizerPanel;
 	private File defaultDirectory = new File(new File("."), "data");
 	private final WorldModel worldModel;
@@ -65,8 +66,8 @@ public class VisualizerFrame extends JFrame {
 
 	public VisualizerFrame(final WorldModel worldModel) {
 		this.worldModel = worldModel;
-		this.particleFilter = new ParticleFilter(worldModel, 100);
-		this.robotStateEstimator = new SimpleRobotStateEstimator();
+		this.particleFilter = new ParticleFilter(worldModel, nparticles);
+		this.robotStateEstimator = new AveragingRobotStateEstimator();
 		worldModel.addSampleListener(particleFilter);
 		particleFilter.addParticleFilterListener(new ParticleFilterListener() {
 			@Override
@@ -223,6 +224,7 @@ public class VisualizerFrame extends JFrame {
 		final int UNDO_ACTION_KEY = ++nextFreeActionKey;
 		final int REDO_ACTION_KEY = ++nextFreeActionKey;
 		final int STEP_SIMULATION_ACTION_KEY = ++nextFreeActionKey;
+		final int RANDOMIZE_PARTICLES_ACTION_KEY = ++nextFreeActionKey;
 
 		visualizerPanel.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke('+'),
 				ZOOM_IN_ACTION_KEY);
@@ -365,6 +367,17 @@ public class VisualizerFrame extends JFrame {
 			@Override
 			public void actionPerformed(ActionEvent event) {
 				stepSimulation = false;
+			}
+		});
+
+		visualizerPanel.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke('r'), RANDOMIZE_PARTICLES_ACTION_KEY);
+		visualizerPanel.getActionMap().put(RANDOMIZE_PARTICLES_ACTION_KEY, new AbstractAction() {
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public void actionPerformed(ActionEvent event) {
+				particleFilter.randomizeParticles(nparticles);
+				repaint();
 			}
 		});
 
@@ -577,7 +590,7 @@ public class VisualizerFrame extends JFrame {
 
 	public void reset() {
 		visualizerPanel.reset();
-		particleFilter.randomizeParticles(100);
+		particleFilter.randomizeParticles(nparticles);
 		updateTitle();
 	}
 
@@ -627,12 +640,14 @@ public class VisualizerFrame extends JFrame {
 						}
 						worldModel.addSample(samples.get(nextSample));
 						++nextSample;
+						/*
 						if (delayed) {
 							try {
 								Thread.sleep(100);
 							} catch (InterruptedException e) {
 							}
 						}
+						*/
 					}
 				}
 			}).start();

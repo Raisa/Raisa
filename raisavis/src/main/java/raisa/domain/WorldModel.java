@@ -100,7 +100,7 @@ public class WorldModel implements Serializable {
 		samples = new ArrayList<Sample>();
 		states = new ArrayList<Robot>();
 		grid = new Grid();
-		addState(new Robot());
+		addState(new Robot(new Float(-100.0f, 600.0f), 0.5f));
 	}
 	
 	public void removeOldSamples(int preserveLength) {

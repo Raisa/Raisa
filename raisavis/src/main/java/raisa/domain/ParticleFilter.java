@@ -5,6 +5,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import raisa.util.CollectionUtil;
 import raisa.util.Vector2D;
 
 public class ParticleFilter implements SampleListener {
@@ -20,18 +21,22 @@ public class ParticleFilter implements SampleListener {
 
 	public void randomizeParticles(int nparticles) {
 		particles = new ArrayList<Particle>();
-		// assume near origo
-		float width = world.getWidth() * 0.05f;
-		float height = world.getHeight() * 0.05f;
 		for (int i = 0; i < nparticles; ++i) {
-			Particle particle = new Particle();
-			float x = (float) Math.random() * width - 0.5f * width;
-			float y = (float) Math.random() * height - 0.5f * height;
-			float heading = (float) Math.random() * (float) Math.PI * 2.0f;
-			Robot robot = new Robot(new Vector2D(x, y), heading);
-			particle.addState(robot);
+			Particle particle = makeRandomParticle();
 			particles.add(particle);
 		}
+	}
+
+	public Particle makeRandomParticle() {
+		float width = world.getWidth() * 0.5f;
+		float height = world.getHeight() * 0.5f;
+		Particle particle = new Particle();
+		float x = (float) Math.random() * width - 0.5f * width;
+		float y = (float) Math.random() * height - 0.5f * height;
+		float heading = (float) Math.random() * (float) Math.PI * 2.0f;
+		Robot robot = new Robot(new Vector2D(x, y), heading);
+		particle.addState(robot);
+		return particle;
 	}
 
 	private void updateParticles(List<Sample> samples) {
@@ -78,6 +83,11 @@ public class ParticleFilter implements SampleListener {
 				}
 			}
 
+			// add a few random particles to avoid local maxima
+//			for (int i = 0; i < particles.size() / 50; ++i) {
+//				newParticles.set(i, makeRandomParticle());
+//			}
+			
 			this.particles = newParticles;
 			notifyParticleFilterListeners();
 		}
@@ -96,6 +106,7 @@ public class ParticleFilter implements SampleListener {
 	@Override
 	public void sampleAdded(Sample sample) {
 		samples.add(sample);
+		samples = CollectionUtil.takeLast(samples, 50);
 		updateParticles(samples);
 	}
 

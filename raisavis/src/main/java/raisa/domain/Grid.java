@@ -125,10 +125,11 @@ public class Grid {
 			
 			if (x >= 0 && x < userImage.getWidth() - 1 && y >= 0 && y < userImage.getHeight() - 1) {
 				int rgb = userImage.getRGB((int)x, (int)y);
-				boolean isOpaque = (rgb & 0xFF000000) > 0;
+				int alpha = (rgb >> 24) & 0xFF;
+				boolean isOpaque = alpha > 0;
 				if (rgb != clearRgb && isOpaque) {
 					return currentDistance * CELL_SIZE;
-				}				
+				}
 			} else {
 				return maxDistanceInGrid;
 			}

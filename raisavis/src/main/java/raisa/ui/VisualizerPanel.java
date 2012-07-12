@@ -92,12 +92,12 @@ public class VisualizerPanel extends JPanel implements SampleListener {
 		Graphics2D g2 = (Graphics2D) g;
 		clearScreen(g);
 		drawGrid(g2);
+		drawParticles(g2);
 		drawRobotTrail(g2, worldModel.getStates());
 		drawRobot(g2);
 		drawArrow(g2);
 		drawUltrasoundResults(g);
 		drawIrResults(g2);
-		drawParticles(g2);
 		if (mouseDragging) {
 			drawMeasurementLine(g2, toWorld(new Vector2D(mouseDownPosition)), toWorld(new Vector2D(mouse)));
 		}
