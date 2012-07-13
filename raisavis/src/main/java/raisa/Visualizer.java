@@ -53,7 +53,6 @@ public class Visualizer {
 				frame.loadMap("data/sightseeing1.png");
 				frame.getParticleFilter().randomizeParticles(frame.getParticleFilter().getParticles().size());
 				frame.loadData("data/eteinen5.data");
-				frame.open();
 			} else if ("file".equals(inputMode)) {
 				if (args.length != 2) {
 					System.out.println("Missing filename");
@@ -62,5 +61,7 @@ public class Visualizer {
 				frame.loadSimulation(filename);
 			}
 		}
+
+		frame.open();
 	}
 }

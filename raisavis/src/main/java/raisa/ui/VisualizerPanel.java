@@ -98,9 +98,38 @@ public class VisualizerPanel extends JPanel implements SampleListener {
 		drawArrow(g2);
 		drawUltrasoundResults(g);
 		drawIrResults(g2);
+		Vector2D worldMouse = toWorld(new Vector2D(mouse));
 		if (mouseDragging) {
-			drawMeasurementLine(g2, toWorld(new Vector2D(mouseDownPosition)), toWorld(new Vector2D(mouse)));
+			g.setColor(measurementColor);
+			Vector2D worldMouseDown = toWorld(new Vector2D(mouseDownPosition));
+			drawMeasurementLine(g2, worldMouseDown, worldMouse);
+			drawAngle(g2, worldMouseDown, worldMouse);
 		}
+		drawCoordinates(g2, worldMouse);
+	}
+
+	private void drawCoordinates(Graphics2D g2, Vector2D position) {
+		Float p1 = toScreen(position);
+		String coordinateString = String.format("(%3.1f, %3.1f)", position.x, position.y);
+		g2.drawString(coordinateString, (int) (p1.x - 10.0f), (int) (p1.y + 40.0f));
+	}
+
+	private void drawAngle(Graphics2D g2, Vector2D from, Vector2D to) {
+		Float p1 = toScreen(from);
+		float angle = (float)Math.atan2(to.y - from.y, to.x - from.x);
+		double angleInDegrees = ((angle / Math.PI) * 180.0f + 90);
+		if (angleInDegrees < 0) {
+			angleInDegrees += 360;
+		}
+		String angleString = String.format("%3.1f °", angleInDegrees);
+		float dx = - 15.0f;
+		float dy = 0.0f;
+		if (angleInDegrees < 90 || angleInDegrees > 270) {
+			dy += 20.0f;
+		} else {
+			dy -= 10.0f;
+		}
+		g2.drawString(angleString, (int) (p1.x + dx), (int) (p1.y + dy));
 	}
 
 	private void drawParticles(Graphics2D g2) {
@@ -313,7 +342,6 @@ public class VisualizerPanel extends JPanel implements SampleListener {
 	}
 
 	private void drawMeasurementLine(Graphics g, Float from, Float to, boolean drawDistanceString) {
-		//g.setColor(measurementColor);
 		Float p1 = toScreen(from);
 		Float p2 = toScreen(to);
 		g.drawLine((int) p1.x, (int) p1.y, (int) p2.x, (int) p2.y);
@@ -342,11 +370,18 @@ public class VisualizerPanel extends JPanel implements SampleListener {
 		return size * scale;
 	}
 
-	public Float toScreen(Float from) {
+	public Float toScreen(Vector2D v) {
+		return toScreen(v.x, v.y);
+	}
+	
+	public Float toScreen(Float f) {
+		return toScreen(f.x, f.y);
+	}
+	public Float toScreen(float x, float y) {
 		int screenWidth = getBounds().width;
 		int screenHeight = getBounds().height;
-		float x1 = (from.x - camera.x) * scale + 0.5f * screenWidth;
-		float y1 = (from.y - camera.y) * scale + 0.5f * screenHeight;
+		float x1 = (x - camera.x) * scale + 0.5f * screenWidth;
+		float y1 = (y - camera.y) * scale + 0.5f * screenHeight;
 		Float f = new Float(x1, y1);
 		return f;
 	}
