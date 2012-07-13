@@ -15,9 +15,11 @@ public class RotatingServo {
 	private float scanStep = 20;
 	private float nextScanHeading = 10;
 	private int direction = RIGHT;
+	private ServoScanListener servoScanListener;
 	
-	public RotatingServo() {
+	public RotatingServo(ServoScanListener servoScanListener) {
 		this.heading = (minHeading + maxHeading) / 2.0f;
+		this.servoScanListener = servoScanListener;
 	}
 
 	public RotatingServo rotate(float timestep) {
@@ -25,17 +27,17 @@ public class RotatingServo {
 		int nextDirection = direction;
 		if (direction == LEFT && heading < nextScanHeading) {
 			heading = nextScanHeading;
-			scan();
+			scan(heading);
 			nextScanHeading -= scanStep;
 		}
 		if (direction == RIGHT && heading > nextScanHeading) {
 			heading = nextScanHeading;
-			scan();
+			scan(heading);
 			nextScanHeading += scanStep;
 		}
 		if (heading >= maxHeading) {
 			heading = maxHeading;
-			scan();
+			scan(heading);
 			nextDirection = LEFT;
 			nextScanHeading = maxHeading - scanStep - scanOffset;
 			scanOffset++;
@@ -46,7 +48,7 @@ public class RotatingServo {
 
 		if (heading <= minHeading) {
 			heading = minHeading;
-			scan();
+			scan(heading);
 			nextDirection = RIGHT;
 			nextScanHeading = minHeading + scanStep + scanOffset;
 			scanOffset++;
@@ -58,8 +60,8 @@ public class RotatingServo {
 		return this;
 	}
 
-	private void scan() {
-		log.info("SCAN: {}", heading);
+	private void scan(float servoHeading) {
+		servoScanListener.scan(servoHeading);
 	}
 
 	public float getHeading() {
