@@ -71,21 +71,33 @@ public class SampleParser {
 				} else if (part.startsWith("AX")) {
 					float accelerationX = (G * ((-Integer.parseInt(value)) - 24)) / 1000 ;
 					sample.setAccelerationX(accelerationX);
+				} else if (part.startsWith("Ax")) {
+					sample.setAccelerationX(Float.parseFloat(value));
 				} else if (part.startsWith("AY")) {
 					float accelerationY = (G * ((Integer.parseInt(value) - 59))) / 1000;
 					sample.setAccelerationY(accelerationY);
+				} else if (part.startsWith("Ay")) {
+					sample.setAccelerationY(Float.parseFloat(value));
 				} else if (part.startsWith("AZ")) {
 					float accelerationZ = (G * ((-Integer.parseInt(value)) - 8)) / 1000;
 					sample.setAccelerationZ(accelerationZ);
+				} else if (part.startsWith("Az")) {
+					sample.setAccelerationZ(Float.parseFloat(value));
 				} else if (part.startsWith("GX")) {
 					float gyroX = Integer.parseInt(value);
 					sample.setGyroX(-gyroX / 1000);
+				} else if (part.startsWith("Gx")) {
+					sample.setGyroX(Float.parseFloat(value));
 				} else if (part.startsWith("GY")) {
 					float gyroY = Integer.parseInt(value);
 					sample.setGyroY(gyroY / 1000);
+				} else if (part.startsWith("Gy")) {
+					sample.setGyroY(Float.parseFloat(value));
 				} else if (part.startsWith("GZ")) {
 					float gyroZ = Integer.parseInt(value);
 					sample.setGyroZ(-gyroZ / 1000);					
+				} else if (part.startsWith("Gz")) {
+					sample.setGyroZ(Float.parseFloat(value));					
 				} else if (part.startsWith("RL")) {
 					int ticks = Integer.parseInt(value);
 					sample.setLeftTrackTicks(ticks);
@@ -109,6 +121,6 @@ public class SampleParser {
 	}
 
 	public boolean isValid(String sample) {
-		return sample.matches("STA;([A-Z]+[-]?[0-9]+;)*END;[\n\r]*");
+		return sample.matches("STA;([A-Z][A-Za-z]+[-]?[0-9]*\\.?[0-9]+;)*END;[\n\r]*");
 	}
 }
