@@ -1,7 +1,6 @@
 package raisa.ui.tool;
 
 import java.awt.event.MouseEvent;
-import java.awt.geom.Point2D.Float;
 
 import raisa.ui.VisualizerFrame;
 import raisa.util.Vector2D;
@@ -12,7 +11,7 @@ public class DrawTool extends BasicTool {
 	}
 
 	@Override
-	public void mouseDragged(MouseEvent mouseEvent, Float mouseFrom, Float mouseTo) {
+	public void mouseDragged(MouseEvent mouseEvent, Vector2D mouseFrom, Vector2D mouseTo) {
 		if ((mouseEvent.getModifiersEx() & MouseEvent.BUTTON1_DOWN_MASK) > 0) {
 			if (mouseEvent.isControlDown()) {
 			} else {
@@ -24,11 +23,11 @@ public class DrawTool extends BasicTool {
 		}
 	}
 
-	private void drawLine(MouseEvent mouseEvent, Float mouseFrom, Float mouseTo) {
+	private void drawLine(MouseEvent mouseEvent, Vector2D mouseFrom, Vector2D mouseTo) {
 		int length = (int) mouseTo.distance(mouseFrom);
 		float dx = (mouseTo.x - mouseFrom.x) / length;
 		float dy = (mouseTo.y - mouseFrom.y) / length;
-		Float position = new Float();
+		Vector2D position = new Vector2D();
 		for (int i = 0; i < length; ++i) {
 			position.x = mouseFrom.x + i * dx;
 			position.y = mouseFrom.y + i * dy;
@@ -37,7 +36,7 @@ public class DrawTool extends BasicTool {
 	}
 
 	@Override
-	public void mousePressed(MouseEvent mouseEvent, Float mouse) {
+	public void mousePressed(MouseEvent mouseEvent, Vector2D mouse) {
 		if ((mouseEvent.getModifiersEx() & MouseEvent.BUTTON1_DOWN_MASK) > 0) {
 			if (mouseEvent.isControlDown()) {
 			} else {
@@ -47,7 +46,7 @@ public class DrawTool extends BasicTool {
 	}
 
 	@Override
-	public void mouseReleased(MouseEvent mouseEvent, Float mouseFrom, Float mouseTo) {
+	public void mouseReleased(MouseEvent mouseEvent, Vector2D mouseFrom, Vector2D mouseTo) {
 		if (mouseEvent.getButton() == MouseEvent.BUTTON1) {
 			if (mouseEvent.isControlDown()) {
 				getVisualizerFrame().pushUserEditUndoLevel();
@@ -60,8 +59,8 @@ public class DrawTool extends BasicTool {
 		}
 	}
 
-	private void drawPoint(Float mouse, boolean isBlocked) {
-		Vector2D worldPosition = getVisualizerFrame().toWorld(new Vector2D(mouse));
+	private void drawPoint(Vector2D mouse, boolean isBlocked) {
+		Vector2D worldPosition = getVisualizerFrame().toWorld(mouse);
 		getVisualizerFrame().setUserPosition(worldPosition, isBlocked);
 	}
 }

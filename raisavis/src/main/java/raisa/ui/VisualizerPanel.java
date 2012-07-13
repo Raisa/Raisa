@@ -13,7 +13,6 @@ import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Path2D;
-import java.awt.geom.Point2D.Float;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -35,10 +34,10 @@ public class VisualizerPanel extends JPanel implements SampleListener {
 	private static final long serialVersionUID = 1L;
 	private Color measurementColor = new Color(0.4f, 0.4f, 0.4f);
 	private Color particleColor = new Color(0.3f, 0.3f, 0.3f);
-	private Float camera = new Float();
-	private Float mouse = new Float();
-	private Float mouseDownPosition = new Float();
-	private Float mouseDragStart = new Float();
+	private Vector2D camera = new Vector2D();
+	private Vector2D mouse = new Vector2D();
+	private Vector2D mouseDownPosition = new Vector2D();
+	private Vector2D mouseDragStart = new Vector2D();
 	private boolean mouseDragging = false;
 	private float scale = 1.0f;
 	private List<Sample> latestIR = new ArrayList<Sample>();
@@ -50,9 +49,10 @@ public class VisualizerPanel extends JPanel implements SampleListener {
 
 	public void reset() {
 		worldModel.reset();
-		camera = new Float();
-		mouse = new Float();
-		mouseDragStart = new Float();
+		camera = new Vector2D();
+		mouse = new Vector2D();
+		mouseDownPosition = new Vector2D();
+		mouseDragStart = new Vector2D();
 		scale = 1.0f;
 		latestIR = new ArrayList<Sample>();
 		latestSR = new ArrayList<Sample>();
@@ -98,10 +98,10 @@ public class VisualizerPanel extends JPanel implements SampleListener {
 		drawArrow(g2);
 		drawUltrasoundResults(g);
 		drawIrResults(g2);
-		Vector2D worldMouse = toWorld(new Vector2D(mouse));
+		Vector2D worldMouse = toWorld(mouse);
 		if (mouseDragging) {
 			g.setColor(measurementColor);
-			Vector2D worldMouseDown = toWorld(new Vector2D(mouseDownPosition));
+			Vector2D worldMouseDown = toWorld(mouseDownPosition);
 			drawMeasurementLine(g2, worldMouseDown, worldMouse);
 			drawAngle(g2, worldMouseDown, worldMouse);
 		}
@@ -109,14 +109,14 @@ public class VisualizerPanel extends JPanel implements SampleListener {
 	}
 
 	private void drawCoordinates(Graphics2D g2, Vector2D position) {
-		Float p1 = toScreen(position);
+		Vector2D p1 = toScreen(position);
 		String coordinateString = String.format("(%3.1f, %3.1f)", position.x, position.y);
 		g2.drawString(coordinateString, (int) (p1.x - 10.0f), (int) (p1.y + 40.0f));
 	}
 
 	private void drawAngle(Graphics2D g2, Vector2D from, Vector2D to) {
-		Float p1 = toScreen(from);
-		Float p2 = toScreen(to);
+		Vector2D p1 = toScreen(from);
+		Vector2D p2 = toScreen(to);
 		float angle = (float)Math.atan2(to.y - from.y, to.x - from.x);
 		double angleInDegrees = ((angle / Math.PI) * 180.0f + 90);
 		if (angleInDegrees < 0) {
@@ -166,7 +166,7 @@ public class VisualizerPanel extends JPanel implements SampleListener {
 			}
 			if (drawDistanceString) {
 				String distanceString = String.format("%3.1f m", distanceSoFar / 100);
-				Float screenPosition = toScreen(state.getPosition());
+				Vector2D screenPosition = toScreen(state.getPosition());
 				g2.fillRect((int)(screenPosition.x - 0.5f * distanceMarkerSize), (int)(screenPosition.y - 0.5f * distanceMarkerSize), (int)distanceMarkerSize, (int)distanceMarkerSize);
 				g2.drawString(distanceString, (int)screenPosition.x, (int)screenPosition.y);
 				drawDistanceString = false;
@@ -176,9 +176,9 @@ public class VisualizerPanel extends JPanel implements SampleListener {
 		}
 	}
 
-	private void drawLine(Graphics2D g2, Float from, Float to) {
-		Float screenFrom = toScreen(from);
-		Float screenTo = toScreen(to);
+	private void drawLine(Graphics2D g2, Vector2D from, Vector2D to) {
+		Vector2D screenFrom = toScreen(from);
+		Vector2D screenTo = toScreen(to);
 		g2.drawLine((int)screenFrom.x, (int)screenFrom.y, (int)screenTo.x, (int)screenTo.y);
 	}
 
@@ -190,7 +190,7 @@ public class VisualizerPanel extends JPanel implements SampleListener {
 
 	private void drawGrid(Graphics2D g2) {
 		float size = Grid.GRID_SIZE * Grid.CELL_SIZE;
-		Float screen = toScreen(new Float(- size * 0.5f, - size * 0.5f));
+		Vector2D screen = toScreen(new Vector2D(- size * 0.5f, - size * 0.5f));
 		int screenSize = (int)toScreen(size);
 		g2.drawImage(worldModel.getUserImage(), (int)screen.x, (int)screen.y, screenSize, screenSize, null);
 		g2.drawImage(worldModel.getBlockedImage(), (int)screen.x, (int)screen.y, screenSize, screenSize, null);
@@ -205,7 +205,7 @@ public class VisualizerPanel extends JPanel implements SampleListener {
 				Robot robot = worldModel.getLatestState();
 				if (sample.isInfrared1MeasurementValid()) {
 					g2.setColor(GraphicsUtil.makeTransparentColor(measurementColor, ir));
-					Float spot = GeometryUtil.calculatePosition(robot.getPosition(), robot.getHeading() + sample.getInfrared1Angle(), sample.getInfrared1Distance());
+					Vector2D spot = GeometryUtil.calculatePosition(robot.getPosition(), robot.getHeading() + sample.getInfrared1Angle(), sample.getInfrared1Distance());
 					if (ir >= 1.0f) {
 						drawMeasurementLine(g2, robot.getPosition(), spot);
 					} else {
@@ -220,8 +220,8 @@ public class VisualizerPanel extends JPanel implements SampleListener {
 					float angle = robot.getHeading() + sample.getInfrared1Angle() - (float) Math.PI * 0.5f;
 					float dx = (float) Math.cos(angle) * 250.0f;
 					float dy = (float) Math.sin(angle) * 250.0f;
-					Float position = robot.getPosition();
-					Float away = new Float(position.x + dx, position.y + dy);
+					Vector2D position = robot.getPosition();
+					Vector2D away = new Vector2D(position.x + dx, position.y + dy);
 					drawMeasurementLine(g2, position, away, false);
 					g2.setStroke(stroke);
 				}
@@ -236,7 +236,7 @@ public class VisualizerPanel extends JPanel implements SampleListener {
 			List<Sample> srs = new ArrayList<Sample>(latestSR);
 			Collections.reverse(srs);
 			float sr = 1.0f;
-			Float position = robot.getPosition();
+			Vector2D position = robot.getPosition();
 			for (Sample sample : srs) {
 				Vector2D spot = GeometryUtil.calculatePosition(position, robot.getHeading() + sample.getUltrasound1Angle(), sample.getUltrasound1Distance());
 				g.setColor(new Color(0.0f, 0.6f, 0.6f, sr));
@@ -259,7 +259,7 @@ public class VisualizerPanel extends JPanel implements SampleListener {
 		Robot robot = worldModel.getLatestState();	
 		
 		g2.setColor(Color.gray);
-		Float robotScreen = toScreen(robot.getPosition());
+		Vector2D robotScreen = toScreen(robot.getPosition());
 		float widthScreen = toScreen(11.0f);
 		float heightScreen = toScreen(20.0f);
 		float turretScreen = toScreen(5.4f);
@@ -277,7 +277,7 @@ public class VisualizerPanel extends JPanel implements SampleListener {
 		p.transform(AffineTransform.getTranslateInstance(robotScreen.x, robotScreen.y));
 		g2.fill(p);
 
-		Float wheelLeftScreen = toScreen(robot.getPositionLeftTrack());
+		Vector2D wheelLeftScreen = toScreen(robot.getPositionLeftTrack());
 		Path2D.Float wheelLeft = new Path2D.Float();
 		wheelLeft.moveTo(-2f, +turretScreen) ;
 		wheelLeft.lineTo(-2f, -(heightScreen - turretScreen));
@@ -289,7 +289,7 @@ public class VisualizerPanel extends JPanel implements SampleListener {
 		g2.setColor(Color.orange);
 		g2.fill(wheelLeft);			
 
-		Float wheelRightScreen = toScreen(robot.getPositionRightTrack());
+		Vector2D wheelRightScreen = toScreen(robot.getPositionRightTrack());
 		Path2D.Float wheelRight = new Path2D.Float();
 		wheelRight.moveTo(-2f, +turretScreen) ;
 		wheelRight.lineTo(-2f, -(heightScreen - turretScreen));
@@ -305,7 +305,7 @@ public class VisualizerPanel extends JPanel implements SampleListener {
 	private void drawArrow(Graphics2D g2) {
 		Robot robot = worldModel.getLatestState();
 		g2.setColor(Color.black);
-		Float robotScreen = toScreen(robot.getPosition());
+		Vector2D robotScreen = toScreen(robot.getPosition());
 		Path2D.Float p = new Path2D.Float();
 		p.moveTo(0, 0);
 		p.lineTo(0, toScreen(-30.0f));
@@ -320,9 +320,9 @@ public class VisualizerPanel extends JPanel implements SampleListener {
 		g2.setStroke(old);
 	}
 
-	private void drawSector(Graphics g, Float from, Float to, float sector) {
-		Float p1 = toScreen(from);
-		Float p2 = toScreen(to);
+	private void drawSector(Graphics g, Vector2D from, Vector2D to, float sector) {
+		Vector2D p1 = toScreen(from);
+		Vector2D p2 = toScreen(to);
 		g.drawLine((int) p1.x, (int) p1.y, (int) p2.x, (int) p2.y);
 		float dx = (p2.x - p1.x);
 		float dy = (p2.y - p1.y);
@@ -331,20 +331,20 @@ public class VisualizerPanel extends JPanel implements SampleListener {
 		g.drawArc((int) (p1.x - l), (int) (p1.y - l), (int) (2.0f * l), (int) (2.0f * l), (int) a, (int) sector);
 	}
 
-	private void drawPoint(Graphics g, Float point) {
+	private void drawPoint(Graphics g, Vector2D point) {
 		float w = 5.0f;
 		float h = 5.0f;
-		Float p = toScreen(point);
+		Vector2D p = toScreen(point);
 		g.fillRect((int) (p.x - 0.5f * w), (int) (p.y - 0.5f * h), (int) w, (int) h);
 	}
 
-	private void drawMeasurementLine(Graphics g, Float from, Float to) {
+	private void drawMeasurementLine(Graphics g, Vector2D from, Vector2D to) {
 		drawMeasurementLine(g, from, to, true);
 	}
 
-	private void drawMeasurementLine(Graphics g, Float from, Float to, boolean drawDistanceString) {
-		Float p1 = toScreen(from);
-		Float p2 = toScreen(to);
+	private void drawMeasurementLine(Graphics g, Vector2D from, Vector2D to, boolean drawDistanceString) {
+		Vector2D p1 = toScreen(from);
+		Vector2D p2 = toScreen(to);
 		g.drawLine((int) p1.x, (int) p1.y, (int) p2.x, (int) p2.y);
 		if (drawDistanceString) {
 			float dx = (from.x - to.x);
@@ -371,19 +371,16 @@ public class VisualizerPanel extends JPanel implements SampleListener {
 		return size * scale;
 	}
 
-	public Float toScreen(Vector2D v) {
+	public Vector2D toScreen(Vector2D v) {
 		return toScreen(v.x, v.y);
 	}
 	
-	public Float toScreen(Float f) {
-		return toScreen(f.x, f.y);
-	}
-	public Float toScreen(float x, float y) {
+	public Vector2D toScreen(float x, float y) {
 		int screenWidth = getBounds().width;
 		int screenHeight = getBounds().height;
 		float x1 = (x - camera.x) * scale + 0.5f * screenWidth;
 		float y1 = (y - camera.y) * scale + 0.5f * screenHeight;
-		Float f = new Float(x1, y1);
+		Vector2D f = new Vector2D(x1, y1);
 		return f;
 	}
 

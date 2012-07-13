@@ -1,9 +1,9 @@
 package raisa.ui.tool;
 
 import java.awt.event.MouseEvent;
-import java.awt.geom.Point2D.Float;
 
 import raisa.ui.VisualizerFrame;
+import raisa.util.Vector2D;
 
 public class MeasureTool extends BasicTool {
 	public MeasureTool(VisualizerFrame frame) {
@@ -11,7 +11,7 @@ public class MeasureTool extends BasicTool {
 	}
 
 	@Override
-	public void mouseDragged(MouseEvent mouseEvent, Float mouseFrom, Float mouseTo) {
+	public void mouseDragged(MouseEvent mouseEvent, Vector2D mouseFrom, Vector2D mouseTo) {
 		super.mouseDragged(mouseEvent, mouseFrom, mouseTo);
 	}
 }

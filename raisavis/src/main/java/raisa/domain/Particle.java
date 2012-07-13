@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import raisa.util.CollectionUtil;
-import raisa.util.Vector2D;
 
 public class Particle {
 	private int maxStates = 50;
@@ -40,7 +39,7 @@ public class Particle {
 			Robot state = states.get(i);
 			if (!sample.isInfrared1MeasurementValid()) continue;
 			
-			float expectedDistance = world.traceRay(new Vector2D(state.getPosition()), state.getHeading() + sample.getInfrared1Angle());			
+			float expectedDistance = world.traceRay(state.getPosition(), state.getHeading() + sample.getInfrared1Angle());			
 			float measuredDistance = sample.getInfrared1Distance();
 
 			if (Math.max(expectedDistance, measuredDistance) <= 0.0f) continue;

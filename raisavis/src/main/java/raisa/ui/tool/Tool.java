@@ -1,11 +1,12 @@
 package raisa.ui.tool;
 
 import java.awt.event.MouseEvent;
-import java.awt.geom.Point2D.Float;
+
+import raisa.util.Vector2D;
 
 public interface Tool {
-	void mouseMoved(MouseEvent mouseEvent, Float mouse);
-	void mouseDragged(MouseEvent mouseEvent, Float mouseFrom, Float mouseTo);
-	void mousePressed(MouseEvent mouseEvent, Float mouse);
-	void mouseReleased(MouseEvent mouseEvent, Float mouseFrom, Float mouseTo);
+	void mouseMoved(MouseEvent mouseEvent, Vector2D mouse);
+	void mouseDragged(MouseEvent mouseEvent, Vector2D mouseFrom, Vector2D mouseTo);
+	void mousePressed(MouseEvent mouseEvent, Vector2D mouse);
+	void mouseReleased(MouseEvent mouseEvent, Vector2D mouseFrom, Vector2D mouseTo);
 }

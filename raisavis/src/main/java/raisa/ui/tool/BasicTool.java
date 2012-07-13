@@ -1,9 +1,9 @@
 package raisa.ui.tool;
 
 import java.awt.event.MouseEvent;
-import java.awt.geom.Point2D.Float;
 
 import raisa.ui.VisualizerFrame;
+import raisa.util.Vector2D;
 
 public abstract class BasicTool implements Tool {
 	private VisualizerFrame visualizerFrame;
@@ -17,11 +17,11 @@ public abstract class BasicTool implements Tool {
 	}
 
 	@Override
-	public void mouseMoved(MouseEvent mouseEvent, Float mouse) {
+	public void mouseMoved(MouseEvent mouseEvent, Vector2D mouse) {
 	}
 
 	@Override
-	public void mouseDragged(MouseEvent mouseEvent, Float mouseFrom, Float mouseTo) {
+	public void mouseDragged(MouseEvent mouseEvent, Vector2D mouseFrom, Vector2D mouseTo) {
 		if ((mouseEvent.getModifiersEx() & MouseEvent.BUTTON3_DOWN_MASK) > 0) {
 			float dx = (mouseFrom.x - mouseTo.x) / visualizerFrame.getScale();
 			float dy = (mouseFrom.y - mouseTo.y) / visualizerFrame.getScale();
@@ -30,11 +30,11 @@ public abstract class BasicTool implements Tool {
 	}
 
 	@Override
-	public void mousePressed(MouseEvent mouseEvent, Float mouse) {
+	public void mousePressed(MouseEvent mouseEvent, Vector2D mouse) {
 	}
 
 	@Override
-	public void mouseReleased(MouseEvent mouseEvent, Float mouseFrom, Float mouseTo) {
+	public void mouseReleased(MouseEvent mouseEvent, Vector2D mouseFrom, Vector2D mouseTo) {
 	}
 
 }
