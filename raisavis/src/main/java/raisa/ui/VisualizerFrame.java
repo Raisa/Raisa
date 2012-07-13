@@ -37,6 +37,7 @@ import raisa.comms.ReplayController;
 import raisa.comms.SampleParser;
 import raisa.comms.SerialCommunicator;
 import raisa.domain.AveragingRobotStateEstimator;
+import raisa.domain.ClusteringRobotStateEstimator;
 import raisa.domain.Particle;
 import raisa.domain.ParticleFilter;
 import raisa.domain.ParticleFilterListener;
@@ -76,7 +77,7 @@ public class VisualizerFrame extends JFrame {
 		addIcon();
 		this.worldModel = worldModel;
 		this.particleFilter = new ParticleFilter(worldModel, nparticles);
-		this.robotStateEstimator = new AveragingRobotStateEstimator();
+		this.robotStateEstimator = new ClusteringRobotStateEstimator();
 		worldModel.addSampleListener(particleFilter);
 		particleFilter.addParticleFilterListener(new ParticleFilterListener() {
 			@Override

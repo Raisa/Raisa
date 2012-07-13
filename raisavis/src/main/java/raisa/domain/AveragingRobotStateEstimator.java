@@ -4,7 +4,6 @@ import java.util.List;
 
 import raisa.util.Vector2D;
 
-
 public class AveragingRobotStateEstimator implements RobotStateEstimator {
 	@Override
 	public Robot estimateState(List<Robot> states) {
@@ -30,5 +29,5 @@ public class AveragingRobotStateEstimator implements RobotStateEstimator {
 		averageState.setPositionRightTrack(averageRightTrack);
 		averageState.setHeading(averageHeading);
 		return averageState;
-	}
+	}	
 }
