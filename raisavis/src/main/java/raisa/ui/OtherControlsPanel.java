@@ -17,19 +17,21 @@ import raisa.comms.BasicController;
 import raisa.comms.Controller;
 import raisa.comms.ControllerListener;
 import raisa.session.SessionWriter;
+import raisa.simulator.RobotSimulator;
 
 public class OtherControlsPanel extends JPanel {
 	private static final long serialVersionUID = 1L;
 	private static final Logger log = LoggerFactory.getLogger(OtherControlsPanel.class);
 
-	public OtherControlsPanel(final BasicController controller, SessionWriter sessionWriter) {
+	public OtherControlsPanel(final BasicController controller, SessionWriter sessionWriter, RobotSimulator robotSimulator) {
 		setBorder(new TitledBorder("Other"));
 		setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
 		setAlignmentX(Component.CENTER_ALIGNMENT);
 		createLightsControl(controller);
 		createDataCaptureControl(sessionWriter);
+		createSimulatorControl(robotSimulator);
 	}
-
+	
 	private void createDataCaptureControl(final SessionWriter sessionWriter) {
 		final JToggleButton button = new JToggleButton("Data capture");
 		button.addActionListener(new ActionListener() {
@@ -51,6 +53,31 @@ public class OtherControlsPanel extends JPanel {
 		add(button);
 	}
 
+	private void createSimulatorControl(final RobotSimulator robotSimulator) {
+		final JToggleButton button = new JToggleButton("Start simulator");
+		button.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				new Thread() {
+					@Override
+					public void run() {
+						log.info("Simulator thread starting");
+						while(true) {
+							float timestep = 0.01f;
+							try {
+								Thread.sleep((int) timestep * 1000);
+							} catch (InterruptedException e) {
+							}
+							robotSimulator.tick(timestep);
+						}
+					}
+				}.start();
+			}			
+		});
+
+		add(button);
+	}
+	
 	private void createLightsControl(final BasicController controller) {
 		final JToggleButton lightsButton = new JToggleButton("Lights");
 		lightsButton.addActionListener(new ActionListener() {

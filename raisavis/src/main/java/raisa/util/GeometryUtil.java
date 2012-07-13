@@ -12,5 +12,4 @@ public class GeometryUtil {
 		newPosition.y += Math.sin(a) * distance;
 		return newPosition;
 	}
-
 }

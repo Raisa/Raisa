@@ -12,6 +12,7 @@ import org.slf4j.LoggerFactory;
 import raisa.comms.Communicator;
 import raisa.comms.ControlMessage;
 import raisa.comms.SensorListener;
+import raisa.domain.Robot;
 import raisa.domain.WorldModel;
 import raisa.util.Vector2D;
 import raisa.util.Vector3D;
@@ -40,6 +41,11 @@ public class RobotSimulator implements RobotState, ServoScanListener, Communicat
 		this.worldModel = worldModel;
 	}
 
+	public static RobotSimulator createRaisaInstance(Vector2D position, float heading, WorldModel worldModel) {
+		DifferentialDrive driveSystem = new DifferentialDrive(Robot.ROBOT_WIDTH, Robot.WHEEL_DIAMETER);
+		return new RobotSimulator(position, heading, driveSystem, worldModel);
+	}
+	
 	public RobotSimulator tick(float timestep) {
 		driveSystem.move(this, timestep);
 		//log.info("Rover: {}, ({}, {})", new Object[]{heading, position.getX(), position.getY()});

@@ -45,6 +45,7 @@ import raisa.domain.RobotStateEstimator;
 import raisa.domain.Sample;
 import raisa.domain.WorldModel;
 import raisa.session.SessionWriter;
+import raisa.simulator.RobotSimulator;
 import raisa.ui.tool.DrawTool;
 import raisa.ui.tool.MeasureTool;
 import raisa.ui.tool.Tool;
@@ -69,7 +70,8 @@ public class VisualizerFrame extends JFrame {
 	private RobotStateEstimator robotStateEstimator;
 	private SessionWriter sessionWriter;
 	private boolean stepSimulation = true;
-
+	private RobotSimulator robotSimulator;
+	
 	public VisualizerFrame(final WorldModel worldModel) {
 		addIcon();
 		this.worldModel = worldModel;
@@ -92,131 +94,22 @@ public class VisualizerFrame extends JFrame {
 		visualizerPanel = new VisualizerPanel(this, worldModel);
 		MeasurementsPanel measurementsPanel = new MeasurementsPanel(worldModel);
 		JMenuBar menuBar = new JMenuBar();
-		JMenu mainMenu = new JMenu("Main");
-		mainMenu.setMnemonic('m');
-		JMenuItem reset = new JMenuItem("Reset");
-		reset.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				reset();
-				repaint();
-			}
-		});
-		reset.setMnemonic('r');
-		JMenuItem loadSimulation = new JMenuItem("Load simulation...");
-		loadSimulation.setMnemonic('s');
-		loadSimulation.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				loadSimulation(null);
-			}
-		});
-		JMenuItem loadData = new JMenuItem("Load data...");
-		loadData.setMnemonic('d');
-		loadData.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				loadData(null);
-			}
-		});
-		JMenuItem loadReplay = new JMenuItem("Load replay...");
-		loadReplay.setMnemonic('p');
-		loadReplay.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				loadReplay();
-			}
-		});
-		JMenuItem saveAs = new JMenuItem("Save as...");
-		saveAs.setMnemonic('a');
-		saveAs.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				save(null);
-			}
-		});
-		JMenuItem loadMap = new JMenuItem("Load map...");
-		loadMap.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				loadMap(null);
-				notifyUserEditUndoAction();
-				VisualizerFrame.this.repaint();
-			}
-		});
-		JMenuItem resetMap = new JMenuItem("Reset map");
-		resetMap.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				pushUserEditUndoLevel();
-				worldModel.resetMap();
-				VisualizerFrame.this.repaint();
-			}
-		});
-		JMenuItem saveMapAs = new JMenuItem("Save map as...");
-		saveMapAs.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				saveMap(null);
-			}
-		});
-		JMenuItem exit = new JMenuItem("Exit");
-		exit.setMnemonic('x');
-		exit.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				exit();
-			}
-		});
-		mainMenu.add(reset);
-		mainMenu.addSeparator();
-		mainMenu.add(loadSimulation);
-		mainMenu.add(loadData);
-		mainMenu.add(loadReplay);
-		mainMenu.add(saveAs);
-		mainMenu.addSeparator();
-		mainMenu.add(resetMap);
-		mainMenu.add(loadMap);
-		mainMenu.add(saveMapAs);
-		mainMenu.addSeparator();
-		mainMenu.add(exit);
-		menuBar.add(mainMenu);
+		JMenu mainMenu = createMainMenu(worldModel, menuBar);
 
-		JMenu viewMenu = new JMenu("View");
-		mainMenu.setMnemonic('m');
-		JMenuItem zoomIn = new JMenuItem("Zoom in");
-		zoomIn.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				visualizerPanel.zoomIn();
-				updateTitle();
-			}
-		});
-		zoomIn.setMnemonic('i');
-		JMenuItem zoomOut = new JMenuItem("Zoom out");
-		zoomOut.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				visualizerPanel.zoomOut();
-				updateTitle();
-			}
-		});
-		zoomOut.setMnemonic('o');
-
-		viewMenu.add(zoomIn);
-		viewMenu.add(zoomOut);
-		menuBar.add(viewMenu);
+		createViewMenu(menuBar, mainMenu);
 
 		sessionWriter = new SessionWriter(sessionDirectory, "data");
 
 		communicator = new FailoverCommunicator(new SerialCommunicator().addSensorListener(worldModel), new ConsoleCommunicator(), sessionWriter);		
 		communicator.connect();
 
-		controller = new BasicController(communicator, sessionWriter);
+		robotSimulator = RobotSimulator.createRaisaInstance(new Vector2D(0, 0), 0, worldModel);
+		robotSimulator.addSensorListener(sessionWriter, worldModel);
+		controller = new BasicController(communicator, sessionWriter, robotSimulator);
 
 		setCurrentTool(drawTool);
 		communicator.addSensorListener(sessionWriter);
-		ControlPanel controlPanel = new ControlPanel(this, visualizerPanel, controller, communicator, sessionWriter);
+		ControlPanel controlPanel = new ControlPanel(this, visualizerPanel, controller, communicator, sessionWriter, robotSimulator);
 		Runtime.getRuntime().addShutdownHook(new Thread() {
 			@Override
 			public void run() {
@@ -225,6 +118,16 @@ public class VisualizerFrame extends JFrame {
 		});
 		
 		
+		createKeyboardShortCuts();
+
+		getContentPane().add(visualizerPanel, BorderLayout.CENTER);
+		getContentPane().add(controlPanel, BorderLayout.WEST);
+		getContentPane().add(measurementsPanel, BorderLayout.EAST);
+		setJMenuBar(menuBar);
+		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+	}
+
+	private void createKeyboardShortCuts() {
 		int nextFreeActionKey = 0;
 		final int ZOOM_IN_ACTION_KEY = ++nextFreeActionKey;
 		final int ZOOM_OUT_ACTION_KEY = ++nextFreeActionKey;
@@ -392,12 +295,126 @@ public class VisualizerFrame extends JFrame {
 				repaint();
 			}
 		});
+	}
 
-		getContentPane().add(visualizerPanel, BorderLayout.CENTER);
-		getContentPane().add(controlPanel, BorderLayout.WEST);
-		getContentPane().add(measurementsPanel, BorderLayout.EAST);
-		setJMenuBar(menuBar);
-		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+	private void createViewMenu(JMenuBar menuBar, JMenu mainMenu) {
+		JMenu viewMenu = new JMenu("View");
+		mainMenu.setMnemonic('m');
+		JMenuItem zoomIn = new JMenuItem("Zoom in");
+		zoomIn.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				visualizerPanel.zoomIn();
+				updateTitle();
+			}
+		});
+		zoomIn.setMnemonic('i');
+		JMenuItem zoomOut = new JMenuItem("Zoom out");
+		zoomOut.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				visualizerPanel.zoomOut();
+				updateTitle();
+			}
+		});
+		zoomOut.setMnemonic('o');
+
+		viewMenu.add(zoomIn);
+		viewMenu.add(zoomOut);
+		menuBar.add(viewMenu);
+	}
+
+	private JMenu createMainMenu(final WorldModel worldModel, JMenuBar menuBar) {
+		JMenu mainMenu = new JMenu("Main");
+		mainMenu.setMnemonic('m');
+		JMenuItem reset = new JMenuItem("Reset");
+		reset.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				reset();
+				repaint();
+			}
+		});
+		reset.setMnemonic('r');
+		JMenuItem loadSimulation = new JMenuItem("Load simulation...");
+		loadSimulation.setMnemonic('s');
+		loadSimulation.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				loadSimulation(null);
+			}
+		});
+		JMenuItem loadData = new JMenuItem("Load data...");
+		loadData.setMnemonic('d');
+		loadData.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				loadData(null);
+			}
+		});
+		JMenuItem loadReplay = new JMenuItem("Load replay...");
+		loadReplay.setMnemonic('p');
+		loadReplay.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				loadReplay();
+			}
+		});
+		JMenuItem saveAs = new JMenuItem("Save as...");
+		saveAs.setMnemonic('a');
+		saveAs.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				save(null);
+			}
+		});
+		JMenuItem loadMap = new JMenuItem("Load map...");
+		loadMap.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				loadMap(null);
+				notifyUserEditUndoAction();
+				VisualizerFrame.this.repaint();
+			}
+		});
+		JMenuItem resetMap = new JMenuItem("Reset map");
+		resetMap.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				pushUserEditUndoLevel();
+				worldModel.resetMap();
+				VisualizerFrame.this.repaint();
+			}
+		});
+		JMenuItem saveMapAs = new JMenuItem("Save map as...");
+		saveMapAs.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				saveMap(null);
+			}
+		});
+		JMenuItem exit = new JMenuItem("Exit");
+		exit.setMnemonic('x');
+		exit.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				exit();
+			}
+		});
+		mainMenu.add(reset);
+		mainMenu.addSeparator();
+		mainMenu.add(loadSimulation);
+		mainMenu.add(loadData);
+		mainMenu.add(loadReplay);
+		mainMenu.add(saveAs);
+		mainMenu.addSeparator();
+		mainMenu.add(resetMap);
+		mainMenu.add(loadMap);
+		mainMenu.add(saveMapAs);
+		mainMenu.addSeparator();
+		mainMenu.add(exit);
+		menuBar.add(mainMenu);
+		return mainMenu;
 	}
 	
 	public void open() {

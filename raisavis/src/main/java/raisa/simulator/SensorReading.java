@@ -28,14 +28,14 @@ public class SensorReading {
 		addField(builder, "IR", irDirection);
 		addField(builder, "CD", compassHeading);
 		if (gyro != null) {
-			addField(builder, "GX", gyro.getX());
-			addField(builder, "GY", gyro.getY());
-			addField(builder, "GZ", gyro.getZ());
+			addField(builder, "Gx", gyro.getX());
+			addField(builder, "Gy", gyro.getY());
+			addField(builder, "Gz", gyro.getZ());
 		}
 		if (acceleration != null) {
-			addField(builder, "AX", acceleration.getX());
-			addField(builder, "AY", acceleration.getY());
-			addField(builder, "AZ", acceleration.getZ());
+			addField(builder, "Ax", acceleration.getX());
+			addField(builder, "Ay", acceleration.getY());
+			addField(builder, "Az", acceleration.getZ());
 		}
 		builder.append("END;");
 		return builder.toString();
@@ -47,6 +47,15 @@ public class SensorReading {
 		}
 		builder.append(key);
 		builder.append(value.toString());
+		builder.append(";");
+		return builder;
+	}
+	private StringBuilder addField(StringBuilder builder, String key, Float value) {
+		if (value == null) {
+			return builder;
+		}
+		builder.append(key);
+		builder.append(String.format("%f", value));
 		builder.append(";");
 		return builder;
 	}
