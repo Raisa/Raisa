@@ -116,20 +116,21 @@ public class VisualizerPanel extends JPanel implements SampleListener {
 
 	private void drawAngle(Graphics2D g2, Vector2D from, Vector2D to) {
 		Float p1 = toScreen(from);
+		Float p2 = toScreen(to);
 		float angle = (float)Math.atan2(to.y - from.y, to.x - from.x);
 		double angleInDegrees = ((angle / Math.PI) * 180.0f + 90);
 		if (angleInDegrees < 0) {
 			angleInDegrees += 360;
 		}
 		String angleString = String.format("%3.1f °", angleInDegrees);
-		float dx = - 15.0f;
-		float dy = 0.0f;
-		if (angleInDegrees < 90 || angleInDegrees > 270) {
-			dy += 20.0f;
-		} else {
-			dy -= 10.0f;
-		}
-		g2.drawString(angleString, (int) (p1.x + dx), (int) (p1.y + dy));
+		float dx = p2.x - p1.x;
+		float dy = p2.y - p1.y;
+		float l = (float)Math.sqrt(dx * dx + dy * dy);
+		g2.drawLine((int)p1.x, (int)(p1.y), (int)p1.x, (int)(p1.y - Math.max(30.0f, l)));
+		g2.drawString(angleString, (int) (p1.x - 15.0f), (int) (p1.y + 20.0f));
+		float start = (float)90;
+		g2.drawArc((int)(p1.x - 0.3f * l), (int)(p1.y - 0.3f * l), (int)(0.6f * l), (int)(0.6f * l), (int)start, (int)(start - angleInDegrees - 90));
+		
 	}
 
 	private void drawParticles(Graphics2D g2) {
