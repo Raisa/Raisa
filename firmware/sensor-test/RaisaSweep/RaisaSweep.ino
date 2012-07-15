@@ -76,8 +76,8 @@ void configureCompass() {
   
   // Calibration values. Use the Calibrate example program to get the values for
   // your compass.
-  compass.m_min.x = -507; compass.m_min.y = -858; compass.m_min.z = -566;
-  compass.m_max.x = +389; compass.m_max.y = +114; compass.m_max.z = 402;  
+  compass.m_min.x = -419; compass.m_min.y = -723; compass.m_min.z = -402;
+  compass.m_max.x = +429; compass.m_max.y = +278; compass.m_max.z = 546;  
 }
 
 void configureGyro() {

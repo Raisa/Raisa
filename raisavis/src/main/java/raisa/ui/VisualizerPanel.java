@@ -19,6 +19,7 @@ import java.util.List;
 
 import javax.swing.JPanel;
 
+import raisa.VisualizerConfig;
 import raisa.domain.Grid;
 import raisa.domain.Particle;
 import raisa.domain.Robot;
@@ -92,7 +93,9 @@ public class VisualizerPanel extends JPanel implements SampleListener {
 		Graphics2D g2 = (Graphics2D) g;
 		clearScreen(g);
 		drawGrid(g2);
-		drawParticles(g2);
+		if (VisualizerConfig.getInstance().isParticleFilterEnabled()) {
+			drawParticles(g2);
+		}
 		drawRobotTrail(g2, worldModel.getStates());
 		drawRobot(g2);
 		drawArrow(g2);

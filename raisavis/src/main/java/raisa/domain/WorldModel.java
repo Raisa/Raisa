@@ -197,6 +197,10 @@ public class WorldModel implements Serializable, SensorListener {
 	public void addSampleListener(SampleListener listener) {
 		this.sampleListeners.add(listener);
 	}
+	
+	public void removeSampleListener(SampleListener listener) {
+		this.sampleListeners.remove(listener);
+	}	
 
 	public void addRobotListener(RobotListener listener) {
 		this.robotListeners.add(listener);

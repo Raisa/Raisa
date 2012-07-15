@@ -23,6 +23,7 @@ import raisa.util.Vector3D;
 public class MeasurementsPanel extends JPanel implements SampleListener {
 	private static final long serialVersionUID = 1L;
 
+	private HeadingPanel headingPanel; 	
 	private SpeedPanel speedPanel; 	
 	private AccelerationPanel accelerationPanel; 
 	private GyroscopePanel gyroscopePanel; 
@@ -38,6 +39,8 @@ public class MeasurementsPanel extends JPanel implements SampleListener {
 		this.setMinimumSize(new Dimension(200, 300));
 		this.setPreferredSize(new Dimension(200, 300));
 		this.setMaximumSize(new Dimension(200, 300));
+		headingPanel = new HeadingPanel(worldModel);
+		this.add(headingPanel);				
 		speedPanel = new SpeedPanel(worldModel);
 		this.add(speedPanel);						
 		accelerationPanel = new AccelerationPanel(worldModel);
@@ -49,6 +52,7 @@ public class MeasurementsPanel extends JPanel implements SampleListener {
 	}
 	
 	public void sampleAdded(Sample sample) {
+		headingPanel.update(sample);
 		speedPanel.update(sample);
 		accelerationPanel.update(sample);
 		gyroscopePanel.update(sample);
@@ -255,6 +259,32 @@ public class MeasurementsPanel extends JPanel implements SampleListener {
 			Robot robot = worldModel.getLatestState();
 			speedLeftTrackField.setText("Left: " + format.format(robot.getSpeedLeftTrack()));
 			speedRightTrackField.setText("Right: " + format.format(robot.getSpeedRightTrack()));
+			repaint();
+		}
+		
+	}		
+	
+	private class HeadingPanel extends JPanel {
+		private static final long serialVersionUID = 1L;
+
+		private JLabel headingField;
+
+		public HeadingPanel(WorldModel worldModel) {
+			this.setMinimumSize(new Dimension(190, 50));
+			this.setPreferredSize(new Dimension(190, 50));
+			this.setMaximumSize(new Dimension(190, 50));
+			TitledBorder border = new TitledBorder("Heading (degrees)");
+			setBorder(border);
+			setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
+			headingField = new JLabel("Value: -");
+			headingField.setAlignmentX(LEFT_ALIGNMENT);
+			this.add(headingField);					
+		}
+			
+		public void update(Sample sample) {
+			DecimalFormat format = new DecimalFormat("000");			
+			Robot robot = worldModel.getLatestState();
+			headingField.setText("Value: " + format.format(Math.toDegrees(robot.getHeading())));
 			repaint();
 		}
 		

@@ -43,6 +43,9 @@ public class Visualizer {
 	public static void main(String[] args) throws Exception {
 		final WorldModel worldModel = new WorldModel();
 		final VisualizerFrame frame = new VisualizerFrame(worldModel);
+		VisualizerConfig config = VisualizerConfig.getInstance();
+		config.addVisualizerConfigListener(frame);
+		config.notifyVisualizerConfigListeners();
 
 		if (args.length == 0) {
 		} else {

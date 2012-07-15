@@ -28,6 +28,8 @@ import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import raisa.VisualizerConfig;
+import raisa.VisualizerConfigListener;
 import raisa.comms.BasicController;
 import raisa.comms.Communicator;
 import raisa.comms.ConsoleCommunicator;
@@ -38,6 +40,7 @@ import raisa.comms.SampleParser;
 import raisa.comms.SerialCommunicator;
 import raisa.domain.AveragingRobotStateEstimator;
 import raisa.domain.ClusteringRobotStateEstimator;
+import raisa.domain.NoFilter;
 import raisa.domain.Particle;
 import raisa.domain.ParticleFilter;
 import raisa.domain.ParticleFilterListener;
@@ -52,7 +55,7 @@ import raisa.ui.tool.MeasureTool;
 import raisa.ui.tool.Tool;
 import raisa.util.Vector2D;
 
-public class VisualizerFrame extends JFrame {
+public class VisualizerFrame extends JFrame implements VisualizerConfigListener {
 	private static final Logger log = LoggerFactory.getLogger(VisualizerFrame.class);
 	private static final long serialVersionUID = 1L;
 	private int nparticles = 1000;
@@ -67,6 +70,7 @@ public class VisualizerFrame extends JFrame {
 	private List<UserEditUndoListener> userEditUndoListeners = new ArrayList<UserEditUndoListener>();
 	private final Communicator communicator;
 	private final BasicController controller;
+	private NoFilter noFilter;	
 	private ParticleFilter particleFilter;
 	private RobotStateEstimator robotStateEstimator;
 	private SessionWriter sessionWriter;
@@ -76,9 +80,9 @@ public class VisualizerFrame extends JFrame {
 	public VisualizerFrame(final WorldModel worldModel) {
 		addIcon();
 		this.worldModel = worldModel;
+		this.noFilter = new NoFilter(worldModel);
 		this.particleFilter = new ParticleFilter(worldModel, nparticles);
 		this.robotStateEstimator = new ClusteringRobotStateEstimator();
-		worldModel.addSampleListener(particleFilter);
 		particleFilter.addParticleFilterListener(new ParticleFilterListener() {
 			@Override
 			public void particlesChanged(ParticleFilter filter) {
@@ -91,12 +95,12 @@ public class VisualizerFrame extends JFrame {
 				Robot estimatedState = robotStateEstimator.estimateState(states);
 				worldModel.addState(estimatedState);
 			}
-		});
+		});	
 		visualizerPanel = new VisualizerPanel(this, worldModel);
 		MeasurementsPanel measurementsPanel = new MeasurementsPanel(worldModel);
 		JMenuBar menuBar = new JMenuBar();
 		JMenu mainMenu = createMainMenu(worldModel, menuBar);
-
+		
 		createViewMenu(menuBar, mainMenu);
 
 		sessionWriter = new SessionWriter(sessionDirectory, "data");
@@ -621,6 +625,16 @@ public class VisualizerFrame extends JFrame {
 		spawnSimulationThread(sampleStrings, delayed);
 	}
 
+	public void visualizerConfigChanged(VisualizerConfig config) {
+		if (config.isParticleFilterEnabled()) {
+			worldModel.removeSampleListener(this.noFilter);
+			worldModel.addSampleListener(this.particleFilter);
+		} else {
+			worldModel.removeSampleListener(this.particleFilter);	
+			worldModel.addSampleListener(this.noFilter);			
+		}
+	}
+	
 	public void reset() {
 		visualizerPanel.reset();
 		particleFilter.randomizeParticles(nparticles);

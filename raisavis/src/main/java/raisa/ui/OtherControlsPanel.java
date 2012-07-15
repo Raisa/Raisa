@@ -13,6 +13,7 @@ import javax.swing.border.TitledBorder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import raisa.VisualizerConfig;
 import raisa.comms.BasicController;
 import raisa.comms.Controller;
 import raisa.comms.ControllerListener;
@@ -30,6 +31,7 @@ public class OtherControlsPanel extends JPanel {
 		createLightsControl(controller);
 		createDataCaptureControl(sessionWriter);
 		createSimulatorControl(robotSimulator);
+		createParticleFilterControl();
 	}
 	
 	private void createDataCaptureControl(final SessionWriter sessionWriter) {
@@ -95,4 +97,18 @@ public class OtherControlsPanel extends JPanel {
 			}
 		});
 	}
+
+	private void createParticleFilterControl() {
+		final JToggleButton button = new JToggleButton("Particle filter");
+		button.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				VisualizerConfig config = VisualizerConfig.getInstance();
+				config.setParticleFilterEnabled(!config.isParticleFilterEnabled());
+				config.notifyVisualizerConfigListeners();
+			}			
+		});
+
+		add(button);
+	}	
 }

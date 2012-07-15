@@ -51,7 +51,7 @@ public class ParticleFilter implements SampleListener {
 			return;
 
 		// estimate movement
-		RobotMovementEstimator estimator = new SimpleRobotMovementEstimator();
+		RobotMovementEstimator estimator = new SimpleRobotMovementEstimator(true);
 		Sample lastSample = samples.get(samples.size() - 1);
 		for (Particle particle : particles) {
 			Robot newState = estimator.moveRobot(particle.getLastState(), lastSample);

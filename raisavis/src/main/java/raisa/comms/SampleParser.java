@@ -66,7 +66,7 @@ public class SampleParser {
 						ultrasound1DistanceIsValid = true;
 					}
 				} else if (part.startsWith("CD")) {
-					float compass = (float) (Math.toRadians(Integer.parseInt(value)) - Math.PI * 0.5f);
+					float compass = (float) (Math.toRadians(Integer.parseInt(value)));
 					sample.setCompassDirection(compass);
 				} else if (part.startsWith("AX")) {
 					float accelerationX = (G * ((-Integer.parseInt(value)) - 24)) / 1000 ;
