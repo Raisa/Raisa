@@ -35,6 +35,7 @@ public class VisualizerPanel extends JPanel implements SampleListener {
 	private Color measurementColor = new Color(0.4f, 0.4f, 0.4f);
 	private Color particleColor = new Color(0.3f, 0.3f, 0.3f);
 	private Color mapMarkerColor = new Color(0.8f, 0.2f, 0.2f);
+	private Color trailMarkerColor = new Color(0.5f, 0.5f, 0.9f);
 	private Vector2D camera = new Vector2D();
 	private Vector2D mouse = new Vector2D();
 	private Vector2D mouseDownPosition = new Vector2D();
@@ -167,13 +168,13 @@ public class VisualizerPanel extends JPanel implements SampleListener {
 	}
 
 	private void drawRobotTrail(Graphics2D g2, List<Robot> states) {
-		g2.setColor(Color.gray);
 		Robot lastState = null;
 		float distanceSoFar = 0.0f;
 		float lastDistanceString = -100.0f;
 		boolean drawDistanceString = false;
 		float distanceMarkerSize = 4.0f;
 		for (Robot state : states) {
+			g2.setColor(Color.gray);
 			if (lastState != null) {
 				drawLine(g2, lastState.getPosition(), state.getPosition());
 				distanceSoFar += lastState.getPosition().distance(state.getPosition());
@@ -185,6 +186,7 @@ public class VisualizerPanel extends JPanel implements SampleListener {
 				String distanceString = String.format("%3.1f m", distanceSoFar / 100);
 				Vector2D screenPosition = toScreen(state.getPosition());
 				g2.fillRect((int)(screenPosition.x - 0.5f * distanceMarkerSize), (int)(screenPosition.y - 0.5f * distanceMarkerSize), (int)distanceMarkerSize, (int)distanceMarkerSize);
+				g2.setColor(trailMarkerColor);
 				g2.drawString(distanceString, (int)screenPosition.x, (int)screenPosition.y);
 				drawDistanceString = false;
 				lastDistanceString = distanceSoFar;
