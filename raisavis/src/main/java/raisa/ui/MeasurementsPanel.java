@@ -284,7 +284,7 @@ public class MeasurementsPanel extends JPanel implements SampleListener {
 
 		public void update(Sample sample) {
 			DecimalFormat format = new DecimalFormat("000");
-			sensorField.setText("Sensor: " + format.format(Math.toDegrees((sample.getCompassDirection() + 360) % 360)));
+			sensorField.setText("Sensor: " + format.format(Math.toDegrees((sample.getCompassDirection() % 360))));
 			repaint();
 		}
 

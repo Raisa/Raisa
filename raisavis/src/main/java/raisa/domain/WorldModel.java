@@ -110,8 +110,7 @@ public class WorldModel implements Serializable, SensorListener {
 		} else {
 			grid = new Grid();
 		}
-		// TODO reset RobotSimulator also
-		addState(new Robot(new Vector2D(-100.0f, 600.0f), 0.5f));
+		addState(new Robot(new Vector2D(100.0f, 0), 0.5f));
 	}
 	
 	public void removeOldSamples(int preserveLength) {

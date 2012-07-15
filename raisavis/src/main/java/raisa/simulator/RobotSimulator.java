@@ -101,7 +101,7 @@ public class RobotSimulator implements RobotState, ServoScanListener, Communicat
 			reading.setSonarDistance(round(sonarDistance));
 			reading.setSonarDirection(round(servoHeading) + 90);
 		}
-		reading.setCompassHeading(round(heading));
+		reading.setCompassHeading(360-round(heading));
 		reading.setTimestamp(System.currentTimeMillis() - startTime).setMessageNumber(messageNumber++);
 		
 		Random random = new Random();
