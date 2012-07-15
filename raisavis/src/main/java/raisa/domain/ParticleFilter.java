@@ -92,7 +92,7 @@ public class ParticleFilter implements SampleListener {
 			}
 
 			// add a few random particles to avoid local maxima
-			for (int i = 0; i < particles.size() / 50; ++i) {
+			for (int i = 0; i < particles.size() / 10; ++i) {
 				newParticles.set(i, makeRandomParticle());
 			}
 

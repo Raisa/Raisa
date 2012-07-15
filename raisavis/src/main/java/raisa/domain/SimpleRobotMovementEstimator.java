@@ -4,10 +4,10 @@ import raisa.util.Vector2D;
 
 public class SimpleRobotMovementEstimator implements RobotMovementEstimator {
 
-	private boolean particle;
+	private boolean usingParticleFilter;
 	
-	public SimpleRobotMovementEstimator(boolean particle) {
-		this.particle = particle;
+	public SimpleRobotMovementEstimator(boolean usingParticleFilter) {
+		this.usingParticleFilter = usingParticleFilter;
 	}
 	
 	@Override
@@ -17,8 +17,14 @@ public class SimpleRobotMovementEstimator implements RobotMovementEstimator {
 		float rightTrackTrip = (Robot.WHEEL_DIAMETER * sample.getRightTrackTicks() * Robot.TICK_RADIANS) / 2.0f;
 
 		float h;
-		if (particle) {
-			h = state.getHeading();
+		if (usingParticleFilter) {
+			float deltaHeading = 0.0f;
+			if (leftTrackTrip > rightTrackTrip) {
+				deltaHeading = (float)Math.toRadians(5.0);
+			} else if (rightTrackTrip > leftTrackTrip) {
+				deltaHeading = (float)Math.toRadians(-5.0);
+			}
+			h = state.getHeading() + deltaHeading;
 		} else {
 			h = sample.getCompassDirection();
 		}
@@ -33,7 +39,7 @@ public class SimpleRobotMovementEstimator implements RobotMovementEstimator {
 		robot.setDirectionRightTrackForward(sample.getRightTrackTicks() >= 0 ? true : false);
 		
 		// add noise	
-		if (particle) {
+		if (usingParticleFilter) {
 			float noiseMagnitude = 5.0f;
 			float a = (float)(Math.random() * Math.PI * 2.0f);
 			float r = (float)Math.random() * noiseMagnitude;

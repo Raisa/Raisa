@@ -52,9 +52,9 @@ public class Visualizer {
 			if ("example".equals(inputMode)) {
 				frame.spawnSampleSimulationThread(getExampleSamples(), true);
 			} else if ("test".equals(inputMode)) {
-				frame.loadMap("data/sightseeing1.png");
+				frame.loadMap("data/sightseeing2.png");
 				frame.getParticleFilter().randomizeParticles(frame.getParticleFilter().getParticles().size());
-				frame.loadData("data/eteinen7.data");
+				frame.loadData("data/eteinen-tyohuone-makkari.data");
 				config.setParticleFilterEnabled(true);
 			} else if ("file".equals(inputMode)) {
 				if (args.length != 2) {

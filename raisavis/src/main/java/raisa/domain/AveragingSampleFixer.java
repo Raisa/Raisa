@@ -53,20 +53,12 @@ public class AveragingSampleFixer implements SampleFixer {
 		for (Sample lastSample : lastSamples) {
 			float direction = lastSample.getCompassDirection();
 			float difference = differenceInAngles(ahx, ahy, averageDirection, direction);
-			//System.out.println("Average " + averageDirection + " Direction " + direction + " Difference " + difference);
 			squareOfSums += difference;
 		}
 		squareOfSums = squareOfSums * squareOfSums;
 		
 		// calculate standard deviation
 		float standardDeviation = (float)Math.sqrt(sumOfSquares - squareOfSums);
-		
-		//System.out.println(Math.toDegrees(standardDeviation));
-		
-		//System.out.println("Difference " + differenceInAngles(1.0f, 0.0f, 0.0f, 0.1f));
-		//System.out.println("Difference " + differenceInAngles(1.0f, 0.0f, 0.0f, (float)Math.PI * 2.0f - 0.1f));
-		//System.out.println("Difference " + differenceInAngles((float)Math.cos(0.1), (float)Math.sin(0.1), 0.1f, 0.2f));
-		//System.out.println("Difference " + differenceInAngles((float)Math.cos(0.1), (float)Math.sin(0.1), 0.1f, (float)Math.PI * 2.0f - 0.1f));
 		
 		// if sample deviates too much, use last known good direction
 		if (standardDeviation > maxDeviation) {
