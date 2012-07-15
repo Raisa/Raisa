@@ -26,7 +26,7 @@ public class SensorReading {
 		addField(builder, "Id", irDistance);
 		addField(builder, "SR", sonarDirection);
 		addField(builder, "IR", irDirection);
-		addField(builder, "CD", compassHeading);
+		addField(builder, "Cd", compassHeading);
 		if (gyro != null) {
 			addField(builder, "Gx", gyro.getX());
 			addField(builder, "Gy", gyro.getY());

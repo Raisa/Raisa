@@ -35,6 +35,8 @@ public class VisualizerPanel extends JPanel implements SampleListener {
 	private static final long serialVersionUID = 1L;
 	private Color measurementColor = new Color(0.4f, 0.4f, 0.4f);
 	private Color particleColor = new Color(0.3f, 0.3f, 0.3f);
+	private Color mapMarkerColor = new Color(0.8f, 0.2f, 0.2f);
+	private Color trailMarkerColor = new Color(0.5f, 0.5f, 0.9f);
 	private Vector2D camera = new Vector2D();
 	private Vector2D mouse = new Vector2D();
 	private Vector2D mouseDownPosition = new Vector2D();
@@ -74,6 +76,7 @@ public class VisualizerPanel extends JPanel implements SampleListener {
 		arrow = new BasicStroke(2.0f, BasicStroke.CAP_BUTT, BasicStroke.JOIN_MITER, 10.0f);
 	}
 
+	@Override
 	public void sampleAdded(Sample sample) {
 		if (sample.isInfrared1MeasurementValid()) {
 			Vector2D spotPosition = GeometryUtil.calculatePosition(worldModel.getLatestState().getPosition(), worldModel.getLatestState().getHeading() + sample.getInfrared1Angle(), sample.getInfrared1Distance());
@@ -89,6 +92,7 @@ public class VisualizerPanel extends JPanel implements SampleListener {
 		repaint();
 	}
 
+	@Override
 	public void paintComponent(Graphics g) {
 		Graphics2D g2 = (Graphics2D) g;
 		clearScreen(g);
@@ -97,8 +101,9 @@ public class VisualizerPanel extends JPanel implements SampleListener {
 			drawParticles(g2);
 		}
 		drawRobotTrail(g2, worldModel.getStates());
+		drawOriginArrows(g2);
 		drawRobot(g2);
-		drawArrow(g2);
+		drawRobotDirectionArrow(g2);
 		drawUltrasoundResults(g);
 		drawIrResults(g2);
 		Vector2D worldMouse = toWorld(mouse);
@@ -109,6 +114,19 @@ public class VisualizerPanel extends JPanel implements SampleListener {
 			drawAngle(g2, worldMouseDown, worldMouse);
 		}
 		drawCoordinates(g2, worldMouse);
+	}
+
+	private void drawOriginArrows(Graphics2D g2) {
+		Vector2D origin = toScreen(0, 0);
+		g2.setColor(mapMarkerColor);
+		int length = 30;
+		g2.drawLine((int)origin.x, (int)origin.y, (int)origin.x, (int)origin.y + length);
+		g2.drawLine((int)origin.x-5, (int)origin.y + length - 10, (int)origin.x, (int)origin.y + length);
+		g2.drawLine((int)origin.x+5, (int)origin.y + length - 10, (int)origin.x, (int)origin.y + length);
+		
+		g2.drawLine((int)origin.x, (int)origin.y, (int)origin.x + length, (int)origin.y);
+		g2.drawLine((int)origin.x + length - 10, (int)origin.y-5, (int)origin.x + length, (int)origin.y);
+		g2.drawLine((int)origin.x + length - 10, (int)origin.y+5, (int)origin.x + length, (int)origin.y);
 	}
 
 	private void drawCoordinates(Graphics2D g2, Vector2D position) {
@@ -131,7 +149,7 @@ public class VisualizerPanel extends JPanel implements SampleListener {
 		float l = (float)Math.sqrt(dx * dx + dy * dy);
 		g2.drawLine((int)p1.x, (int)(p1.y), (int)p1.x, (int)(p1.y - Math.max(30.0f, l)));
 		g2.drawString(angleString, (int) (p1.x - 15.0f), (int) (p1.y + 20.0f));
-		float start = (float)90;
+		float start = 90;
 		g2.drawArc((int)(p1.x - 0.3f * l), (int)(p1.y - 0.3f * l), (int)(0.6f * l), (int)(0.6f * l), (int)start, (int)(start - angleInDegrees - 90));
 		
 	}
@@ -153,13 +171,13 @@ public class VisualizerPanel extends JPanel implements SampleListener {
 	}
 
 	private void drawRobotTrail(Graphics2D g2, List<Robot> states) {
-		g2.setColor(Color.gray);
 		Robot lastState = null;
 		float distanceSoFar = 0.0f;
 		float lastDistanceString = -100.0f;
 		boolean drawDistanceString = false;
 		float distanceMarkerSize = 4.0f;
 		for (Robot state : states) {
+			g2.setColor(Color.gray);
 			if (lastState != null) {
 				drawLine(g2, lastState.getPosition(), state.getPosition());
 				distanceSoFar += lastState.getPosition().distance(state.getPosition());
@@ -171,6 +189,7 @@ public class VisualizerPanel extends JPanel implements SampleListener {
 				String distanceString = String.format("%3.1f m", distanceSoFar / 100);
 				Vector2D screenPosition = toScreen(state.getPosition());
 				g2.fillRect((int)(screenPosition.x - 0.5f * distanceMarkerSize), (int)(screenPosition.y - 0.5f * distanceMarkerSize), (int)distanceMarkerSize, (int)distanceMarkerSize);
+				g2.setColor(trailMarkerColor);
 				g2.drawString(distanceString, (int)screenPosition.x, (int)screenPosition.y);
 				drawDistanceString = false;
 				lastDistanceString = distanceSoFar;
@@ -305,7 +324,7 @@ public class VisualizerPanel extends JPanel implements SampleListener {
 		g2.fill(wheelRight);			
 	}
 
-	private void drawArrow(Graphics2D g2) {
+	private void drawRobotDirectionArrow(Graphics2D g2) {
 		Robot robot = worldModel.getLatestState();
 		g2.setColor(Color.black);
 		Vector2D robotScreen = toScreen(robot.getPosition());

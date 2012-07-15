@@ -38,7 +38,6 @@ import raisa.comms.FailoverCommunicator;
 import raisa.comms.ReplayController;
 import raisa.comms.SampleParser;
 import raisa.comms.SerialCommunicator;
-import raisa.domain.AveragingRobotStateEstimator;
 import raisa.domain.ClusteringRobotStateEstimator;
 import raisa.domain.NoFilter;
 import raisa.domain.Particle;
@@ -108,7 +107,7 @@ public class VisualizerFrame extends JFrame implements VisualizerConfigListener 
 		communicator = new FailoverCommunicator(new SerialCommunicator().addSensorListener(worldModel), new ConsoleCommunicator(), sessionWriter);		
 		communicator.connect();
 
-		robotSimulator = RobotSimulator.createRaisaInstance(new Vector2D(0, 0), 0, worldModel);
+		robotSimulator = RobotSimulator.createRaisaInstance(new Vector2D(-50, 0), 0, worldModel);
 		robotSimulator.addSensorListener(sessionWriter, worldModel);
 		controller = new BasicController(communicator, sessionWriter, robotSimulator);
 
