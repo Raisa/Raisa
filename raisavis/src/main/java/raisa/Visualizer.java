@@ -45,7 +45,6 @@ public class Visualizer {
 		final VisualizerFrame frame = new VisualizerFrame(worldModel);
 		VisualizerConfig config = VisualizerConfig.getInstance();
 		config.addVisualizerConfigListener(frame);
-		config.notifyVisualizerConfigListeners();
 
 		if (args.length == 0) {
 		} else {
@@ -55,7 +54,8 @@ public class Visualizer {
 			} else if ("test".equals(inputMode)) {
 				frame.loadMap("data/sightseeing1.png");
 				frame.getParticleFilter().randomizeParticles(frame.getParticleFilter().getParticles().size());
-				frame.loadData("data/eteinen5.data");
+				frame.loadData("data/eteinen7.data");
+				config.setParticleFilterEnabled(true);
 			} else if ("file".equals(inputMode)) {
 				if (args.length != 2) {
 					System.out.println("Missing filename");
@@ -65,6 +65,7 @@ public class Visualizer {
 			}
 		}
 
+		config.notifyVisualizerConfigListeners();
 		frame.open();
 	}
 }
