@@ -27,7 +27,7 @@ public class WorldModel implements Serializable, SensorListener {
 	
 	private List<SampleListener> sampleListeners = new ArrayList<SampleListener>();
 	private List<RobotListener> robotListeners = new ArrayList<RobotListener>();
-	
+	private String latestMapFilename;
 	public WorldModel() {
 		addState(new Robot());
 		sampleFixers.add(new AveragingSampleFixer(10, 10.0f));
@@ -105,7 +105,12 @@ public class WorldModel implements Serializable, SensorListener {
 	public void reset() {
 		samples = new ArrayList<Sample>();
 		states = new ArrayList<Robot>();
-		grid = new Grid();
+		if(latestMapFilename != null) {
+			loadMap(latestMapFilename);
+		} else {
+			grid = new Grid();
+		}
+		// TODO reset RobotSimulator also
 		addState(new Robot(new Vector2D(-100.0f, 600.0f), 0.5f));
 	}
 	
@@ -170,6 +175,7 @@ public class WorldModel implements Serializable, SensorListener {
 			BufferedImage mapImage = ImageIO.read(new File(fileName));
 			grid.pushUserUndoLevel();
 			grid.setUserImage(mapImage);
+			latestMapFilename = fileName;
 		} catch (IOException e) {
 			e.printStackTrace();
 		}

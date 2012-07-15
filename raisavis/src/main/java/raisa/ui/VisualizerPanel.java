@@ -297,8 +297,10 @@ public class VisualizerPanel extends JPanel implements SampleListener {
 		Vector2D robotScreen = toScreen(robotSimulator.getPosition());
 		p.transform(AffineTransform.getRotateInstance(Math.toRadians(-robotSimulator.getHeading())));
 		p.transform(AffineTransform.getTranslateInstance(robotScreen.x, robotScreen.y));
-		g2.setColor(Color.blue);
+		g2.setColor(new Color(0.3f, 0.3f, 0.8f));
 		g2.fill(p);
+		g2.setColor(new Color(0.7f, 0.7f, 0.9f));
+		g2.draw(p);
 	}
 	
 	private void drawRobot(Graphics2D g2) {

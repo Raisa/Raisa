@@ -142,6 +142,14 @@ public class RobotSimulator implements RobotState, ServoScanListener, Communicat
 		return controlSpeed/255.0f * 200f;
 	}
 	
+	
+	public void reset() {
+		this.position = new Vector2D(-100,0);
+		this.heading = 0;
+		this.driveSystem.setLeftWheelSpeed(0);
+		this.driveSystem.setRightWheelSpeed(0);
+	}
+	
 	@Override
 	public boolean connect() {
 		return true;

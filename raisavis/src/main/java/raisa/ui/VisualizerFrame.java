@@ -439,6 +439,7 @@ public class VisualizerFrame extends JFrame implements VisualizerConfigListener 
 					try {
 						saveDefaultDirectory(fileName);
 						worldModel.loadMap(fileName);
+						particleFilter.randomizeParticles(nparticles);
 					} catch (Exception e) {
 						e.printStackTrace();
 					}
@@ -637,6 +638,7 @@ public class VisualizerFrame extends JFrame implements VisualizerConfigListener 
 	
 	public void reset() {
 		visualizerPanel.reset();
+		robotSimulator.reset();
 		particleFilter.randomizeParticles(nparticles);
 		updateTitle();
 	}
