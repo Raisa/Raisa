@@ -108,7 +108,7 @@ public class SerialCommunicator implements SerialPortEventListener, Communicator
 					line = scanner.next();
 				}
 			} catch (Exception e) {
-				log.error(e.toString());
+				log.error("Error in processing serial event", e);
 			}
 		}
 		// Ignore all the other eventTypes, but you should consider the other

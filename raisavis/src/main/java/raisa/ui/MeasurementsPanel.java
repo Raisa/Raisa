@@ -1,11 +1,14 @@
 package raisa.ui;
 
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.text.DecimalFormat;
 import java.util.LinkedList;
 import java.util.List;
 
+import javax.swing.BorderFactory;
+import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -55,47 +58,38 @@ public class MeasurementsPanel extends JPanel implements SampleListener {
 	private class AccelerationPanel extends JPanel {
 		private static final long serialVersionUID = 1L;
 
-		private JLabel accXField;
-		private JLabel accYField;
-		private JLabel accZField;
 		private MeasurementGraphPanel accXPanel;
 		private MeasurementGraphPanel accYPanel;
 		private MeasurementGraphPanel accZPanel;
 
 		public AccelerationPanel(WorldModel worldModel) {
-			this.setMinimumSize(new Dimension(190, 230));
-			this.setPreferredSize(new Dimension(190, 230));
-			this.setMaximumSize(new Dimension(190, 230));
+			this.setMinimumSize(new Dimension(190, 150));
+			this.setPreferredSize(new Dimension(190, 150));
+			this.setMaximumSize(new Dimension(190, 150));
 			TitledBorder border = new TitledBorder("Acceleration (m/s^2)");
 			setBorder(border);
 			setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
-			accXField = new JLabel("X: -");
-			accXField.setAlignmentX(LEFT_ALIGNMENT);
-			accYField = new JLabel("Y: -");
-			accYField.setAlignmentX(LEFT_ALIGNMENT);
-			accZField = new JLabel("Z: -");
-			accZField.setAlignmentX(LEFT_ALIGNMENT);
 			accXPanel = new MeasurementGraphPanel(20f);
 			accXPanel.setAlignmentX(LEFT_ALIGNMENT);
+			accXPanel.setTextValue("X: -");
 			accYPanel = new MeasurementGraphPanel(20f);
 			accYPanel.setAlignmentX(LEFT_ALIGNMENT);
+			accYPanel.setTextValue("Y: -");
 			accZPanel = new MeasurementGraphPanel(20f);	
 			accZPanel.setAlignmentX(LEFT_ALIGNMENT);
-			this.add(accXField);		
+			accZPanel.setTextValue("Z: -");
 			this.add(accXPanel);
-			this.add(accYField);	
 			this.add(accYPanel);	
-			this.add(accZField);
 			this.add(accZPanel);	
 		}
 			
 		public void update(Sample sample) {
 			DecimalFormat format = new DecimalFormat("0.000");			
 			Vector3D acceleration = sample.getAcceleration();
-			accXField.setText("X: " + format.format(acceleration.getX()));
-			accYField.setText("Y: " + format.format(acceleration.getY()));
-			accZField.setText("Z: " + format.format(acceleration.getZ()));
-			List<Sample> samples = worldModel.getLastSamples(120);
+			accXPanel.setTextValue("X: " + format.format(acceleration.getX()));
+			accYPanel.setTextValue("Y: " + format.format(acceleration.getY()));
+			accZPanel.setTextValue("Z: " + format.format(acceleration.getZ()));
+			List<Sample> samples = worldModel.getLastSamples(90);
 			List<Float> samplesX = new LinkedList<Float>();
 			List<Float> samplesY = new LinkedList<Float>();
 			List<Float> samplesZ = new LinkedList<Float>();
@@ -115,47 +109,38 @@ public class MeasurementsPanel extends JPanel implements SampleListener {
 	private class GyroscopePanel extends JPanel {
 		private static final long serialVersionUID = 1L;
 
-		private JLabel xField;
-		private JLabel yField;
-		private JLabel zField;
 		private MeasurementGraphPanel xPanel;
 		private MeasurementGraphPanel yPanel;
 		private MeasurementGraphPanel zPanel;
 
 		public GyroscopePanel(WorldModel worldModel) {
-			this.setMinimumSize(new Dimension(190, 230));
-			this.setPreferredSize(new Dimension(190, 230));
-			this.setMaximumSize(new Dimension(190, 230));
+			this.setMinimumSize(new Dimension(190, 150));
+			this.setPreferredSize(new Dimension(190, 150));
+			this.setMaximumSize(new Dimension(190, 150));
 			TitledBorder border = new TitledBorder("Gyroscope (dps)");
 			setBorder(border);
 			setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
-			xField = new JLabel("X: -");
-			xField.setAlignmentX(LEFT_ALIGNMENT);
-			yField = new JLabel("Y: -");
-			yField.setAlignmentX(LEFT_ALIGNMENT);
-			zField = new JLabel("Z: -");
-			zField.setAlignmentX(LEFT_ALIGNMENT);
 			xPanel = new MeasurementGraphPanel(20f);
+			xPanel.setTextValue("X: -");
 			xPanel.setAlignmentX(LEFT_ALIGNMENT);
 			yPanel = new MeasurementGraphPanel(20f);
+			yPanel.setTextValue("Y: -");
 			yPanel.setAlignmentX(LEFT_ALIGNMENT);
 			zPanel = new MeasurementGraphPanel(20f);	
+			zPanel.setTextValue("Z: -");
 			zPanel.setAlignmentX(LEFT_ALIGNMENT);
-			this.add(xField);		
 			this.add(xPanel);
-			this.add(yField);	
 			this.add(yPanel);	
-			this.add(zField);
 			this.add(zPanel);	
 		}
 			
 		public void update(Sample sample) {
 			DecimalFormat format = new DecimalFormat("0.000");			
 			Vector3D latestRotation = sample.getGyro();
-			xField.setText("X: " + format.format(latestRotation.getX()));
-			yField.setText("Y: " + format.format(latestRotation.getY()));
-			zField.setText("Z: " + format.format(latestRotation.getZ()));
-			List<Sample> samples = worldModel.getLastSamples(120);
+			xPanel.setTextValue("X: " + format.format(latestRotation.getX()));
+			yPanel.setTextValue("Y: " + format.format(latestRotation.getY()));
+			zPanel.setTextValue("Z: " + format.format(latestRotation.getZ()));
+			List<Sample> samples = worldModel.getLastSamples(90);
 			List<Float> samplesX = new LinkedList<Float>();
 			List<Float> samplesY = new LinkedList<Float>();
 			List<Float> samplesZ = new LinkedList<Float>();
@@ -176,28 +161,25 @@ public class MeasurementsPanel extends JPanel implements SampleListener {
 	private class SoundPanel extends JPanel {
 		private static final long serialVersionUID = 1L;
 
-		private JLabel soundField;
 		private MeasurementGraphPanel soundGraphPanel;
 
 		public SoundPanel(WorldModel worldModel) {
-			this.setMinimumSize(new Dimension(190, 90));
-			this.setPreferredSize(new Dimension(190, 90));
-			this.setMaximumSize(new Dimension(190, 90));
+			this.setMinimumSize(new Dimension(190, 70));
+			this.setPreferredSize(new Dimension(190, 70));
+			this.setMaximumSize(new Dimension(190, 70));
 			TitledBorder border = new TitledBorder("Sound intensity");
 			setBorder(border);
 			setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
-			soundField = new JLabel("Value: -");
-			soundField.setAlignmentX(LEFT_ALIGNMENT);
 			soundGraphPanel = new MeasurementGraphPanel(-0.3f);	
+			soundGraphPanel.setTextValue("Value: -");
 			soundGraphPanel.setAlignmentX(LEFT_ALIGNMENT);
-			this.add(soundField);		
 			this.add(soundGraphPanel);
 		}
 			
 		public void update(Sample sample) {
-			DecimalFormat format = new DecimalFormat("0000");			
-			soundField.setText("Value: " + format.format(sample.getSoundIntensity()));
-			List<Sample> samples = worldModel.getLastSamples(120);
+			DecimalFormat format = new DecimalFormat("000");			
+			soundGraphPanel.setTextValue("Value: " + format.format(sample.getSoundIntensity()));
+			List<Sample> samples = worldModel.getLastSamples(90);
 			List<Float> soundIntensities = new LinkedList<Float>();
 			for (Sample s : samples) {
 				soundIntensities.add((float)s.getSoundIntensity());
@@ -210,18 +192,28 @@ public class MeasurementsPanel extends JPanel implements SampleListener {
 	
 	private final static class MeasurementGraphPanel extends JPanel {
 		private static final long serialVersionUID = 1L;
-		
+				
+		private JLabel textField;
 		private List<Float> measurements = new LinkedList<Float>();
 		private float scaleFactor;
 		
 		public MeasurementGraphPanel(float scaleFactor) {
-			this.setPreferredSize(new Dimension(190, 50));
-			this.setMaximumSize(new Dimension(190, 50));
+			setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
+			textField = new JLabel();
+			textField.setAlignmentX(LEFT_ALIGNMENT);
+			this.add(Box.createRigidArea(new Dimension(0, 10)));	
+			this.add(textField);
+			this.setPreferredSize(new Dimension(190, 40));
+			this.setMaximumSize(new Dimension(190, 40));
 			this.scaleFactor = scaleFactor;
 		}
 		
+		public void setTextValue(String text) {
+			textField.setText(text);
+		}
+		
 	    public Dimension getPreferredSize() {
-	        return new Dimension(190,50);
+	        return new Dimension(190,40);
 	    }
 	    
 	    public void setMeasurements(List<Float> measurements) {
@@ -231,7 +223,7 @@ public class MeasurementsPanel extends JPanel implements SampleListener {
 	    protected void paintComponent(Graphics g) {
 	        super.paintComponent(g);   
 	        for (int i=0; i<measurements.size(); i++) {
-	        	g.drawLine(20 + i, 25, 20 + i, 25 + (int)(scaleFactor * measurements.get(i).floatValue()));
+	        	g.drawLine(75 + i, 20, 75 + i, 20 + (int)(scaleFactor * measurements.get(i).floatValue()));
 	        }
 	    }  
 	    
