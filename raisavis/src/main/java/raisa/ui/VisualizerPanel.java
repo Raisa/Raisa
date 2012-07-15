@@ -34,6 +34,7 @@ public class VisualizerPanel extends JPanel implements SampleListener {
 	private static final long serialVersionUID = 1L;
 	private Color measurementColor = new Color(0.4f, 0.4f, 0.4f);
 	private Color particleColor = new Color(0.3f, 0.3f, 0.3f);
+	private Color mapMarkerColor = new Color(0.8f, 0.2f, 0.2f);
 	private Vector2D camera = new Vector2D();
 	private Vector2D mouse = new Vector2D();
 	private Vector2D mouseDownPosition = new Vector2D();
@@ -73,6 +74,7 @@ public class VisualizerPanel extends JPanel implements SampleListener {
 		arrow = new BasicStroke(2.0f, BasicStroke.CAP_BUTT, BasicStroke.JOIN_MITER, 10.0f);
 	}
 
+	@Override
 	public void sampleAdded(Sample sample) {
 		if (sample.isInfrared1MeasurementValid()) {
 			Vector2D spotPosition = GeometryUtil.calculatePosition(worldModel.getLatestState().getPosition(), worldModel.getLatestState().getHeading() + sample.getInfrared1Angle(), sample.getInfrared1Distance());
@@ -88,12 +90,14 @@ public class VisualizerPanel extends JPanel implements SampleListener {
 		repaint();
 	}
 
+	@Override
 	public void paintComponent(Graphics g) {
 		Graphics2D g2 = (Graphics2D) g;
 		clearScreen(g);
 		drawGrid(g2);
 		drawParticles(g2);
 		drawRobotTrail(g2, worldModel.getStates());
+		drawOrigin(g2);
 		drawRobot(g2);
 		drawArrow(g2);
 		drawUltrasoundResults(g);
@@ -106,6 +110,14 @@ public class VisualizerPanel extends JPanel implements SampleListener {
 			drawAngle(g2, worldMouseDown, worldMouse);
 		}
 		drawCoordinates(g2, worldMouse);
+	}
+
+	private void drawOrigin(Graphics2D g2) {
+		Vector2D origin = toScreen(0, 0);
+		g2.setColor(mapMarkerColor);
+		int lenght = 20;
+		g2.drawLine((int)origin.x, (int)origin.y, (int)origin.x, (int)origin.y - lenght);
+		g2.drawLine((int)origin.x, (int)origin.y, (int)origin.x + lenght, (int)origin.y);
 	}
 
 	private void drawCoordinates(Graphics2D g2, Vector2D position) {
@@ -128,7 +140,7 @@ public class VisualizerPanel extends JPanel implements SampleListener {
 		float l = (float)Math.sqrt(dx * dx + dy * dy);
 		g2.drawLine((int)p1.x, (int)(p1.y), (int)p1.x, (int)(p1.y - Math.max(30.0f, l)));
 		g2.drawString(angleString, (int) (p1.x - 15.0f), (int) (p1.y + 20.0f));
-		float start = (float)90;
+		float start = 90;
 		g2.drawArc((int)(p1.x - 0.3f * l), (int)(p1.y - 0.3f * l), (int)(0.6f * l), (int)(0.6f * l), (int)start, (int)(start - angleInDegrees - 90));
 		
 	}
