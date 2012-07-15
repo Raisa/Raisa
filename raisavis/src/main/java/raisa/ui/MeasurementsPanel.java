@@ -1,13 +1,11 @@
 package raisa.ui;
 
-import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.text.DecimalFormat;
 import java.util.LinkedList;
 import java.util.List;
 
-import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JLabel;
@@ -23,13 +21,13 @@ import raisa.util.Vector3D;
 public class MeasurementsPanel extends JPanel implements SampleListener {
 	private static final long serialVersionUID = 1L;
 
-	private HeadingPanel headingPanel; 	
-	private SpeedPanel speedPanel; 	
-	private AccelerationPanel accelerationPanel; 
-	private GyroscopePanel gyroscopePanel; 
+	private HeadingPanel headingPanel;
+	private SpeedPanel speedPanel;
+	private AccelerationPanel accelerationPanel;
+	private GyroscopePanel gyroscopePanel;
 	private SoundPanel soundPanel;
 	private WorldModel worldModel;
-	
+
 	public MeasurementsPanel(WorldModel worldModel) {
 		worldModel.addSampleListener(this);
 		this.worldModel = worldModel;
@@ -40,17 +38,18 @@ public class MeasurementsPanel extends JPanel implements SampleListener {
 		this.setPreferredSize(new Dimension(200, 300));
 		this.setMaximumSize(new Dimension(200, 300));
 		headingPanel = new HeadingPanel(worldModel);
-		this.add(headingPanel);				
+		this.add(headingPanel);
 		speedPanel = new SpeedPanel(worldModel);
-		this.add(speedPanel);						
+		this.add(speedPanel);
 		accelerationPanel = new AccelerationPanel(worldModel);
 		this.add(accelerationPanel);
 		gyroscopePanel = new GyroscopePanel(worldModel);
-		this.add(gyroscopePanel);	
+		this.add(gyroscopePanel);
 		soundPanel = new SoundPanel(worldModel);
-		this.add(soundPanel);				
+		this.add(soundPanel);
 	}
-	
+
+	@Override
 	public void sampleAdded(Sample sample) {
 		headingPanel.update(sample);
 		speedPanel.update(sample);
@@ -58,7 +57,7 @@ public class MeasurementsPanel extends JPanel implements SampleListener {
 		gyroscopePanel.update(sample);
 		soundPanel.update(sample);
 	}
-	
+
 	private class AccelerationPanel extends JPanel {
 		private static final long serialVersionUID = 1L;
 
@@ -79,16 +78,16 @@ public class MeasurementsPanel extends JPanel implements SampleListener {
 			accYPanel = new MeasurementGraphPanel(20f);
 			accYPanel.setAlignmentX(LEFT_ALIGNMENT);
 			accYPanel.setTextValue("Y: -");
-			accZPanel = new MeasurementGraphPanel(20f);	
+			accZPanel = new MeasurementGraphPanel(20f);
 			accZPanel.setAlignmentX(LEFT_ALIGNMENT);
 			accZPanel.setTextValue("Z: -");
 			this.add(accXPanel);
-			this.add(accYPanel);	
-			this.add(accZPanel);	
+			this.add(accYPanel);
+			this.add(accZPanel);
 		}
-			
+
 		public void update(Sample sample) {
-			DecimalFormat format = new DecimalFormat("0.000");			
+			DecimalFormat format = new DecimalFormat("0.000");
 			Vector3D acceleration = sample.getAcceleration();
 			accXPanel.setTextValue("X: " + format.format(acceleration.getX()));
 			accYPanel.setTextValue("Y: " + format.format(acceleration.getY()));
@@ -107,7 +106,7 @@ public class MeasurementsPanel extends JPanel implements SampleListener {
 			accZPanel.setMeasurements(samplesZ);
 			repaint();
 		}
-		
+
 	}
 
 	private class GyroscopePanel extends JPanel {
@@ -130,16 +129,16 @@ public class MeasurementsPanel extends JPanel implements SampleListener {
 			yPanel = new MeasurementGraphPanel(20f);
 			yPanel.setTextValue("Y: -");
 			yPanel.setAlignmentX(LEFT_ALIGNMENT);
-			zPanel = new MeasurementGraphPanel(20f);	
+			zPanel = new MeasurementGraphPanel(20f);
 			zPanel.setTextValue("Z: -");
 			zPanel.setAlignmentX(LEFT_ALIGNMENT);
 			this.add(xPanel);
-			this.add(yPanel);	
-			this.add(zPanel);	
+			this.add(yPanel);
+			this.add(zPanel);
 		}
-			
+
 		public void update(Sample sample) {
-			DecimalFormat format = new DecimalFormat("0.000");			
+			DecimalFormat format = new DecimalFormat("0.000");
 			Vector3D latestRotation = sample.getGyro();
 			xPanel.setTextValue("X: " + format.format(latestRotation.getX()));
 			yPanel.setTextValue("Y: " + format.format(latestRotation.getY()));
@@ -159,7 +158,7 @@ public class MeasurementsPanel extends JPanel implements SampleListener {
 			zPanel.setMeasurements(samplesZ);
 			repaint();
 		}
-		
+
 	}
 
 	private class SoundPanel extends JPanel {
@@ -174,70 +173,72 @@ public class MeasurementsPanel extends JPanel implements SampleListener {
 			TitledBorder border = new TitledBorder("Sound intensity");
 			setBorder(border);
 			setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
-			soundGraphPanel = new MeasurementGraphPanel(-0.3f);	
+			soundGraphPanel = new MeasurementGraphPanel(-0.3f);
 			soundGraphPanel.setTextValue("Value: -");
 			soundGraphPanel.setAlignmentX(LEFT_ALIGNMENT);
 			this.add(soundGraphPanel);
 		}
-			
+
 		public void update(Sample sample) {
-			DecimalFormat format = new DecimalFormat("000");			
+			DecimalFormat format = new DecimalFormat("000");
 			soundGraphPanel.setTextValue("Value: " + format.format(sample.getSoundIntensity()));
 			List<Sample> samples = worldModel.getLastSamples(90);
 			List<Float> soundIntensities = new LinkedList<Float>();
 			for (Sample s : samples) {
-				soundIntensities.add((float)s.getSoundIntensity());
+				soundIntensities.add((float) s.getSoundIntensity());
 			}
 			soundGraphPanel.setMeasurements(soundIntensities);
 			repaint();
 		}
-		
-	}		
-	
+
+	}
+
 	private final static class MeasurementGraphPanel extends JPanel {
 		private static final long serialVersionUID = 1L;
-				
+
 		private JLabel textField;
 		private List<Float> measurements = new LinkedList<Float>();
 		private float scaleFactor;
-		
+
 		public MeasurementGraphPanel(float scaleFactor) {
 			setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
 			textField = new JLabel();
 			textField.setAlignmentX(LEFT_ALIGNMENT);
-			this.add(Box.createRigidArea(new Dimension(0, 10)));	
+			this.add(Box.createRigidArea(new Dimension(0, 10)));
 			this.add(textField);
 			this.setPreferredSize(new Dimension(190, 40));
 			this.setMaximumSize(new Dimension(190, 40));
 			this.scaleFactor = scaleFactor;
 		}
-		
+
 		public void setTextValue(String text) {
 			textField.setText(text);
 		}
-		
-	    public Dimension getPreferredSize() {
-	        return new Dimension(190,40);
-	    }
-	    
-	    public void setMeasurements(List<Float> measurements) {
-	    	this.measurements = measurements;
-	    }
 
-	    protected void paintComponent(Graphics g) {
-	        super.paintComponent(g);   
-	        for (int i=0; i<measurements.size(); i++) {
-	        	g.drawLine(75 + i, 20, 75 + i, 20 + (int)(scaleFactor * measurements.get(i).floatValue()));
-	        }
-	    }  
-	    
+		@Override
+		public Dimension getPreferredSize() {
+			return new Dimension(190, 40);
+		}
+
+		public void setMeasurements(List<Float> measurements) {
+			this.measurements = measurements;
+		}
+
+		@Override
+		protected void paintComponent(Graphics g) {
+			super.paintComponent(g);
+			for (int i = 0; i < measurements.size(); i++) {
+				g.drawLine(75 + i, 20, 75 + i, 20 + (int) (scaleFactor * measurements.get(i).floatValue()));
+			}
+		}
+
 	}
 
 	private class SpeedPanel extends JPanel {
 		private static final long serialVersionUID = 1L;
 
 		private JLabel speedLeftTrackField;
-		private JLabel speedRightTrackField;		
+		private JLabel speedRightTrackField;
 
 		public SpeedPanel(WorldModel worldModel) {
 			this.setMinimumSize(new Dimension(190, 70));
@@ -250,24 +251,24 @@ public class MeasurementsPanel extends JPanel implements SampleListener {
 			speedLeftTrackField.setAlignmentX(LEFT_ALIGNMENT);
 			speedRightTrackField = new JLabel("Right: -");
 			speedRightTrackField.setAlignmentX(LEFT_ALIGNMENT);
-			this.add(speedLeftTrackField);	
-			this.add(speedRightTrackField);					
+			this.add(speedLeftTrackField);
+			this.add(speedRightTrackField);
 		}
-			
+
 		public void update(Sample sample) {
-			DecimalFormat format = new DecimalFormat("0.000");			
+			DecimalFormat format = new DecimalFormat("0.000");
 			Robot robot = worldModel.getLatestState();
 			speedLeftTrackField.setText("Left: " + format.format(robot.getSpeedLeftTrack()));
 			speedRightTrackField.setText("Right: " + format.format(robot.getSpeedRightTrack()));
 			repaint();
 		}
-		
-	}		
-	
+
+	}
+
 	private class HeadingPanel extends JPanel {
 		private static final long serialVersionUID = 1L;
 
-		private JLabel headingField;
+		private JLabel sensorField;
 
 		public HeadingPanel(WorldModel worldModel) {
 			this.setMinimumSize(new Dimension(190, 50));
@@ -276,18 +277,17 @@ public class MeasurementsPanel extends JPanel implements SampleListener {
 			TitledBorder border = new TitledBorder("Heading (degrees)");
 			setBorder(border);
 			setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
-			headingField = new JLabel("Value: -");
-			headingField.setAlignmentX(LEFT_ALIGNMENT);
-			this.add(headingField);					
+			sensorField = new JLabel("Sensor: -");
+			sensorField.setAlignmentX(LEFT_ALIGNMENT);
+			this.add(sensorField);
 		}
-			
+
 		public void update(Sample sample) {
-			DecimalFormat format = new DecimalFormat("000");			
-			Robot robot = worldModel.getLatestState();
-			headingField.setText("Value: " + format.format(Math.toDegrees(robot.getHeading())));
+			DecimalFormat format = new DecimalFormat("000");
+			sensorField.setText("Sensor: " + format.format(Math.toDegrees((sample.getCompassDirection() + 360) % 360)));
 			repaint();
 		}
-		
-	}		
-	
+
+	}
+
 }
