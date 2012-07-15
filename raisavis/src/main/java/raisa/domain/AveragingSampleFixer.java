@@ -63,6 +63,8 @@ public class AveragingSampleFixer implements SampleFixer {
 		// if sample deviates too much, use last known good direction
 		if (standardDeviation > maxDeviation) {
 			fixedSample.setCompassDirection(lastKnownDirection);
+		} else {
+			lastKnownDirection = fixedSample.getCompassDirection();
 		}
 		return fixedSample;
 	}
