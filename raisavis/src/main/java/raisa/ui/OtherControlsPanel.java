@@ -65,9 +65,9 @@ public class OtherControlsPanel extends JPanel {
 					public void run() {
 						log.info("Simulator thread starting");
 						while(true) {
-							float timestep = 0.01f;
+							float timestep = 0.05f;
 							try {
-								Thread.sleep((int) timestep * 1000);
+								Thread.sleep((int)(timestep * 1000.0));
 							} catch (InterruptedException e) {
 							}
 							robotSimulator.tick(timestep);

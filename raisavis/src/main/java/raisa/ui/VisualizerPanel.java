@@ -26,6 +26,7 @@ import raisa.domain.Robot;
 import raisa.domain.Sample;
 import raisa.domain.SampleListener;
 import raisa.domain.WorldModel;
+import raisa.simulator.RobotSimulator;
 import raisa.util.CollectionUtil;
 import raisa.util.GeometryUtil;
 import raisa.util.GraphicsUtil;
@@ -49,7 +50,8 @@ public class VisualizerPanel extends JPanel implements SampleListener {
 	private Stroke arrow;
 	private VisualizerFrame visualizerFrame;
 	private WorldModel worldModel;
-
+	private RobotSimulator robotSimulator;
+	
 	public void reset() {
 		worldModel.reset();
 		camera = new Vector2D();
@@ -61,9 +63,10 @@ public class VisualizerPanel extends JPanel implements SampleListener {
 		latestSR = new ArrayList<Sample>();
 	}
 
-	public VisualizerPanel(VisualizerFrame frame, WorldModel worldModel) {
+	public VisualizerPanel(VisualizerFrame frame, WorldModel worldModel, RobotSimulator robotSimulator) {
 		this.visualizerFrame = frame;
 		this.worldModel = worldModel;
+		this.robotSimulator = robotSimulator;
 		worldModel.addSampleListener(this);
 		setBackground(Color.gray);
 		setFocusable(true);
@@ -102,6 +105,7 @@ public class VisualizerPanel extends JPanel implements SampleListener {
 		}
 		drawRobotTrail(g2, worldModel.getStates());
 		drawOriginArrows(g2);
+		drawRobotSimulator(g2);
 		drawRobot(g2);
 		drawRobotDirectionArrow(g2);
 		drawUltrasoundResults(g);
@@ -277,6 +281,26 @@ public class VisualizerPanel extends JPanel implements SampleListener {
 		}
 	}
 
+	private void drawRobotSimulator(Graphics2D g2) {
+		float baseWidth = toScreen(20f);
+		float baseHeigth = toScreen(30f);
+		double x1 = -baseWidth * 0.5f;
+		double x2 = baseWidth * 0.5f;
+		double y1 = baseHeigth * 0.5;
+		double y2 = -baseHeigth * 0.5;
+		Path2D.Float p = new Path2D.Float();
+		p.moveTo(x1, y1);
+		p.lineTo(x2, y1);
+		p.lineTo(0, y2);
+		p.lineTo(x1, y1);
+		p.closePath();
+		Vector2D robotScreen = toScreen(robotSimulator.getPosition());
+		p.transform(AffineTransform.getRotateInstance(Math.toRadians(-robotSimulator.getHeading())));
+		p.transform(AffineTransform.getTranslateInstance(robotScreen.x, robotScreen.y));
+		g2.setColor(Color.blue);
+		g2.fill(p);
+	}
+	
 	private void drawRobot(Graphics2D g2) {
 		Robot robot = worldModel.getLatestState();	
 		

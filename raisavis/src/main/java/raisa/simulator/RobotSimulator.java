@@ -48,7 +48,6 @@ public class RobotSimulator implements RobotState, ServoScanListener, Communicat
 	
 	public RobotSimulator tick(float timestep) {
 		driveSystem.move(this, timestep);
-		//log.info("Rover: {}, ({}, {})", new Object[]{heading, position.getX(), position.getY()});
 		rotateScanners(timestep);
 		return this;
 	}
@@ -139,8 +138,8 @@ public class RobotSimulator implements RobotState, ServoScanListener, Communicat
 	}
 
 	private float convertControlSpeed(int controlSpeed) {
-		// TODO 255 is full speed, convert it to about 0.03 m/s
-		return controlSpeed/255.0f * 3f;
+		// TODO 255 is full speed, convert it to about 3/s
+		return controlSpeed/255.0f * 200f;
 	}
 	
 	@Override

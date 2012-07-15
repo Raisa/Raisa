@@ -95,7 +95,8 @@ public class VisualizerFrame extends JFrame implements VisualizerConfigListener 
 				worldModel.addState(estimatedState);
 			}
 		});	
-		visualizerPanel = new VisualizerPanel(this, worldModel);
+		robotSimulator = RobotSimulator.createRaisaInstance(new Vector2D(-50, 0), 0, worldModel);
+		visualizerPanel = new VisualizerPanel(this, worldModel, robotSimulator);
 		MeasurementsPanel measurementsPanel = new MeasurementsPanel(worldModel);
 		JMenuBar menuBar = new JMenuBar();
 		JMenu mainMenu = createMainMenu(worldModel, menuBar);
@@ -107,7 +108,6 @@ public class VisualizerFrame extends JFrame implements VisualizerConfigListener 
 		communicator = new FailoverCommunicator(new SerialCommunicator().addSensorListener(worldModel), new ConsoleCommunicator(), sessionWriter);		
 		communicator.connect();
 
-		robotSimulator = RobotSimulator.createRaisaInstance(new Vector2D(-50, 0), 0, worldModel);
 		robotSimulator.addSensorListener(sessionWriter, worldModel);
 		controller = new BasicController(communicator, sessionWriter, robotSimulator);
 
@@ -624,6 +624,7 @@ public class VisualizerFrame extends JFrame implements VisualizerConfigListener 
 		spawnSimulationThread(sampleStrings, delayed);
 	}
 
+	@Override
 	public void visualizerConfigChanged(VisualizerConfig config) {
 		if (config.isParticleFilterEnabled()) {
 			worldModel.removeSampleListener(this.noFilter);
