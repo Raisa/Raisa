@@ -115,9 +115,9 @@ public class VisualizerPanel extends JPanel implements SampleListener {
 	private void drawOrigin(Graphics2D g2) {
 		Vector2D origin = toScreen(0, 0);
 		g2.setColor(mapMarkerColor);
-		int lenght = 20;
-		g2.drawLine((int)origin.x, (int)origin.y, (int)origin.x, (int)origin.y - lenght);
-		g2.drawLine((int)origin.x, (int)origin.y, (int)origin.x + lenght, (int)origin.y);
+		int length = 20;
+		g2.drawLine((int)origin.x, (int)origin.y, (int)origin.x, (int)origin.y + length);
+		g2.drawLine((int)origin.x, (int)origin.y, (int)origin.x + length, (int)origin.y);
 	}
 
 	private void drawCoordinates(Graphics2D g2, Vector2D position) {
