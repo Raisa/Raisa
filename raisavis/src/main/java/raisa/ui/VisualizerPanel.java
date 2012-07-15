@@ -97,9 +97,9 @@ public class VisualizerPanel extends JPanel implements SampleListener {
 		drawGrid(g2);
 		drawParticles(g2);
 		drawRobotTrail(g2, worldModel.getStates());
-		drawOrigin(g2);
+		drawOriginArrows(g2);
 		drawRobot(g2);
-		drawArrow(g2);
+		drawRobotDirectionArrow(g2);
 		drawUltrasoundResults(g);
 		drawIrResults(g2);
 		Vector2D worldMouse = toWorld(mouse);
@@ -112,12 +112,17 @@ public class VisualizerPanel extends JPanel implements SampleListener {
 		drawCoordinates(g2, worldMouse);
 	}
 
-	private void drawOrigin(Graphics2D g2) {
+	private void drawOriginArrows(Graphics2D g2) {
 		Vector2D origin = toScreen(0, 0);
 		g2.setColor(mapMarkerColor);
-		int length = 20;
+		int length = 30;
 		g2.drawLine((int)origin.x, (int)origin.y, (int)origin.x, (int)origin.y + length);
+		g2.drawLine((int)origin.x-5, (int)origin.y + length - 10, (int)origin.x, (int)origin.y + length);
+		g2.drawLine((int)origin.x+5, (int)origin.y + length - 10, (int)origin.x, (int)origin.y + length);
+		
 		g2.drawLine((int)origin.x, (int)origin.y, (int)origin.x + length, (int)origin.y);
+		g2.drawLine((int)origin.x + length - 10, (int)origin.y-5, (int)origin.x + length, (int)origin.y);
+		g2.drawLine((int)origin.x + length - 10, (int)origin.y+5, (int)origin.x + length, (int)origin.y);
 	}
 
 	private void drawCoordinates(Graphics2D g2, Vector2D position) {
@@ -314,7 +319,7 @@ public class VisualizerPanel extends JPanel implements SampleListener {
 		g2.fill(wheelRight);			
 	}
 
-	private void drawArrow(Graphics2D g2) {
+	private void drawRobotDirectionArrow(Graphics2D g2) {
 		Robot robot = worldModel.getLatestState();
 		g2.setColor(Color.black);
 		Vector2D robotScreen = toScreen(robot.getPosition());
