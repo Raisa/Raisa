@@ -21,6 +21,7 @@ public class WorldModel implements Serializable, SensorListener {
 
 	private List<Sample> samples = new ArrayList<Sample>();
 	private List<Robot> states = new ArrayList<Robot>();
+	private List<SampleFixer> sampleFixers = new ArrayList<SampleFixer>();
 
 	private Grid grid = new Grid();
 	
@@ -29,6 +30,7 @@ public class WorldModel implements Serializable, SensorListener {
 	
 	public WorldModel() {
 		addState(new Robot());
+		sampleFixers.add(new AveragingSampleFixer(10, 10.0f));
 	}
 	
 	public List<Sample> getSamples() {
@@ -46,6 +48,9 @@ public class WorldModel implements Serializable, SensorListener {
 	@Override
 	public void sampleReceived(String message) {
 		Sample sample = new SampleParser().parse(message);
+		for (SampleFixer fixer : sampleFixers) {
+		 sample = fixer.fix(sample);
+		}
 		addSample(sample);
 	}
 	

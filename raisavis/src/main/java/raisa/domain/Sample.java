@@ -19,6 +19,27 @@ public class Sample {
 	private int soundIntensity;
 	private long timestampMillis;
 	
+	public Sample() {		
+	}
+	
+	public Sample(Sample copy) {
+		this.sampleString = copy.sampleString;
+		this.infrared1Angle = copy.infrared1Angle;
+		this.infrared1Distance = copy.infrared1Distance;
+		this.infrared1MeasurementValid = copy.infrared1MeasurementValid;
+		this.ultrasound1Angle = copy.ultrasound1Angle;
+		this.ultrasound1Distance = copy.ultrasound1Distance;
+		this.ultrasound1MeasurementValid = copy.ultrasound1MeasurementValid;
+		this.compassDirection = copy.compassDirection;
+		this.acceleration = new Vector3D(copy.acceleration);
+		this.gyro = new Vector3D(copy.gyro);
+		this.leftTrackTicks = copy.leftTrackTicks;
+		this.rightTrackTicks = copy.rightTrackTicks;
+		this.soundIntensity = copy.soundIntensity;
+		this.timestampMillis = copy.timestampMillis;
+	}
+	
+
 	public String getSampleString() {
 		return sampleString;
 	}

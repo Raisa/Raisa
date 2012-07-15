@@ -14,6 +14,10 @@ public class Vector3D {
 		this.z = z;
 	}
 	
+	public Vector3D(Vector3D copy) {
+		this(copy.x, copy.y, copy.z);
+	}
+
 	public float getX() {
 		return x;
 	}
