@@ -639,7 +639,7 @@ public class VisualizerFrame extends JFrame implements VisualizerConfigListener 
 	public void reset() {
 		visualizerPanel.reset();
 		robotSimulator.reset();
-		particleFilter.randomizeParticles(nparticles);
+		particleFilter.reset();
 		updateTitle();
 	}
 
@@ -670,6 +670,7 @@ public class VisualizerFrame extends JFrame implements VisualizerConfigListener 
 	}
 
 	public void spawnSimulationThread(final List<String> samples, final boolean delayed) {
+		reset();
 		if (!samples.isEmpty()) {
 			new Thread(new Runnable() {
 				private int nextSample = 0;

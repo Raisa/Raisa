@@ -10,7 +10,7 @@ public class SampleParser {
 	private static final Logger log = LoggerFactory.getLogger(SampleParser.class);
 	public String sampleString;
 	private final static float G = 9.80665f;
-
+	
 	public SampleParser() {
 	}
 	
@@ -49,7 +49,7 @@ public class SampleParser {
 					}
 				} else if (part.startsWith("SR")) {
 					float angle = (float) Math.toRadians(Integer.parseInt(value));
-					angle = angle - (float)Math.PI / 2.0f;
+					angle = angle + (float)Math.PI / 2.0f;
 					sample.setUltrasound1Angle(angle);
 					ultrasound1AngleIsValid = true;
 				} else if (part.startsWith("SD")) {

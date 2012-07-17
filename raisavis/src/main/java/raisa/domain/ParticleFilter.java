@@ -18,6 +18,11 @@ public class ParticleFilter implements SampleListener {
 		this.world = world;
 		randomizeParticles(nparticles);
 	}
+	
+	public void reset() {
+		randomizeParticles(particles.size());
+		samples = new ArrayList<Sample>();
+	}
 
 	public void randomizeParticles(int nparticles) {
 		particles = new ArrayList<Particle>();
@@ -68,28 +73,19 @@ public class ParticleFilter implements SampleListener {
 		}
 		if (totalWeights > 0.0f) {
 			// normalize weights
+			float maxWeight = 0.0f;
 			for (Particle particle : particles) {
-				weights.put(particle, weights.get(particle) / totalWeights);
+				float normalizedWeight = weights.get(particle) / totalWeights;
+				weights.put(particle, normalizedWeight);
+				if (maxWeight < normalizedWeight) {
+					maxWeight = normalizedWeight;
+				}
 			}
 			// sample new particles with replacement
 			List<Particle> newParticles = new ArrayList<Particle>();
-
-			for (int i = 0; i < particles.size(); ++i) {
-				float r = (float) Math.random();
-				float s = 0.0f;
-				Particle selectedParticle = null;
-				for (Particle particle : weights.keySet()) {
-					float weight = weights.get(particle);
-					s += weight;
-					if (r <= s) {
-						selectedParticle = particle;
-						break;
-					}
-				}
-				if (selectedParticle != null) {
-					newParticles.add(selectedParticle.copy());
-				}
-			}
+			
+			//executeMakeResampling(weights, newParticles);
+			executeThrunResampling(weights, maxWeight, newParticles);		
 
 			// add a few random particles to avoid local maxima
 			for (int i = 0; i < particles.size() / 10; ++i) {
@@ -98,6 +94,42 @@ public class ParticleFilter implements SampleListener {
 
 			this.particles = newParticles;
 			notifyParticleFilterListeners();
+		}
+	}
+
+	private void executeMakeResampling(Map<Particle, Float> weights,
+			List<Particle> newParticles) {
+		for (int i = 0; i < particles.size(); ++i) {
+			float r = (float) Math.random();
+			float s = 0.0f;
+			Particle selectedParticle = null;
+			for (Particle particle : weights.keySet()) {
+				float weight = weights.get(particle);
+				s += weight;
+				if (r <= s) {
+					selectedParticle = particle;
+					break;
+				}
+			}
+			if (selectedParticle != null) {
+				newParticles.add(selectedParticle.copy());
+			}
+		}
+	}
+
+	private void executeThrunResampling(Map<Particle, Float> weights,
+			float maxWeight, List<Particle> newParticles) {
+		int index = (int)Math.random() * particles.size();
+		float beta = 0.0f;
+		for (int i = 0; i < particles.size(); i++) {
+			beta += Math.random() * 2.0 * maxWeight;
+			float weight = weights.get(particles.get(index));
+			while (beta > weight) {
+				beta -= weight;
+				index = (index + 1) % particles.size();
+				weight = weights.get(particles.get(index));
+			}
+			newParticles.add(particles.get(index).copy());
 		}
 	}
 

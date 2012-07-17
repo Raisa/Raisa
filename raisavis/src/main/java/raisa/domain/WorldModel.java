@@ -30,7 +30,7 @@ public class WorldModel implements Serializable, SensorListener {
 	private String latestMapFilename;
 	public WorldModel() {
 		addState(new Robot());
-		sampleFixers.add(new AveragingSampleFixer(10, 10.0f));
+		sampleFixers.add(new AveragingSampleFixer(5, 10.0f));
 	}
 	
 	public List<Sample> getSamples() {
@@ -105,6 +105,9 @@ public class WorldModel implements Serializable, SensorListener {
 	public void reset() {
 		samples = new ArrayList<Sample>();
 		states = new ArrayList<Robot>();
+		for (SampleFixer fixer : sampleFixers) {
+			fixer.reset();
+		}
 		if(latestMapFilename != null) {
 			loadMap(latestMapFilename);
 		} else {

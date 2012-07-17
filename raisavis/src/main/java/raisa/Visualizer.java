@@ -54,7 +54,7 @@ public class Visualizer {
 			} else if ("test".equals(inputMode)) {
 				frame.loadMap("data/sightseeing2.png");
 				frame.getParticleFilter().randomizeParticles(frame.getParticleFilter().getParticles().size());
-				frame.loadData("data/eteinen-tyohuone-makkari.data");
+				frame.loadData("data/eteinen-tyohuone-makkari2.data");
 				config.setParticleFilterEnabled(true);
 			} else if ("file".equals(inputMode)) {
 				if (args.length != 2) {

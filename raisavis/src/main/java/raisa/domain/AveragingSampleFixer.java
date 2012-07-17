@@ -17,6 +17,11 @@ public class AveragingSampleFixer implements SampleFixer {
 	}
 	
 	@Override
+	public void reset() {
+		lastSamples = new ArrayList<Sample>();
+	}
+	
+	@Override
 	public Sample fix(Sample sample) {
 		Sample fixedSample = new Sample(sample);
 
