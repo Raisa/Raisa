@@ -18,6 +18,7 @@ public class SonarDistanceScanner extends IRDistanceScanner {
 	public float scanDistance(WorldModel worldModel, RobotState roverState, float heading) {
 		float min = -1;
 		for(float beamHeading: beamHeadings) {
+			// TODO this points to wrong direction
 			float distance = super.scanDistance(worldModel, roverState, heading + beamHeading);
 			if(min < 0 || (distance > 0 && distance < min)) {
 				min = distance;

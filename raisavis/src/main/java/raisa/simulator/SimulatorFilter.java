@@ -6,7 +6,6 @@ import org.slf4j.LoggerFactory;
 import raisa.config.VisualizerConfig;
 import raisa.config.VisualizerConfigItemEnum;
 import raisa.config.VisualizerConfigListener;
-import raisa.domain.Robot;
 import raisa.domain.Sample;
 import raisa.domain.SampleListener;
 import raisa.domain.WorldModel;
@@ -24,13 +23,10 @@ public class SimulatorFilter implements SampleListener, VisualizerConfigListener
 		this.world = world;
 		VisualizerConfig.getInstance().addVisualizerConfigListener(this);
 	}
-	
 	@Override
 	public void sampleAdded(Sample sample) {
-		Robot estimatedState = new Robot(robotSimulator.getPosition(), robotSimulator.getHeading());
-		world.addState(estimatedState);
+
 	}	
-	
 	@Override
 	public void visualizerConfigChanged(VisualizerConfig config) {
 		if (config.isChanged(VisualizerConfigItemEnum.LOCALIZATION_MODE, VisualizerConfigItemEnum.INPUT_OUTPUT_TARGET)) {

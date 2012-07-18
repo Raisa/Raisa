@@ -83,9 +83,9 @@ public class RobotSimulator implements RobotState, ServoScanListener, Communicat
 	public void setHeading(float heading) {
 		this.heading = heading;
 		while(this.heading < 0) {
-			this.heading += 2 * Math.PI;
+			this.heading += 360.0f;
 		}
-		this.heading = this.heading % (2 * (float)Math.PI);
+		this.heading = this.heading % 360.0f;
 	}
 
 	@Override
@@ -202,7 +202,7 @@ public class RobotSimulator implements RobotState, ServoScanListener, Communicat
 			if (simulatorActive) {
 				simulatorActive = false;
 				try {
-					Thread.sleep(getTimeStepLength());
+					Thread.sleep((int)(getTimeStepLengthInSeconds()*1000));
 				} catch (InterruptedException e) {
 				}
 			}
@@ -213,9 +213,9 @@ public class RobotSimulator implements RobotState, ServoScanListener, Communicat
 	public void run() {
 		log.info("Simulator thread starting");
 		while(this.simulatorActive) {
-			int timeStepLength = getTimeStepLength();
+			float timeStepLength = getTimeStepLengthInSeconds();
 			try {
-				Thread.sleep(timeStepLength);
+				Thread.sleep((int)(timeStepLength * 1000));
 			} catch (InterruptedException e) {
 			}
 			tick(timeStepLength);
@@ -223,8 +223,8 @@ public class RobotSimulator implements RobotState, ServoScanListener, Communicat
 		log.info("Simulator thread stopping");
 	}
 
-	private int getTimeStepLength() {
-		return (int)(0.05f * 1000.0);
+	private float getTimeStepLengthInSeconds() {
+		return 0.05f;
 	}
 	
 }

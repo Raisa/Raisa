@@ -5,5 +5,5 @@ public interface DriveSystem {
 
 	DriveSystem setRightWheelSpeed(float speed);
 
-	void move(RobotState roverState, float timestamp);
+	void move(RobotState roverState, float timestep);
 }
