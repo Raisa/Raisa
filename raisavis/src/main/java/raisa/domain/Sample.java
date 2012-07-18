@@ -18,6 +18,7 @@ public class Sample {
 	private int rightTrackTicks;
 	private int soundIntensity;
 	private long timestampMillis;
+	private int messageNumber;
 	
 	public Sample() {		
 	}
@@ -37,6 +38,7 @@ public class Sample {
 		this.rightTrackTicks = copy.rightTrackTicks;
 		this.soundIntensity = copy.soundIntensity;
 		this.timestampMillis = copy.timestampMillis;
+		this.messageNumber = copy.messageNumber;
 	}
 	
 
@@ -166,6 +168,14 @@ public class Sample {
 
 	public long getTimestampMillis() {
 		return timestampMillis;
+	}
+
+	public int getMessageNumber() {
+		return messageNumber;
+	}
+
+	public void setMessageNumber(int messageNumber) {
+		this.messageNumber = messageNumber;
 	}
 	
 }

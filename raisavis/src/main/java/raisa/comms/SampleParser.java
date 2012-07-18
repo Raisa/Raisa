@@ -27,8 +27,12 @@ public class SampleParser {
 			String[] sampleParts = sampleString.split("[;]");
 			for (String part : sampleParts) {
 				String value = StringUtils.substring(part, 2);
+
 				if ("STA".equals(part)) {
 				} else if ("END".equals(part)) {
+				} else if (part.startsWith("NO")) {
+					int messageNumber = Integer.valueOf(value);
+					sample.setMessageNumber(messageNumber);
 				} else if (part.startsWith("IR")) {
 					float angle = (float) Math.toRadians(Integer.parseInt(value));
 					angle = angle - (float)Math.PI / 2.0f;

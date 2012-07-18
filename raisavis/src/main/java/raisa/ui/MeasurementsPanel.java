@@ -26,6 +26,7 @@ public class MeasurementsPanel extends JPanel implements SampleListener {
 	private AccelerationPanel accelerationPanel;
 	private GyroscopePanel gyroscopePanel;
 	private SoundPanel soundPanel;
+	private SampleCounterPanel sampleCounterPanel;
 	private WorldModel worldModel;
 
 	public MeasurementsPanel(WorldModel worldModel) {
@@ -47,6 +48,7 @@ public class MeasurementsPanel extends JPanel implements SampleListener {
 		this.add(gyroscopePanel);
 		soundPanel = new SoundPanel(worldModel);
 		this.add(soundPanel);
+		this.add(sampleCounterPanel = new SampleCounterPanel() );
 	}
 
 	@Override
@@ -56,6 +58,7 @@ public class MeasurementsPanel extends JPanel implements SampleListener {
 		accelerationPanel.update(sample);
 		gyroscopePanel.update(sample);
 		soundPanel.update(sample);
+		sampleCounterPanel.update(sample);
 	}
 
 	private class AccelerationPanel extends JPanel {
@@ -290,4 +293,33 @@ public class MeasurementsPanel extends JPanel implements SampleListener {
 
 	}
 
+	private class SampleCounterPanel extends JPanel {
+		private JLabel sentField;
+		private JLabel receivedField;
+		private int counter = 0;
+		public SampleCounterPanel() {
+			this.setMinimumSize(new Dimension(190, 50));
+			this.setPreferredSize(getMinimumSize());
+			this.setMaximumSize(getMinimumSize());
+			TitledBorder border = new TitledBorder("Sample counters");
+			setBorder(border);
+			setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
+			sentField = new JLabel("Sent: -");
+			sentField.setAlignmentX(LEFT_ALIGNMENT);
+			sentField.setToolTipText("Message number from the latest sample. Set by the sender.");
+			this.add(sentField);
+			receivedField = new JLabel("Recv: 0");
+			receivedField.setAlignmentX(LEFT_ALIGNMENT);
+			receivedField.setToolTipText("Number of received samples");
+			this.add(receivedField);
+		}
+		
+		public void update(Sample sample) {
+			counter ++;
+			String sent = sample.getMessageNumber() > 0 ? "" + sample.getMessageNumber() : "-"; 
+			sentField.setText("Sent: " + sent);
+			receivedField.setText("Recv: " + counter);
+			repaint();
+		}
+	}
 }
