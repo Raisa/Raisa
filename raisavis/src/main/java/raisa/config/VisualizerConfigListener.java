@@ -1,4 +1,4 @@
-package raisa;
+package raisa.config;
 
 public interface VisualizerConfigListener {
 

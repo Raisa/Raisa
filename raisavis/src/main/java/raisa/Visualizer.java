@@ -4,6 +4,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 import raisa.comms.SampleParser;
+import raisa.config.VisualizerConfig;
+import raisa.config.LocalizationModeEnum;
+import raisa.config.InputOutputTargetEnum;
+import raisa.config.VisualizerConfigItemEnum;
 import raisa.domain.Sample;
 import raisa.domain.WorldModel;
 import raisa.test.ExampleWorld1;
@@ -41,31 +45,37 @@ public class Visualizer {
 	}
 
 	public static void main(String[] args) throws Exception {
+		
+		// initialize configuration based on command line arguments
 		final WorldModel worldModel = new WorldModel();
 		final VisualizerFrame frame = new VisualizerFrame(worldModel);
+		String inputMode = null;
 		VisualizerConfig config = VisualizerConfig.getInstance();
-		config.addVisualizerConfigListener(frame);
-
-		if (args.length == 0) {
-		} else {
-			String inputMode = args[0];
-			if ("example".equals(inputMode)) {
-				frame.spawnSampleSimulationThread(getExampleSamples(), true);
-			} else if ("test".equals(inputMode)) {
-				frame.loadMap("data/sightseeing2.png");
-				frame.getParticleFilter().randomizeParticles(frame.getParticleFilter().getParticles().size());
-				frame.loadData("data/eteinen-tyohuone-makkari2.data");
-				config.setParticleFilterEnabled(true);
-			} else if ("file".equals(inputMode)) {
-				if (args.length != 2) {
-					System.out.println("Missing filename");
-				}
-				String filename = args[1];
-				frame.loadSimulation(filename);
-			}
+		config.setLocalizationMode(LocalizationModeEnum.NONE);
+		config.setInputOutputTarget(InputOutputTargetEnum.FILE_SIMULATION);
+		if (args.length != 0) {
+			inputMode = args[0];
+			if ("test".equals(inputMode)) {
+				config.setLocalizationMode(LocalizationModeEnum.PARTICLE_FILTER);
+			} 
 		}
-
-		config.notifyVisualizerConfigListeners();
+		config.setChanged(VisualizerConfigItemEnum.ALL_CONFIG_ITEMS);
+		config.notifyVisualizerConfigListeners();			
+		
+		// load visualizer data based on commmand line arguments
+		if ("example".equals(inputMode)) {
+			frame.spawnSampleSimulationThread(getExampleSamples(), true);
+		} else if ("test".equals(inputMode)) {
+			frame.loadMap("data/sightseeing2.png");
+			frame.getParticleFilter().randomizeParticles(frame.getParticleFilter().getParticles().size());
+			frame.loadData("data/eteinen-tyohuone-makkari2.data");
+		} else if ("file".equals(inputMode)) {
+			if (args.length != 2) {
+				System.out.println("Missing filename");
+			}
+			String filename = args[1];
+			frame.loadSimulation(filename);
+		} 
 		frame.open();
 	}
 }

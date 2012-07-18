@@ -33,6 +33,7 @@ public class SerialCommunicator implements SerialPortEventListener, Communicator
 	private static final int DATA_RATE = 111111;
 	private List<SensorListener> sensorListeners = new ArrayList<SensorListener>();
 	private CommPortIdentifier portId = null;
+	private boolean active = false;
 
 	@Override
 	public boolean connect() {
@@ -73,7 +74,7 @@ public class SerialCommunicator implements SerialPortEventListener, Communicator
 
 		return true;
 	}
-
+	
 	/**
 	 * This should be called when you stop using the port. This will prevent
 	 * port locking on platforms like Linux.
@@ -91,21 +92,24 @@ public class SerialCommunicator implements SerialPortEventListener, Communicator
 	@Override
 	public synchronized void serialEvent(SerialPortEvent oEvent) {
 		log.debug("Serial event: {}", oEvent.getEventType());
+		if (!active) {
+			return;
+		}
 		if (oEvent.getEventType() == SerialPortEvent.DATA_AVAILABLE) {
 			try {
 				Scanner scanner = new Scanner(input).useDelimiter("\n");
-				String line = scanner.next();
 				SampleParser parser = new SampleParser();
-				while (line != null) {
+				String line;
+				while (scanner.hasNext() && active) {
+					line = scanner.next();
 					if (!parser.isValid(line)) {
 						log.warn("Invalid sample! {}", line);
 					} else {
-						log.info("Sample {}", line);
+						log.debug("Sample {}", line);
 						for (SensorListener sensorListener : sensorListeners) {
 							sensorListener.sampleReceived(line);
 						}
 					}
-					line = scanner.next();
 				}
 			} catch (Exception e) {
 				log.error("Error in processing serial event", e);
@@ -117,6 +121,9 @@ public class SerialCommunicator implements SerialPortEventListener, Communicator
 
 	@Override
 	public void sendPackage(ControlMessage controlMessage) {
+		if (!active) {
+			return;
+		}
 		try {
 			serialPort.getOutputStream().write(controlMessage.toSerialMessage());
 			serialPort.getOutputStream().flush();
@@ -150,4 +157,13 @@ public class SerialCommunicator implements SerialPortEventListener, Communicator
 		}
 		return builder.toString();
 	}
+
+	@Override
+	public void setActive(boolean active) {
+		if (this.active != active) {
+			this.active = active;
+			log.info((active ? "Activating" : "Passivating") + " SerialCommunicator");
+		}
+	}
+
 }

@@ -28,8 +28,6 @@ import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import raisa.VisualizerConfig;
-import raisa.VisualizerConfigListener;
 import raisa.comms.BasicController;
 import raisa.comms.Communicator;
 import raisa.comms.ConsoleCommunicator;
@@ -49,12 +47,13 @@ import raisa.domain.Sample;
 import raisa.domain.WorldModel;
 import raisa.session.SessionWriter;
 import raisa.simulator.RobotSimulator;
+import raisa.simulator.SimulatorFilter;
 import raisa.ui.tool.DrawTool;
 import raisa.ui.tool.MeasureTool;
 import raisa.ui.tool.Tool;
 import raisa.util.Vector2D;
 
-public class VisualizerFrame extends JFrame implements VisualizerConfigListener {
+public class VisualizerFrame extends JFrame {
 	private static final Logger log = LoggerFactory.getLogger(VisualizerFrame.class);
 	private static final long serialVersionUID = 1L;
 	private int nparticles = 1000;
@@ -73,8 +72,9 @@ public class VisualizerFrame extends JFrame implements VisualizerConfigListener 
 	private ParticleFilter particleFilter;
 	private RobotStateEstimator robotStateEstimator;
 	private SessionWriter sessionWriter;
-	private boolean stepSimulation = true;
 	private RobotSimulator robotSimulator;
+	private SimulatorFilter robotSimulatorFilter;
+	private FileBasedSimulation fileBasedSimulation;
 	
 	public VisualizerFrame(final WorldModel worldModel) {
 		addIcon();
@@ -95,7 +95,10 @@ public class VisualizerFrame extends JFrame implements VisualizerConfigListener 
 				worldModel.addState(estimatedState);
 			}
 		});	
+		
 		robotSimulator = RobotSimulator.createRaisaInstance(new Vector2D(-50, 0), 0, worldModel);
+		robotSimulatorFilter = new SimulatorFilter(robotSimulator, worldModel);
+		
 		visualizerPanel = new VisualizerPanel(this, worldModel, robotSimulator);
 		MeasurementsPanel measurementsPanel = new MeasurementsPanel(worldModel);
 		JMenuBar menuBar = new JMenuBar();
@@ -107,7 +110,9 @@ public class VisualizerFrame extends JFrame implements VisualizerConfigListener 
 
 		communicator = new FailoverCommunicator(new SerialCommunicator().addSensorListener(worldModel), new ConsoleCommunicator(), sessionWriter);		
 		communicator.connect();
-
+		
+		fileBasedSimulation = new FileBasedSimulation(worldModel);
+		
 		robotSimulator.addSensorListener(sessionWriter, worldModel);
 		controller = new BasicController(communicator, sessionWriter, robotSimulator);
 
@@ -120,8 +125,7 @@ public class VisualizerFrame extends JFrame implements VisualizerConfigListener 
 				IOUtils.closeQuietly(sessionWriter);
 			}
 		});
-		
-		
+				
 		createKeyboardShortCuts();
 
 		getContentPane().add(visualizerPanel, BorderLayout.CENTER);
@@ -284,7 +288,7 @@ public class VisualizerFrame extends JFrame implements VisualizerConfigListener 
 
 			@Override
 			public void actionPerformed(ActionEvent event) {
-				stepSimulation = false;
+				fileBasedSimulation.setStepSimulation(false);
 			}
 		});
 
@@ -625,16 +629,6 @@ public class VisualizerFrame extends JFrame implements VisualizerConfigListener 
 		spawnSimulationThread(sampleStrings, delayed);
 	}
 
-	@Override
-	public void visualizerConfigChanged(VisualizerConfig config) {
-		if (config.isParticleFilterEnabled()) {
-			worldModel.removeSampleListener(this.noFilter);
-			worldModel.addSampleListener(this.particleFilter);
-		} else {
-			worldModel.removeSampleListener(this.particleFilter);	
-			worldModel.addSampleListener(this.noFilter);			
-		}
-	}
 	
 	public void reset() {
 		visualizerPanel.reset();
@@ -670,34 +664,8 @@ public class VisualizerFrame extends JFrame implements VisualizerConfigListener 
 	}
 
 	public void spawnSimulationThread(final List<String> samples, final boolean delayed) {
-		reset();
-		if (!samples.isEmpty()) {
-			new Thread(new Runnable() {
-				private int nextSample = 0;
-
-				@Override
-				public void run() {
-					while (nextSample < samples.size()) {
-						if (delayed) {
-							while (stepSimulation) {
-								try {
-									Thread.sleep(100);
-								} catch (InterruptedException e) {
-									e.printStackTrace();
-								}
-							}
-							stepSimulation = true;
-						}
-						worldModel.sampleReceived(samples.get(nextSample));
-						++nextSample;
-						/*
-						 * if (delayed) { try { Thread.sleep(100); } catch
-						 * (InterruptedException e) { } }
-						 */
-					}
-				}
-			}).start();
-		}
+		fileBasedSimulation.setSamples(samples, delayed);
+		fileBasedSimulation.start();
 	}
 
 	public VisualizerPanel getVisualizer() {
@@ -796,4 +764,5 @@ public class VisualizerFrame extends JFrame implements VisualizerConfigListener 
 	private void addIcon() {
 		setIconImage(Toolkit.getDefaultToolkit().getImage(this.getClass().getResource("/raisa-icon.png")));
 	}
+
 }

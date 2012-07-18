@@ -12,6 +12,8 @@ import org.slf4j.LoggerFactory;
 import raisa.comms.Communicator;
 import raisa.comms.ControlMessage;
 import raisa.comms.SensorListener;
+import raisa.config.VisualizerConfig;
+import raisa.config.VisualizerConfigListener;
 import raisa.domain.Robot;
 import raisa.domain.WorldModel;
 import raisa.util.Vector2D;
@@ -21,8 +23,11 @@ import raisa.util.Vector3D;
  * Simulated Rover.
  * 
  */
-public class RobotSimulator implements RobotState, ServoScanListener, Communicator {
+public class RobotSimulator implements RobotState, ServoScanListener, Communicator, VisualizerConfigListener, Runnable {
+	
 	private static final Logger log = LoggerFactory.getLogger(RobotSimulator.class);
+	private static final float SPEED_PER_GEAR = 2.0f;
+
 	/** degrees */
 	private float heading;
 	private Vector2D position;
@@ -34,11 +39,16 @@ public class RobotSimulator implements RobotState, ServoScanListener, Communicat
 	private List<SensorListener> sensorListeners = new ArrayList<SensorListener>();
 	private final long startTime = System.currentTimeMillis();
 	private int messageNumber = 1;
+	
+	private Thread simulatorThread;
+	private boolean simulatorActive = false;
+	
 	public RobotSimulator(Vector2D position, float heading, DriveSystem driveSystem, WorldModel worldModel) {
 		this.position = position;
 		this.heading = heading;
 		this.driveSystem = driveSystem;
 		this.worldModel = worldModel;
+		VisualizerConfig.getInstance().addVisualizerConfigListener(this);
 	}
 
 	public static RobotSimulator createRaisaInstance(Vector2D position, float heading, WorldModel worldModel) {
@@ -71,11 +81,11 @@ public class RobotSimulator implements RobotState, ServoScanListener, Communicat
 
 	@Override
 	public void setHeading(float heading) {
-		this.heading = heading % 360.0f;
+		this.heading = heading;
 		while(this.heading < 0) {
-			this.heading += 360f;
+			this.heading += 2 * Math.PI;
 		}
-		this.heading = this.heading % 360.0f;
+		this.heading = this.heading % (2 * (float)Math.PI);
 	}
 
 	@Override
@@ -133,13 +143,14 @@ public class RobotSimulator implements RobotState, ServoScanListener, Communicat
 	 */
 	@Override
 	public void sendPackage(ControlMessage message) {
-		driveSystem.setLeftWheelSpeed(convertControlSpeed(message.getLeftSpeed()));
-		driveSystem.setRightWheelSpeed(convertControlSpeed(message.getRightSpeed()));
+		if (simulatorActive) {
+			driveSystem.setLeftWheelSpeed(convertControlSpeed(message.getLeftSpeed()));
+			driveSystem.setRightWheelSpeed(convertControlSpeed(message.getRightSpeed()));
+		}
 	}
 
 	private float convertControlSpeed(int controlSpeed) {
-		// TODO 255 is full speed, convert it to about 3/s
-		return controlSpeed/255.0f * 200f;
+		return SPEED_PER_GEAR * controlSpeed;
 	}
 	
 	
@@ -153,6 +164,11 @@ public class RobotSimulator implements RobotState, ServoScanListener, Communicat
 	@Override
 	public boolean connect() {
 		return true;
+	}
+	
+	@Override
+	public void setActive(boolean active) {
+		;
 	}
 
 	@Override
@@ -170,4 +186,45 @@ public class RobotSimulator implements RobotState, ServoScanListener, Communicat
 		}
 		return this;
 	}
+	
+	@Override
+	public void visualizerConfigChanged(VisualizerConfig config) {
+		
+		switch(config.getInputOutputTarget()) {
+		case REALTIME_SIMULATOR:
+			if (!simulatorActive) {
+				simulatorActive = true;
+				simulatorThread = new Thread(this);				
+				simulatorThread.start();
+			}
+			break;
+		default:
+			if (simulatorActive) {
+				simulatorActive = false;
+				try {
+					Thread.sleep(getTimeStepLength());
+				} catch (InterruptedException e) {
+				}
+			}
+		}
+	}
+	
+	@Override	
+	public void run() {
+		log.info("Simulator thread starting");
+		while(this.simulatorActive) {
+			int timeStepLength = getTimeStepLength();
+			try {
+				Thread.sleep(timeStepLength);
+			} catch (InterruptedException e) {
+			}
+			tick(timeStepLength);
+		}
+		log.info("Simulator thread stopping");
+	}
+
+	private int getTimeStepLength() {
+		return (int)(0.05f * 1000.0);
+	}
+	
 }

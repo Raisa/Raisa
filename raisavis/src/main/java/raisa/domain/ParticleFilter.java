@@ -5,18 +5,29 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import raisa.config.VisualizerConfig;
+import raisa.config.VisualizerConfigItemEnum;
+import raisa.config.VisualizerConfigListener;
 import raisa.util.CollectionUtil;
 import raisa.util.Vector2D;
 
-public class ParticleFilter implements SampleListener {
+public class ParticleFilter implements SampleListener, VisualizerConfigListener {
+
+	private static final Logger log = LoggerFactory.getLogger(ParticleFilter.class);
+			
 	private WorldModel world;
 	private List<Particle> particles;
 	private List<Sample> samples = new ArrayList<Sample>();
 	private List<ParticleFilterListener> particleFilterListeners = new ArrayList<ParticleFilterListener>();
+	private boolean active = false;
 
 	public ParticleFilter(WorldModel world, int nparticles) {
 		this.world = world;
 		randomizeParticles(nparticles);
+		VisualizerConfig.getInstance().addVisualizerConfigListener(this);
 	}
 	
 	public void reset() {
@@ -51,7 +62,7 @@ public class ParticleFilter implements SampleListener {
 		return particle;
 	}
 
-	private void updateParticles(List<Sample> samples) {
+	private synchronized void updateParticles(List<Sample> samples) {
 		if (samples.isEmpty())
 			return;
 
@@ -152,5 +163,27 @@ public class ParticleFilter implements SampleListener {
 
 	public void addParticleFilterListener(ParticleFilterListener listener) {
 		particleFilterListeners.add(listener);
+	}
+
+	@Override
+	public void visualizerConfigChanged(VisualizerConfig config) {
+		if (config.isChanged(VisualizerConfigItemEnum.LOCALIZATION_MODE)) {
+			switch (config.getLocalizationMode()) {
+			case PARTICLE_FILTER:
+				if (!active) {
+					log.info("Activating particle filter");
+					world.addSampleListener(this);
+					active = true;
+				}
+				break;
+			default:
+				if (active) {
+					log.info("Deactivating particle filter");				
+					world.removeSampleListener(this);
+					active = false;
+				}
+				break;
+			}
+		}
 	}
 }

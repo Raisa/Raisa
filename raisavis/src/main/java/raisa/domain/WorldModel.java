@@ -28,6 +28,7 @@ public class WorldModel implements Serializable, SensorListener {
 	private List<SampleListener> sampleListeners = new ArrayList<SampleListener>();
 	private List<RobotListener> robotListeners = new ArrayList<RobotListener>();
 	private String latestMapFilename;
+	
 	public WorldModel() {
 		addState(new Robot());
 		sampleFixers.add(new AveragingSampleFixer(5, 10.0f));
@@ -99,6 +100,9 @@ public class WorldModel implements Serializable, SensorListener {
 	}
 
 	public Robot getLatestState() {
+		if (states.size() == 0) {
+			return null;
+		}
 		return states.get(states.size() - 1);
 	}
 
@@ -208,6 +212,9 @@ public class WorldModel implements Serializable, SensorListener {
 	}
 
 	public void addSampleListener(SampleListener listener) {
+		if (this.sampleListeners.contains(listener)) {
+			return;
+		}
 		this.sampleListeners.add(listener);
 	}
 	

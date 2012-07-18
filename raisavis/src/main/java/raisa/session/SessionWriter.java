@@ -91,8 +91,7 @@ public class SessionWriter implements Communicator, SensorListener, Closeable, F
 		return System.currentTimeMillis() - start;
 	}
 
-	@Override
-	synchronized public void close() throws IOException {
+	synchronized public void close() {
 		IOUtils.closeQuietly(controlDataOutput);
 		IOUtils.closeQuietly(sensorDataOutput);
 		controlDataOutput = null;
@@ -130,6 +129,11 @@ public class SessionWriter implements Communicator, SensorListener, Closeable, F
 
 	private File getSubDirectory(File mainDirectory) {
 		return new File(mainDirectory, new SimpleDateFormat("yyyy-MM-dd_HHmm").format(new Date()));
+	}
+
+	@Override
+	public void setActive(boolean active) {
+		;		
 	}
 
 }
