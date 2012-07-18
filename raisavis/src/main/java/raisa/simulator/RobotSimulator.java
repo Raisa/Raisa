@@ -74,6 +74,9 @@ public class RobotSimulator implements RobotState, ServoScanListener, Communicat
 		return sonarScanner.scanDistance(worldModel, this, rotatingServo.getHeading());
 	}
 
+	/**
+	 * Like compass direction but counter clockwise.
+	 */
 	@Override
 	public float getHeading() {
 		return heading;

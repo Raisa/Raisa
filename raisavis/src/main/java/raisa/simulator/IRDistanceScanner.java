@@ -6,8 +6,9 @@ public class IRDistanceScanner implements DistanceScanner {
 
 	@Override
 	public float scanDistance(WorldModel worldModel, RobotState roverState, float heading) {
-		// TODO this points to wrong direction
-		return worldModel.traceRay(roverState.getPosition(), (float)Math.toRadians(roverState.getHeading() + heading));
+		float angle = 360 - roverState.getHeading() + heading;
+		float rad = (float)Math.toRadians(angle);
+		return worldModel.traceRay(roverState.getPosition(), rad);
 	}
 
 }
