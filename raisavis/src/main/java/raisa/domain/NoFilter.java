@@ -29,19 +29,15 @@ public class NoFilter implements SampleListener, VisualizerConfigListener {
 	
 	@Override
 	public void visualizerConfigChanged(VisualizerConfig config) {
-		if (config.isChanged(VisualizerConfigItemEnum.LOCALIZATION_MODE, VisualizerConfigItemEnum.INPUT_OUTPUT_TARGET)) {
-			switch (config.getInputOutputTarget()) {
-			case FILE_SIMULATION:
-			case RAISA_ACTUAL:
-				switch (config.getLocalizationMode()) {
-				case NONE:
-					if (!active) {
-						log.info("Activating unfiltered world state updates");
-						world.addSampleListener(this);
-						active = true;
-					}
-					return;
+		if (config.isChanged(VisualizerConfigItemEnum.LOCALIZATION_MODE)) {
+			switch (config.getLocalizationMode()) {
+			case NONE:
+				if (!active) {
+					log.info("Activating unfiltered world state updates");
+					world.addSampleListener(this);
+					active = true;
 				}
+				return;
 			}
 			if (active) {
 				log.info("Deactivating unfiltered world state updates");

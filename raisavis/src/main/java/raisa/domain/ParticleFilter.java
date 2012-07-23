@@ -30,7 +30,7 @@ public class ParticleFilter implements SampleListener, VisualizerConfigListener 
 		VisualizerConfig.getInstance().addVisualizerConfigListener(this);
 	}
 	
-	public void reset() {
+	public synchronized void reset() {
 		randomizeParticles(particles.size());
 		samples = new ArrayList<Sample>();
 	}

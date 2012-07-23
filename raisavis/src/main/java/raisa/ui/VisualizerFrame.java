@@ -47,7 +47,6 @@ import raisa.domain.Sample;
 import raisa.domain.WorldModel;
 import raisa.session.SessionWriter;
 import raisa.simulator.RobotSimulator;
-import raisa.simulator.SimulatorFilter;
 import raisa.ui.tool.DrawTool;
 import raisa.ui.tool.MeasureTool;
 import raisa.ui.tool.Tool;
@@ -73,7 +72,6 @@ public class VisualizerFrame extends JFrame {
 	private RobotStateEstimator robotStateEstimator;
 	private SessionWriter sessionWriter;
 	private RobotSimulator robotSimulator;
-	private SimulatorFilter robotSimulatorFilter;
 	private FileBasedSimulation fileBasedSimulation;
 	
 	public VisualizerFrame(final WorldModel worldModel) {
@@ -97,7 +95,6 @@ public class VisualizerFrame extends JFrame {
 		});	
 		
 		robotSimulator = RobotSimulator.createRaisaInstance(new Vector2D(-50, 0), 0, worldModel);
-		robotSimulatorFilter = new SimulatorFilter(robotSimulator, worldModel);
 		
 		visualizerPanel = new VisualizerPanel(this, worldModel, robotSimulator);
 		MeasurementsPanel measurementsPanel = new MeasurementsPanel(worldModel);

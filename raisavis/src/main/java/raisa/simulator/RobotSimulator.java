@@ -26,7 +26,7 @@ import raisa.util.Vector3D;
 public class RobotSimulator implements RobotState, ServoScanListener, Communicator, VisualizerConfigListener, Runnable {
 	
 	private static final Logger log = LoggerFactory.getLogger(RobotSimulator.class);
-	private static final float SPEED_PER_GEAR = 2.0f;
+	private static final float SPEED_PER_GEAR = 0.02f;
 
 	/** degrees */
 	private float heading;
@@ -129,6 +129,9 @@ public class RobotSimulator implements RobotState, ServoScanListener, Communicat
 		acceleration.setX((float) random.nextGaussian());
 		acceleration.setY((float)(-9.81 + random.nextGaussian()));
 		acceleration.setZ((float) random.nextGaussian());
+		
+		reading.setRightEncoder(driveSystem.readRightWheelEncoderTicks());
+		reading.setLeftEncoder(driveSystem.readLeftWheelEncoderTicks());
 
 		sendSendorReading(reading);
 	}
@@ -218,7 +221,7 @@ public class RobotSimulator implements RobotState, ServoScanListener, Communicat
 		while(this.simulatorActive) {
 			float timeStepLength = getTimeStepLengthInSeconds();
 			try {
-				Thread.sleep((int)(timeStepLength * 1000));
+				Thread.sleep((int)(timeStepLength * 1000 / 4));
 			} catch (InterruptedException e) {
 			}
 			tick(timeStepLength);
@@ -227,7 +230,7 @@ public class RobotSimulator implements RobotState, ServoScanListener, Communicat
 	}
 
 	private float getTimeStepLengthInSeconds() {
-		return 0.05f;
+		return 0.120f;
 	}
 	
 }

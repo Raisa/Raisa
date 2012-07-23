@@ -3,6 +3,8 @@ package raisa.simulator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import raisa.domain.Robot;
+
 
 /**
  * 
@@ -17,6 +19,8 @@ public class DifferentialDrive implements DriveSystem {
 	private float rightSpeed;
 	private final float axisWidth;
 	private final float wheelDiameter;
+	private float leftWheelDistanceSinceLastRead = 0.0f;
+	private float rightWheelDistanceSinceLastRead = 0.0f;	
 	
 	public DifferentialDrive(float axisWidth, float wheelDiameter) {
 		this.axisWidth = axisWidth;
@@ -30,9 +34,11 @@ public class DifferentialDrive implements DriveSystem {
 		double wheelDistance = Math.PI * wheelDiameter; 
 		double rightTravelDistance = rightSpeed * wheelDistance * timestep;
 		double leftTravelDistance = leftSpeed * wheelDistance * timestep;
+		this.rightWheelDistanceSinceLastRead += rightTravelDistance;
+		this.leftWheelDistanceSinceLastRead += leftTravelDistance;
 
 		double avgTravelDistance = (rightTravelDistance + leftTravelDistance) / 2f;
-		double theta = (rightTravelDistance - leftTravelDistance) * timestep / axisWidth + theta0;
+		double theta = (rightTravelDistance - leftTravelDistance) / axisWidth + theta0;
 		double newY = -avgTravelDistance * Math.cos(theta) + roverState.getPosition().y;
 		double newX = -avgTravelDistance * Math.sin(theta) + roverState.getPosition().x;
 
@@ -57,6 +63,26 @@ public class DifferentialDrive implements DriveSystem {
 	public DriveSystem setRightWheelSpeed(float speed) {
 		this.rightSpeed = speed;
 		return this;
+	}
+
+	@Override
+	public int readLeftWheelEncoderTicks() {
+		float distancePerTick = (wheelDiameter * Robot.TICK_RADIANS / 2.0f);
+		int leftWheelTicks = (int)(leftWheelDistanceSinceLastRead / distancePerTick);
+		if (leftWheelTicks != 0) {
+			leftWheelDistanceSinceLastRead -= leftWheelTicks * distancePerTick;
+		}
+		return leftWheelTicks;
+	}
+
+	@Override
+	public int readRightWheelEncoderTicks() {
+		float distancePerTick = (wheelDiameter * Robot.TICK_RADIANS / 2.0f);
+		int rightWheelTicks = (int)(rightWheelDistanceSinceLastRead / distancePerTick);
+		if (rightWheelTicks != 0) {
+			rightWheelDistanceSinceLastRead -= rightWheelTicks * distancePerTick;
+		}
+		return rightWheelTicks;
 	}
 
 }
