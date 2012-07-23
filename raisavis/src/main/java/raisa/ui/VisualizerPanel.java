@@ -19,8 +19,12 @@ import java.util.List;
 
 import javax.swing.JPanel;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import raisa.config.LocalizationModeEnum;
 import raisa.config.VisualizerConfig;
+import raisa.config.VisualizerConfigListener;
 import raisa.domain.Grid;
 import raisa.domain.Particle;
 import raisa.domain.Robot;
@@ -33,8 +37,9 @@ import raisa.util.GeometryUtil;
 import raisa.util.GraphicsUtil;
 import raisa.util.Vector2D;
 
-public class VisualizerPanel extends JPanel implements SampleListener {
+public class VisualizerPanel extends JPanel implements SampleListener, VisualizerConfigListener {
 	private static final long serialVersionUID = 1L;
+	private static final Logger log = LoggerFactory.getLogger(VisualizerPanel.class);
 	private Color measurementColor = new Color(0.4f, 0.4f, 0.4f);
 	private Color particleColor = new Color(0.3f, 0.3f, 0.3f);
 	private Color mapMarkerColor = new Color(0.8f, 0.2f, 0.2f);
@@ -64,6 +69,11 @@ public class VisualizerPanel extends JPanel implements SampleListener {
 		latestSR = new ArrayList<Sample>();
 	}
 
+	@Override
+	public void visualizerConfigChanged(VisualizerConfig config) {
+		repaint();
+	}
+	
 	public VisualizerPanel(VisualizerFrame frame, WorldModel worldModel, RobotSimulator robotSimulator) {
 		this.visualizerFrame = frame;
 		this.worldModel = worldModel;
@@ -100,17 +110,30 @@ public class VisualizerPanel extends JPanel implements SampleListener {
 	public void paintComponent(Graphics g) {
 		Graphics2D g2 = (Graphics2D) g;
 		clearScreen(g);
-		drawGrid(g2);
-		if (VisualizerConfig.getInstance().getLocalizationMode() == LocalizationModeEnum.PARTICLE_FILTER) {
+		if(VisualizerConfig.getInstance().isDisplayMap()) {
+			drawGrid(g2);
+		}
+		if (VisualizerConfig.getInstance().getLocalizationMode() == LocalizationModeEnum.PARTICLE_FILTER
+				&& VisualizerConfig.getInstance().isDisplayParticles()) {
 			drawParticles(g2);
 		}
-		drawRobotTrail(g2, worldModel.getStates());
+		if(VisualizerConfig.getInstance().isDisplayTrail()) {
+			drawRobotTrail(g2, worldModel.getStates());
+		}
 		drawOriginArrows(g2);
-		drawRobotSimulator(g2);
-		drawRobot(g2);
-		drawRobotDirectionArrow(g2);
-		drawUltrasoundResults(g);
-		drawIrResults(g2);
+		if(VisualizerConfig.getInstance().isDisplaySimulator()) {
+			drawRobotSimulator(g2);
+		}
+		if(VisualizerConfig.getInstance().isDisplayRobot()) {
+			drawRobot(g2);
+			drawRobotDirectionArrow(g2);
+		}
+		if(VisualizerConfig.getInstance().isDisplaySonarScan()) {
+			drawUltrasoundResults(g);
+		}
+		if(VisualizerConfig.getInstance().isDisplayIrScan()) {
+			drawIrResults(g2);
+		}
 		Vector2D worldMouse = toWorld(mouse);
 		if (mouseDragging) {
 			g.setColor(measurementColor);

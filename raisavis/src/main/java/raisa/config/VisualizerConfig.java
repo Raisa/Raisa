@@ -11,6 +11,14 @@ public class VisualizerConfig {
 	private InputOutputTargetEnum inputOutputTarget = InputOutputTargetEnum.FILE_SIMULATION;
 	private LocalizationModeEnum localizationMode = LocalizationModeEnum.NONE;	
 	private List<VisualizerConfigItemEnum> changedConfigs;
+
+	private boolean displayMap = true;
+	private boolean displayTrail = true;
+	private boolean displayRobot = true;
+	private boolean displaySimulator = true;
+	private boolean displayParticles = true;
+	private boolean displaySonarScan = true;
+	private boolean displayIrScan = true;
 	
 	private VisualizerConfig() {
 		this.visualizerConfigListeners = new ArrayList<VisualizerConfigListener>();
@@ -68,6 +76,83 @@ public class VisualizerConfig {
 			listener.visualizerConfigChanged(this);
 		}
 		this.changedConfigs.clear();
+	}
+
+	public boolean isDisplayMap() {
+		return displayMap;
+	}
+
+	public void setDisplayMap(boolean displayMap) {
+		if(this.displayMap != displayMap) {
+			this.displayMap = displayMap;
+			this.changedConfigs.add(VisualizerConfigItemEnum.DISPLAY_MAP);
+		}
+	}
+
+	public boolean isDisplayTrail() {
+		return displayTrail;
+	}
+
+	public void setDisplayTrail(boolean displayTrail) {
+		if(this.displayTrail != displayTrail) {
+			this.displayTrail = displayTrail;
+			this.changedConfigs.add(VisualizerConfigItemEnum.DISPLAY_TRAIL);
+		}
+	}
+
+	public boolean isDisplayRobot() {
+		return displayRobot;
+	}
+
+	public void setDisplayRobot(boolean displayRobot) {
+		if(this.displayRobot != displayRobot) {
+			this.displayRobot = displayRobot;
+			this.changedConfigs.add(VisualizerConfigItemEnum.DISPLAY_ROBOT);
+		}
+	}
+
+	public boolean isDisplaySimulator() {
+		return displaySimulator;
+	}
+
+	public void setDisplaySimulator(boolean displaySimulator) {
+		if(this.displaySimulator != displaySimulator) {
+			this.displaySimulator = displaySimulator;
+			this.changedConfigs.add(VisualizerConfigItemEnum.DISPLAY_SIMULATOR);
+		}
+	}
+
+	public boolean isDisplayParticles() {
+		return displayParticles;
+	}
+
+	public void setDisplayParticles(boolean displayParticles) {
+		if(this.displayParticles != displayParticles) {
+			this.displayParticles = displayParticles;
+			this.changedConfigs.add(VisualizerConfigItemEnum.DISPLAY_PARTICLES);
+		}
+	}
+
+	public boolean isDisplaySonarScan() {
+		return displaySonarScan;
+	}
+
+	public void setDisplaySonarScan(boolean displaySonarScan) {
+		if(this.displaySonarScan != displaySonarScan) {
+			this.displaySonarScan = displaySonarScan;
+			this.changedConfigs.add(VisualizerConfigItemEnum.DISPLAY_SONAR_SCAN);
+		}
+	}
+
+	public boolean isDisplayIrScan() {
+		return displayIrScan;
+	}
+
+	public void setDisplayIrScan(boolean displayIrScan) {
+		if(this.displayIrScan != displayIrScan) {
+			this.displayIrScan = displayIrScan;
+			this.changedConfigs.add(VisualizerConfigItemEnum.DISPLAY_IR_SCAN);
+		}
 	}
 
 }

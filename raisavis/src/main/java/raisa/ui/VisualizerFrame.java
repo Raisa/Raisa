@@ -36,6 +36,7 @@ import raisa.comms.FailoverCommunicator;
 import raisa.comms.ReplayController;
 import raisa.comms.SampleParser;
 import raisa.comms.SerialCommunicator;
+import raisa.config.VisualizerConfig;
 import raisa.domain.ClusteringRobotStateEstimator;
 import raisa.domain.NoFilter;
 import raisa.domain.Particle;
@@ -97,6 +98,8 @@ public class VisualizerFrame extends JFrame {
 		robotSimulator = RobotSimulator.createRaisaInstance(new Vector2D(-50, 0), 0, worldModel);
 		
 		visualizerPanel = new VisualizerPanel(this, worldModel, robotSimulator);
+		VisualizerConfig.getInstance().addVisualizerConfigListener(visualizerPanel);
+		
 		MeasurementsPanel measurementsPanel = new MeasurementsPanel(worldModel);
 		JMenuBar menuBar = new JMenuBar();
 		JMenu mainMenu = createMainMenu(worldModel, menuBar);
