@@ -63,8 +63,9 @@ public class ParticleFilter implements SampleListener, VisualizerConfigListener 
 	}
 
 	private synchronized void updateParticles(List<Sample> samples) {
-		if (samples.isEmpty())
+		if (samples.isEmpty()) {
 			return;
+		}
 
 		// estimate movement
 		RobotMovementEstimator estimator = new SimpleRobotMovementEstimator(true);
@@ -130,6 +131,10 @@ public class ParticleFilter implements SampleListener, VisualizerConfigListener 
 
 	private void executeThrunResampling(Map<Particle, Float> weights,
 			float maxWeight, List<Particle> newParticles) {
+		if(particles.isEmpty()) {
+			// this may happen when particle filter has just started
+			return;
+		}
 		int index = (int)Math.random() * particles.size();
 		float beta = 0.0f;
 		for (int i = 0; i < particles.size(); i++) {

@@ -218,7 +218,7 @@ public class WorldModel implements Serializable, SensorListener {
 		this.sampleListeners.add(listener);
 	}
 	
-	public void removeSampleListener(SampleListener listener) {
+	public synchronized void removeSampleListener(SampleListener listener) {
 		this.sampleListeners.remove(listener);
 	}	
 
@@ -226,7 +226,7 @@ public class WorldModel implements Serializable, SensorListener {
 		this.robotListeners.add(listener);
 	}
 	
-	private void notifySampleListeners(Sample sample) {
+	private synchronized void notifySampleListeners(Sample sample) {
 		for (SampleListener listener : sampleListeners) {
 			listener.sampleAdded(sample);
 		}
