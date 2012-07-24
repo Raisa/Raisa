@@ -6,6 +6,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import javax.imageio.ImageIO;
@@ -47,7 +48,7 @@ public class WorldModel implements Serializable, SensorListener {
 	}
 	
 	@Override
-	public void sampleReceived(String message) {
+	public synchronized void sampleReceived(String message) {
 		Sample sample = new SampleParser().parse(message);
 		for (SampleFixer fixer : sampleFixers) {
 		 sample = fixer.fix(sample);
@@ -61,6 +62,10 @@ public class WorldModel implements Serializable, SensorListener {
 	}
 
 	public void addState(Robot state) {
+		Sample latestSample = getLatestSample();
+		if (latestSample != null) {
+			state.setTimestampMillis(getLatestSample().getTimestampMillis());			
+		}
 		synchronized(states) {
 			states.add(state);
 		}
@@ -106,6 +111,13 @@ public class WorldModel implements Serializable, SensorListener {
 		return states.get(states.size() - 1);
 	}
 
+	public Sample getLatestSample() {
+		if (samples.size() == 0) {
+			return null;
+		}
+		return samples.get(samples.size() - 1);
+	}	
+	
 	public void reset() {
 		samples = new ArrayList<Sample>();
 		states = new ArrayList<Robot>();
@@ -212,23 +224,29 @@ public class WorldModel implements Serializable, SensorListener {
 	}
 
 	public void addSampleListener(SampleListener listener) {
-		if (this.sampleListeners.contains(listener)) {
-			return;
+		synchronized (sampleListeners) {
+			if (this.sampleListeners.contains(listener)) {
+				return;
+			}
+			this.sampleListeners.add(listener);
 		}
-		this.sampleListeners.add(listener);
 	}
 	
-	public synchronized void removeSampleListener(SampleListener listener) {
-		this.sampleListeners.remove(listener);
+	public void removeSampleListener(SampleListener listener) {
+		synchronized (sampleListeners) {
+			this.sampleListeners.remove(listener);
+		}
 	}	
 
 	public void addRobotListener(RobotListener listener) {
 		this.robotListeners.add(listener);
 	}
 	
-	private synchronized void notifySampleListeners(Sample sample) {
-		for (SampleListener listener : sampleListeners) {
-			listener.sampleAdded(sample);
+	private void notifySampleListeners(Sample sample) {
+		synchronized (sampleListeners) {
+			for (SampleListener listener : sampleListeners) {
+				listener.sampleAdded(sample);
+			}
 		}
 	}
 	

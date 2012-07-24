@@ -14,8 +14,8 @@ public class Robot {
 	private Vector2D positionRightTrack;
 	private float speedLeftTrack;
 	private float speedRightTrack;
-	private boolean directionLeftTrackForward;
-	private boolean directionRightTrackForward;
+	private boolean directionLeftTrackForward = true;
+	private boolean directionRightTrackForward = true;
 
 	public Robot() {
 		this(new Vector2D(), (float) Math.PI);

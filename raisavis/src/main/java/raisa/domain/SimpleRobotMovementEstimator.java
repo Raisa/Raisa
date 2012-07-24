@@ -34,7 +34,6 @@ public class SimpleRobotMovementEstimator implements RobotMovementEstimator {
 		Vector2D positionRightTrack = new Vector2D(state.getPositionRightTrack().x + rightTrackTrip * (float) Math.sin(h),
 				state.getPositionRightTrack().y - rightTrackTrip * (float) Math.cos(h));
 		
-		robot.setTimestampMillis(sample.getTimestampMillis());
 		robot.setDirectionLeftTrackForward(sample.getLeftTrackTicks() >= 0 ? true : false);
 		robot.setDirectionRightTrackForward(sample.getRightTrackTicks() >= 0 ? true : false);
 		
