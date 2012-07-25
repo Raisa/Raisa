@@ -4,9 +4,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import raisa.comms.SampleParser;
-import raisa.config.VisualizerConfig;
-import raisa.config.LocalizationModeEnum;
 import raisa.config.InputOutputTargetEnum;
+import raisa.config.LocalizationModeEnum;
+import raisa.config.VisualizerConfig;
 import raisa.config.VisualizerConfigItemEnum;
 import raisa.domain.Sample;
 import raisa.domain.WorldModel;
@@ -71,11 +71,17 @@ public class Visualizer {
 			frame.loadData("data/eteinen-tyohuone-makkari2.data");
 		} else if ("file".equals(inputMode)) {
 			if (args.length != 2) {
-				System.out.println("Missing filename");
+				System.out.println("Missing simulation filename");
 			}
 			String filename = args[1];
 			frame.loadSimulation(filename);
-		} 
+		} else if ("map".equals(inputMode)) {
+			if (args.length != 2) {
+				System.out.println("Missing map filename");
+			}
+			String filename = args[1];
+			frame.loadMap(filename);
+		}
 		frame.open();
 	}
 }
