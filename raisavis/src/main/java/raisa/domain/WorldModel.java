@@ -99,14 +99,18 @@ public class WorldModel implements Serializable, SensorListener {
 			currentSpeedLeftTrack = accumulatedDistanceLeftTrack / (accumulatedTime / 10.0f);
 			currentSpeedRightTrack = accumulatedDistanceRightTrack / (accumulatedTime / 10.0f);			
 		}
-		getLatestState().setSpeedLeftTrack(currentSpeedLeftTrack);
-		getLatestState().setSpeedRightTrack(currentSpeedRightTrack);		
+		Robot latestState = getLatestState();
+		latestState.setSpeedLeftTrack(currentSpeedLeftTrack);
+		latestState.setSpeedRightTrack(currentSpeedRightTrack);		
 	}
 
 	public Robot getLatestState() {
 		synchronized (states) {
 			if (states.size() == 0) {
-				return null;
+				// when there are no states, the callers of this method usually fail to handle nulls properly
+				// Executing Reset from menu resets state count to zero
+				// so returning a null object
+				return new Robot();
 			}
 			return states.get(states.size() - 1);
 		}
