@@ -184,8 +184,10 @@ public class VisualizerPanel extends JPanel implements SampleListener, Visualize
 	}
 
 	private void drawParticles(Graphics2D g2) {
-		g2.setColor(particleColor);
-		for (Particle particle : visualizerFrame.getParticleFilter().getParticles()) {			
+		for (Particle particle : visualizerFrame.getParticleFilter().getParticles()) {
+			int value = 50 + Math.min(120, particle.getAge() / 3);
+			Color color = new Color(value, value, value);
+			g2.setColor(color);
 			drawParticle(g2, particle);
 		}
 	}

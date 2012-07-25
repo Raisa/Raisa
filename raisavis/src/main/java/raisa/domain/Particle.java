@@ -8,11 +8,13 @@ import raisa.util.CollectionUtil;
 public class Particle {
 	private int maxStates = 15;
 	private List<Robot> states = new ArrayList<Robot>();
-	
+	private int age = 0;
+
 	public Particle copy() {
 		Particle newParticle = new Particle();
 		newParticle.maxStates = maxStates;
 		newParticle.states = new ArrayList<Robot>(states);
+		newParticle.age =  ++age;
 		return newParticle;
 	}
 
@@ -64,5 +66,9 @@ public class Particle {
 
 	public Robot getLastState() {
 		return states.isEmpty() ? null : states.get(states.size() - 1);
+	}
+
+	public int getAge() {
+		return age;
 	}
 }
