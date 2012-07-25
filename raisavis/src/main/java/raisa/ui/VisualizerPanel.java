@@ -93,7 +93,8 @@ public class VisualizerPanel extends JPanel implements SampleListener, Visualize
 	@Override
 	public void sampleAdded(Sample sample) {
 		if (sample.isInfrared1MeasurementValid()) {
-			Vector2D spotPosition = GeometryUtil.calculatePosition(worldModel.getLatestState().getPosition(), worldModel.getLatestState().getHeading() + sample.getInfrared1Angle(), sample.getInfrared1Distance());
+			Robot latestState = worldModel.getLatestState();
+			Vector2D spotPosition = GeometryUtil.calculatePosition(latestState.getPosition(), latestState.getHeading() + sample.getInfrared1Angle(), sample.getInfrared1Distance());
 			worldModel.setGridPosition(spotPosition, true);
 			latestIR.add(sample);
 			latestIR = CollectionUtil.takeLast(latestIR, 10);
