@@ -218,13 +218,23 @@ public class RobotSimulator implements RobotState, ServoScanListener, Communicat
 	@Override	
 	public void run() {
 		log.info("Simulator thread starting");
+		long prevTickDuration = -1;
+		float timeStepLength = getTimeStepLengthInSeconds();
 		while(this.simulatorActive) {
-			float timeStepLength = getTimeStepLengthInSeconds();
 			try {
-				Thread.sleep((int)(timeStepLength * 1000 / 4));
+				long maxTime = (long)(timeStepLength * 1000 / 4);
+				long timeToSleep;
+				if(prevTickDuration < 0) {
+					timeToSleep = maxTime;
+				} else {
+					timeToSleep = Math.max(0, maxTime - prevTickDuration);
+				}
+				Thread.sleep(timeToSleep);
 			} catch (InterruptedException e) {
 			}
+			long start = System.currentTimeMillis();
 			tick(timeStepLength);
+			prevTickDuration = System.currentTimeMillis() - start;
 		}
 		log.info("Simulator thread stopping");
 	}
