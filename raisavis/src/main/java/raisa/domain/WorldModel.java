@@ -6,7 +6,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import javax.imageio.ImageIO;
@@ -105,10 +104,12 @@ public class WorldModel implements Serializable, SensorListener {
 	}
 
 	public Robot getLatestState() {
-		if (states.size() == 0) {
-			return null;
+		synchronized (states) {
+			if (states.size() == 0) {
+				return null;
+			}
+			return states.get(states.size() - 1);
 		}
-		return states.get(states.size() - 1);
 	}
 
 	public Sample getLatestSample() {
