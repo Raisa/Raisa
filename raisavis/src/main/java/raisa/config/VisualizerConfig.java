@@ -19,6 +19,7 @@ public class VisualizerConfig {
 	private boolean displayParticles = true;
 	private boolean displaySonarScan = true;
 	private boolean displayIrScan = true;
+	private int displayMinAgeForParticles = 0;
 	
 	private VisualizerConfig() {
 		this.visualizerConfigListeners = new ArrayList<VisualizerConfigListener>();
@@ -153,6 +154,14 @@ public class VisualizerConfig {
 			this.displayIrScan = displayIrScan;
 			this.changedConfigs.add(VisualizerConfigItemEnum.DISPLAY_IR_SCAN);
 		}
+	}
+
+	public int getDisplayMinAgeForParticles() {
+		return displayMinAgeForParticles;
+	}
+
+	public void setDisplayMinAgeForParticles(int displayMinAgeForParticles) {
+		this.displayMinAgeForParticles = displayMinAgeForParticles;
 	}
 
 }

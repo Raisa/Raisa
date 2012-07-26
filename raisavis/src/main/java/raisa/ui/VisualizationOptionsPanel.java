@@ -1,13 +1,18 @@
 package raisa.ui;
 
 import java.awt.Component;
+import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 import javax.swing.BoxLayout;
 import javax.swing.JCheckBox;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JSlider;
 import javax.swing.border.TitledBorder;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 
 import raisa.config.VisualizerConfig;
 
@@ -20,6 +25,7 @@ public class VisualizationOptionsPanel extends JPanel {
 	private JCheckBox robot;
 	private JCheckBox irScan;
 	private JCheckBox sonarScan;
+	private JSlider particleMinAge;
 	
 	public VisualizationOptionsPanel() {
 		setBorder(new TitledBorder("Visualization options"));
@@ -96,6 +102,29 @@ public class VisualizationOptionsPanel extends JPanel {
 			}
 		});
 		add(map);
+		
+		JLabel particleAgeLabel = new JLabel("Min particle age"); 
+		particleAgeLabel.setToolTipText("Minimum age (in generations) for particles to display");
+		add(particleAgeLabel);
+		particleMinAge = new JSlider(0, 20, 0);
+		particleMinAge.setToolTipText("Minimum age (in generations) for particles to display");
+		particleMinAge.setPreferredSize(new Dimension(50, 20));
+		particleMinAge.setSnapToTicks(true);
+		particleMinAge.setMajorTickSpacing(5);
+		particleMinAge.setMinorTickSpacing(1);
+		particleMinAge.setPaintTicks(true);
+		particleMinAge.setPaintLabels(true);
+		particleMinAge.addChangeListener(new ChangeListener() {
+			
+			@Override
+			public void stateChanged(ChangeEvent e) {
+				System.out.println(e);
+				JSlider source = (JSlider)e.getSource();
+				VisualizerConfig.getInstance().setDisplayMinAgeForParticles(source.getValue());
+			}
+		});
+		add(particleMinAge);
+		
 	}
 	
 }
