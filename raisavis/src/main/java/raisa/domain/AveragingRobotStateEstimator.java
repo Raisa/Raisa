@@ -6,15 +6,15 @@ import raisa.util.Vector2D;
 
 public class AveragingRobotStateEstimator implements RobotStateEstimator {
 	@Override
-	public Robot estimateState(List<Robot> states) {
-		Robot averageState = new Robot();
+	public RobotState estimateState(List<RobotState> states) {
+		RobotState averageState = new RobotState();
 		Vector2D averageLeftTrack = new Vector2D();
 		Vector2D averageRightTrack = new Vector2D();
 		float averageHeading = 0.0f;
 		float ax = 0.0f;
 		float ay = 0.0f;
 		float scale = 1.0f / states.size();
-		for (Robot state : states) {
+		for (RobotState state : states) {
 			Vector2D leftTrack = state.getPositionLeftTrack();
 			averageLeftTrack.x += (leftTrack.x) * scale;
 			averageLeftTrack.y += (leftTrack.y) * scale;

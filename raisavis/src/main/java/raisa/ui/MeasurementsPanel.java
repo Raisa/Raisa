@@ -13,6 +13,7 @@ import javax.swing.JPanel;
 import javax.swing.border.TitledBorder;
 
 import raisa.domain.Robot;
+import raisa.domain.RobotState;
 import raisa.domain.Sample;
 import raisa.domain.SampleListener;
 import raisa.domain.WorldModel;
@@ -23,6 +24,7 @@ public class MeasurementsPanel extends JPanel implements SampleListener {
 
 	private HeadingPanel headingPanel;
 	private SpeedPanel speedPanel;
+	private OdometerPanel odometerPanel;
 	private AccelerationPanel accelerationPanel;
 	private GyroscopePanel gyroscopePanel;
 	private SoundPanel soundPanel;
@@ -42,6 +44,8 @@ public class MeasurementsPanel extends JPanel implements SampleListener {
 		this.add(headingPanel);
 		speedPanel = new SpeedPanel(worldModel);
 		this.add(speedPanel);
+		odometerPanel = new OdometerPanel();
+		this.add(odometerPanel);
 		accelerationPanel = new AccelerationPanel(worldModel);
 		this.add(accelerationPanel);
 		gyroscopePanel = new GyroscopePanel(worldModel);
@@ -55,6 +59,7 @@ public class MeasurementsPanel extends JPanel implements SampleListener {
 	public void sampleAdded(Sample sample) {
 		headingPanel.update(sample);
 		speedPanel.update(sample);
+		odometerPanel.update(sample);
 		accelerationPanel.update(sample);
 		gyroscopePanel.update(sample);
 		soundPanel.update(sample);
@@ -240,29 +245,30 @@ public class MeasurementsPanel extends JPanel implements SampleListener {
 	private class SpeedPanel extends JPanel {
 		private static final long serialVersionUID = 1L;
 
-		private JLabel speedLeftTrackField;
-		private JLabel speedRightTrackField;
+		private JLabel speedMeasuredField;
+		private JLabel speedEstimatedField;
 
 		public SpeedPanel(WorldModel worldModel) {
-			this.setMinimumSize(new Dimension(190, 70));
-			this.setPreferredSize(new Dimension(190, 70));
-			this.setMaximumSize(new Dimension(190, 70));
+			this.setMinimumSize(new Dimension(190, 65));
+			this.setPreferredSize(getMinimumSize());
+			this.setMaximumSize(getMinimumSize());
 			TitledBorder border = new TitledBorder("Track speeds (m/s)");
 			setBorder(border);
 			setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
-			speedLeftTrackField = new JLabel("Left: -");
-			speedLeftTrackField.setAlignmentX(LEFT_ALIGNMENT);
-			speedRightTrackField = new JLabel("Right: -");
-			speedRightTrackField.setAlignmentX(LEFT_ALIGNMENT);
-			this.add(speedLeftTrackField);
-			this.add(speedRightTrackField);
+			speedMeasuredField = new JLabel("-, - (encoders)");
+			speedMeasuredField.setAlignmentX(LEFT_ALIGNMENT);
+			speedEstimatedField = new JLabel("-, - (estimated)");
+			speedEstimatedField.setAlignmentX(LEFT_ALIGNMENT);
+			this.add(speedMeasuredField);
+			this.add(speedEstimatedField);
 		}
 
 		public void update(Sample sample) {
 			DecimalFormat format = new DecimalFormat("0.000");
-			Robot robot = worldModel.getLatestState();
-			speedLeftTrackField.setText("Left: " + format.format(robot.getSpeedLeftTrack()));
-			speedRightTrackField.setText("Right: " + format.format(robot.getSpeedRightTrack()));
+			RobotState measuredState = worldModel.getLatestState().getMeasuredState();
+			RobotState estimatedState = worldModel.getLatestState().getEstimatedState();
+			speedMeasuredField.setText(format.format(measuredState.getSpeedLeftTrack()) + ", " + format.format(measuredState.getSpeedRightTrack()) + " (encoders)");
+			speedEstimatedField.setText(format.format(estimatedState.getSpeedLeftTrack()) + ", " + format.format(estimatedState.getSpeedRightTrack()) + " (estimated)");
 			repaint();
 		}
 
@@ -271,34 +277,46 @@ public class MeasurementsPanel extends JPanel implements SampleListener {
 	private class HeadingPanel extends JPanel {
 		private static final long serialVersionUID = 1L;
 
-		private JLabel sensorField;
+		private JLabel headingMeasuredField;
+		private JLabel headingEstimatedField;		
 
 		public HeadingPanel(WorldModel worldModel) {
-			this.setMinimumSize(new Dimension(190, 50));
-			this.setPreferredSize(new Dimension(190, 50));
-			this.setMaximumSize(new Dimension(190, 50));
+			this.setMinimumSize(new Dimension(190, 65));
+			this.setPreferredSize(getMinimumSize());
+			this.setMaximumSize(getMinimumSize());
 			TitledBorder border = new TitledBorder("Heading (degrees)");
 			setBorder(border);
 			setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
-			sensorField = new JLabel("Sensor: -");
-			sensorField.setAlignmentX(LEFT_ALIGNMENT);
-			this.add(sensorField);
+			headingMeasuredField = new JLabel(":- (compass)");
+			headingMeasuredField.setAlignmentX(LEFT_ALIGNMENT);
+			this.add(headingMeasuredField);
+			headingEstimatedField = new JLabel(":- (estimated)");
+			headingEstimatedField.setAlignmentX(LEFT_ALIGNMENT);
+			this.add(headingEstimatedField);
 		}
 
 		public void update(Sample sample) {
 			DecimalFormat format = new DecimalFormat("000");
-			sensorField.setText("Sensor: " + format.format(Math.toDegrees((sample.getCompassDirection() % 360))));
+			headingMeasuredField.setText(format.format(Math.toDegrees((sample.getCompassDirection() % 360))) + " (compass)");
+			
+			RobotState estimatedState = worldModel.getLatestState().getEstimatedState();
+			int estimatedHeading = (int)Math.toDegrees((estimatedState.getHeading() % 360));
+			if (estimatedHeading < 0) {
+				estimatedHeading += 360;
+			}
+			headingEstimatedField.setText(format.format(estimatedHeading) + " (estimated)");
 			repaint();
 		}
 
 	}
 
 	private class SampleCounterPanel extends JPanel {
+		private static final long serialVersionUID = 1L;
 		private JLabel sentField;
 		private JLabel receivedField;
 		private int counter = 0;
 		public SampleCounterPanel() {
-			this.setMinimumSize(new Dimension(190, 50));
+			this.setMinimumSize(new Dimension(190, 60));
 			this.setPreferredSize(getMinimumSize());
 			this.setMaximumSize(getMinimumSize());
 			TitledBorder border = new TitledBorder("Sample counters");
@@ -322,4 +340,34 @@ public class MeasurementsPanel extends JPanel implements SampleListener {
 			repaint();
 		}
 	}
+	
+	private class OdometerPanel extends JPanel {
+		private static final long serialVersionUID = 1L;
+		private JLabel measuredDistance;
+		private JLabel estimatedDistance;
+		private int counter = 0;
+		public OdometerPanel() {
+			this.setMinimumSize(new Dimension(190, 60));
+			this.setPreferredSize(getMinimumSize());
+			this.setMaximumSize(getMinimumSize());
+			TitledBorder border = new TitledBorder("Odometer (m)");
+			setBorder(border);
+			setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
+			measuredDistance = new JLabel("- (encoders)");
+			measuredDistance.setAlignmentX(LEFT_ALIGNMENT);
+			this.add(measuredDistance);
+			estimatedDistance = new JLabel("- (estimated)");
+			estimatedDistance.setAlignmentX(LEFT_ALIGNMENT);
+			this.add(estimatedDistance);
+		}
+		
+		public void update(Sample sample) {
+			DecimalFormat format = new DecimalFormat("###.00");
+			Robot lastRobot = worldModel.getLatestState();
+			measuredDistance.setText(format.format(lastRobot.getMeasuredState().getOdometer() / 100.0f) + " (encoders)");
+			estimatedDistance.setText(format.format(lastRobot.getEstimatedState().getOdometer() / 100.0f) + " (estimated)");
+			repaint();
+		}
+	}
+	
 }

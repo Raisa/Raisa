@@ -38,10 +38,9 @@ import raisa.comms.SampleParser;
 import raisa.comms.SerialCommunicator;
 import raisa.config.VisualizerConfig;
 import raisa.domain.ClusteringRobotStateEstimator;
-import raisa.domain.NoFilter;
+import raisa.domain.RobotStateAggregator;
 import raisa.domain.Particle;
 import raisa.domain.ParticleFilter;
-import raisa.domain.ParticleFilterListener;
 import raisa.domain.Robot;
 import raisa.domain.RobotStateEstimator;
 import raisa.domain.Sample;
@@ -68,9 +67,8 @@ public class VisualizerFrame extends JFrame {
 	private List<UserEditUndoListener> userEditUndoListeners = new ArrayList<UserEditUndoListener>();
 	private final Communicator communicator;
 	private final BasicController controller;
-	private NoFilter noFilter;	
+	private RobotStateAggregator robotStateAggregator;	
 	private ParticleFilter particleFilter;
-	private RobotStateEstimator robotStateEstimator;
 	private SessionWriter sessionWriter;
 	private RobotSimulator robotSimulator;
 	private FileBasedSimulation fileBasedSimulation;
@@ -78,22 +76,9 @@ public class VisualizerFrame extends JFrame {
 	public VisualizerFrame(final WorldModel worldModel) {
 		addIcon();
 		this.worldModel = worldModel;
-		this.noFilter = new NoFilter(worldModel);
 		this.particleFilter = new ParticleFilter(worldModel, nparticles);
-		this.robotStateEstimator = new ClusteringRobotStateEstimator();
-		particleFilter.addParticleFilterListener(new ParticleFilterListener() {
-			@Override
-			public void particlesChanged(ParticleFilter filter) {
-				List<Robot> states = new ArrayList<Robot>();
-				for (Particle particle : filter.getParticles()) {
-					Robot robot = particle.getLastState();
-					states.add(robot);
-				}
-
-				Robot estimatedState = robotStateEstimator.estimateState(states);
-				worldModel.addState(estimatedState);
-			}
-		});	
+		this.robotStateAggregator = new RobotStateAggregator(worldModel, particleFilter);
+		worldModel.addSampleListener(robotStateAggregator);
 		
 		robotSimulator = RobotSimulator.createRaisaInstance(new Vector2D(-50, 0), 0, worldModel);
 		

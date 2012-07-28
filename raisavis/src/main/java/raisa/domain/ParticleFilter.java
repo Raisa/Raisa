@@ -14,20 +14,18 @@ import raisa.config.VisualizerConfigListener;
 import raisa.util.CollectionUtil;
 import raisa.util.Vector2D;
 
-public class ParticleFilter implements SampleListener, VisualizerConfigListener {
+public class ParticleFilter {
 
 	private static final Logger log = LoggerFactory.getLogger(ParticleFilter.class);
 			
 	private WorldModel world;
 	private List<Particle> particles;
 	private List<Sample> samples = new ArrayList<Sample>();
-	private List<ParticleFilterListener> particleFilterListeners = new ArrayList<ParticleFilterListener>();
 	private boolean active = false;
 
 	public ParticleFilter(WorldModel world, int nparticles) {
 		this.world = world;
 		randomizeParticles(nparticles);
-		VisualizerConfig.getInstance().addVisualizerConfigListener(this);
 	}
 	
 	public synchronized void reset() {
@@ -54,7 +52,7 @@ public class ParticleFilter implements SampleListener, VisualizerConfigListener 
 			Vector2D position = new Vector2D(x, y);
 			if (world.isClear(position)) {
 				float heading = (float) Math.random() * (float) Math.PI * 2.0f;
-				Robot robot = new Robot(position, heading);
+				RobotState robot = new RobotState(position, heading);
 				particle.addState(robot);
 				ok = true;
 			}
@@ -71,7 +69,7 @@ public class ParticleFilter implements SampleListener, VisualizerConfigListener 
 		RobotMovementEstimator estimator = new SimpleRobotMovementEstimator(true);
 		Sample lastSample = samples.get(samples.size() - 1);
 		for (Particle particle : particles) {
-			Robot newState = estimator.moveRobot(particle.getLastState(), lastSample);
+			RobotState newState = estimator.moveRobot(particle.getLastState(), lastSample);
 			particle.addState(newState);
 		}
 
@@ -105,7 +103,6 @@ public class ParticleFilter implements SampleListener, VisualizerConfigListener 
 			}
 
 			this.particles = newParticles;
-			notifyParticleFilterListeners();
 		}
 	}
 
@@ -149,46 +146,14 @@ public class ParticleFilter implements SampleListener, VisualizerConfigListener 
 		}
 	}
 
-	private void notifyParticleFilterListeners() {
-		for (ParticleFilterListener listener : particleFilterListeners) {
-			listener.particlesChanged(this);
-		}
-	}
-
 	public List<Particle> getParticles() {
 		return particles;
 	}
 
-	@Override
-	public void sampleAdded(Sample sample) {
+	public void updateParticles(Sample sample) {
 		samples.add(sample);
 		samples = CollectionUtil.takeLast(samples, 50);
 		updateParticles(samples);
 	}
 
-	public void addParticleFilterListener(ParticleFilterListener listener) {
-		particleFilterListeners.add(listener);
-	}
-
-	@Override
-	public void visualizerConfigChanged(VisualizerConfig config) {
-		if (config.isChanged(VisualizerConfigItemEnum.LOCALIZATION_MODE)) {
-			switch (config.getLocalizationMode()) {
-			case PARTICLE_FILTER:
-				if (!active) {
-					log.info("Activating particle filter");
-					world.addSampleListener(this);
-					active = true;
-				}
-				break;
-			default:
-				if (active) {
-					log.info("Deactivating particle filter");				
-					world.removeSampleListener(this);
-					active = false;
-				}
-				break;
-			}
-		}
-	}
 }

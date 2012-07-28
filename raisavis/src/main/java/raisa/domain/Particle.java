@@ -7,18 +7,18 @@ import raisa.util.CollectionUtil;
 
 public class Particle {
 	private int maxStates = 15;
-	private List<Robot> states = new ArrayList<Robot>();
+	private List<RobotState> states = new ArrayList<RobotState>();
 	private int age = 0;
 
 	public Particle copy() {
 		Particle newParticle = new Particle();
 		newParticle.maxStates = maxStates;
-		newParticle.states = new ArrayList<Robot>(states);
+		newParticle.states = new ArrayList<RobotState>(states);
 		newParticle.age =  ++age;
 		return newParticle;
 	}
 
-	public void addState(Robot robot) {
+	public void addState(RobotState robot) {
 		states.add(robot);
 		states = CollectionUtil.takeLast(states, maxStates);
 	}
@@ -28,7 +28,7 @@ public class Particle {
 		if (samples.size() != windowLength) {
 			samples = CollectionUtil.takeLast(samples, windowLength);
 		}
-		List<Robot> states = this.states;
+		List<RobotState> states = this.states;
 		if (states.size() != windowLength) {
 			states = CollectionUtil.takeLast(states, windowLength);
 		}
@@ -39,7 +39,7 @@ public class Particle {
 			
 			// weight based on samples
 			Sample sample = samples.get(i);
-			Robot state = states.get(i);
+			RobotState state = states.get(i);
 			if (sample.isInfrared1MeasurementValid()) {
 				float expectedDistance = world.traceRay(state.getPosition(), state.getHeading() + sample.getInfrared1Angle());			
 				float measuredDistance = sample.getInfrared1Distance();	
@@ -64,7 +64,7 @@ public class Particle {
 		return weights;
 	}
 
-	public Robot getLastState() {
+	public RobotState getLastState() {
 		return states.isEmpty() ? null : states.get(states.size() - 1);
 	}
 

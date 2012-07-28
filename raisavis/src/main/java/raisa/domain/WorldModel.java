@@ -26,7 +26,6 @@ public class WorldModel implements Serializable, SensorListener {
 	private Grid grid = new Grid();
 	
 	private List<SampleListener> sampleListeners = new ArrayList<SampleListener>();
-	private List<RobotListener> robotListeners = new ArrayList<RobotListener>();
 	private String latestMapFilename;
 	
 	public WorldModel() {
@@ -61,49 +60,11 @@ public class WorldModel implements Serializable, SensorListener {
 	}
 
 	public void addState(Robot state) {
-		Sample latestSample = getLatestSample();
-		if (latestSample != null) {
-			state.setTimestampMillis(getLatestSample().getTimestampMillis());			
-		}
 		synchronized(states) {
 			states.add(state);
 		}
-		calculateSpeed();
-		notifyRobotListeners(state);
 	}
 	
-	/**
-	 * Calculate speed for tracks based on locations and timestamps of the previous states.
-	 */
-	private void calculateSpeed() {
-		float currentSpeedLeftTrack = 0.0f;
-		float currentSpeedRightTrack = 0.0f;
-		List<Robot> pastStates = CollectionUtil.takeLast(states, 5);
-		if (pastStates.size() > 1) {
-			boolean isFirst = true;
-			Vector2D previousPositionLeftTrack = new Vector2D(), previousPositionRightTrack = new Vector2D();
-			long accumulatedTime = 0, previousTimestamp = 0;
-			float accumulatedDistanceLeftTrack = 0.0f, accumulatedDistanceRightTrack = 0.0f;
-			for (Robot r : pastStates) {
-				if (isFirst) {
-					isFirst = false;
-				} else {
-					accumulatedDistanceLeftTrack += (r.isDirectionLeftTrackForward() ? 1.0f : -1.0f) * previousPositionLeftTrack.distance(r.getPositionLeftTrack());
-					accumulatedDistanceRightTrack += (r.isDirectionRightTrackForward() ? 1.0f : -1.0f) * previousPositionRightTrack.distance(r.getPositionRightTrack());
-					accumulatedTime += r.getTimestampMillis() - previousTimestamp;
-				}
-				previousPositionLeftTrack = r.getPositionLeftTrack();
-				previousPositionRightTrack = r.getPositionRightTrack();
-				previousTimestamp = r.getTimestampMillis();				
-			}
-			currentSpeedLeftTrack = accumulatedDistanceLeftTrack / (accumulatedTime / 10.0f);
-			currentSpeedRightTrack = accumulatedDistanceRightTrack / (accumulatedTime / 10.0f);			
-		}
-		Robot latestState = getLatestState();
-		latestState.setSpeedLeftTrack(currentSpeedLeftTrack);
-		latestState.setSpeedRightTrack(currentSpeedRightTrack);		
-	}
-
 	public Robot getLatestState() {
 		synchronized (states) {
 			if (states.size() == 0) {
@@ -134,7 +95,7 @@ public class WorldModel implements Serializable, SensorListener {
 		} else {
 			grid = new Grid();
 		}
-		addState(new Robot(new Vector2D(100.0f, 0), 0.5f));
+		addState(new Robot());
 	}
 	
 	public void removeOldSamples(int preserveLength) {
@@ -242,10 +203,6 @@ public class WorldModel implements Serializable, SensorListener {
 			this.sampleListeners.remove(listener);
 		}
 	}	
-
-	public void addRobotListener(RobotListener listener) {
-		this.robotListeners.add(listener);
-	}
 	
 	private void notifySampleListeners(Sample sample) {
 		synchronized (sampleListeners) {
@@ -255,12 +212,6 @@ public class WorldModel implements Serializable, SensorListener {
 		}
 	}
 	
-	private void notifyRobotListeners(Robot robot) {
-		for (RobotListener listener : robotListeners) {
-			listener.robotStateChanged(robot);
-		}
-	}
-
 	public boolean isClear(Vector2D position) {
 		return grid.isClear(position);
 	}

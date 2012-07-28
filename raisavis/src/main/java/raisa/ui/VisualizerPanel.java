@@ -28,6 +28,7 @@ import raisa.config.VisualizerConfigListener;
 import raisa.domain.Grid;
 import raisa.domain.Particle;
 import raisa.domain.Robot;
+import raisa.domain.RobotState;
 import raisa.domain.Sample;
 import raisa.domain.SampleListener;
 import raisa.domain.WorldModel;
@@ -93,7 +94,7 @@ public class VisualizerPanel extends JPanel implements SampleListener, Visualize
 	@Override
 	public void sampleAdded(Sample sample) {
 		if (sample.isInfrared1MeasurementValid()) {
-			Robot latestState = worldModel.getLatestState();
+			RobotState latestState = worldModel.getLatestState().getEstimatedState();
 			Vector2D spotPosition = GeometryUtil.calculatePosition(latestState.getPosition(), latestState.getHeading() + sample.getInfrared1Angle(), sample.getInfrared1Distance());
 			worldModel.setGridPosition(spotPosition, true);
 			latestIR.add(sample);
@@ -196,7 +197,7 @@ public class VisualizerPanel extends JPanel implements SampleListener, Visualize
 	}
 
 	private void drawParticle(Graphics2D g2, Particle particle) {
-		Robot robot = particle.getLastState();
+		RobotState robot = particle.getLastState();
 		if (robot != null) {
 			Vector2D to = GeometryUtil.calculatePosition(robot.getPosition(), robot.getHeading(), toWorld(10.0f));
 			drawPoint(g2, robot.getPosition());
@@ -205,30 +206,31 @@ public class VisualizerPanel extends JPanel implements SampleListener, Visualize
 	}
 
 	private void drawRobotTrail(Graphics2D g2, List<Robot> states) {
-		Robot lastState = null;
+		RobotState lastState = null;
 		float distanceSoFar = 0.0f;
 		float lastDistanceString = -100.0f;
 		boolean drawDistanceString = false;
 		float distanceMarkerSize = 4.0f;
 		for (Robot state : states) {
+			RobotState estimatedState = state.getEstimatedState();
 			g2.setColor(Color.gray);
 			if (lastState != null) {
-				drawLine(g2, lastState.getPosition(), state.getPosition());
-				distanceSoFar += lastState.getPosition().distance(state.getPosition());
+				drawLine(g2, lastState.getPosition(), estimatedState.getPosition());
+				distanceSoFar += lastState.getPosition().distance(estimatedState.getPosition());
 			}
 			if (distanceSoFar - lastDistanceString >= 100.0f) {
 				drawDistanceString = true;
 			}
 			if (drawDistanceString) {
 				String distanceString = String.format("%3.1f m", distanceSoFar / 100);
-				Vector2D screenPosition = toScreen(state.getPosition());
+				Vector2D screenPosition = toScreen(estimatedState.getPosition());
 				g2.fillRect((int)(screenPosition.x - 0.5f * distanceMarkerSize), (int)(screenPosition.y - 0.5f * distanceMarkerSize), (int)distanceMarkerSize, (int)distanceMarkerSize);
 				g2.setColor(trailMarkerColor);
 				g2.drawString(distanceString, (int)screenPosition.x, (int)screenPosition.y);
 				drawDistanceString = false;
 				lastDistanceString = distanceSoFar;
 			}
-			lastState = state;
+			lastState = estimatedState;
 		}
 	}
 
@@ -258,7 +260,7 @@ public class VisualizerPanel extends JPanel implements SampleListener, Visualize
 			Collections.reverse(irs);
 			float ir = 1.0f;
 			for (Sample sample : irs) {
-				Robot robot = worldModel.getLatestState();
+				RobotState robot = worldModel.getLatestState().getEstimatedState();
 				if (sample.isInfrared1MeasurementValid()) {
 					g2.setColor(GraphicsUtil.makeTransparentColor(measurementColor, ir));
 					Vector2D spot = GeometryUtil.calculatePosition(robot.getPosition(), robot.getHeading() + sample.getInfrared1Angle(), sample.getInfrared1Distance());
@@ -286,7 +288,7 @@ public class VisualizerPanel extends JPanel implements SampleListener, Visualize
 	}
 
 	private void drawUltrasoundResults(Graphics g) {
-		Robot robot = worldModel.getLatestState();
+		RobotState robot = worldModel.getLatestState().getEstimatedState();
 		if (!latestSR.isEmpty()) {
 			float sonarWidth = 42.0f;
 			List<Sample> srs = new ArrayList<Sample>(latestSR);
@@ -334,7 +336,7 @@ public class VisualizerPanel extends JPanel implements SampleListener, Visualize
 	}
 	
 	private void drawRobot(Graphics2D g2) {
-		Robot robot = worldModel.getLatestState();	
+		RobotState robot = worldModel.getLatestState().getEstimatedState();	
 		
 		g2.setColor(Color.gray);
 		Vector2D robotScreen = toScreen(robot.getPosition());
@@ -381,7 +383,7 @@ public class VisualizerPanel extends JPanel implements SampleListener, Visualize
 	}
 
 	private void drawRobotDirectionArrow(Graphics2D g2) {
-		Robot robot = worldModel.getLatestState();
+		RobotState robot = worldModel.getLatestState().getEstimatedState();
 		g2.setColor(Color.black);
 		Vector2D robotScreen = toScreen(robot.getPosition());
 		Path2D.Float p = new Path2D.Float();

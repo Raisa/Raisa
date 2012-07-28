@@ -12,12 +12,12 @@ import raisa.util.Vector2D;
 public class ClusteringRobotStateEstimator implements RobotStateEstimator {
 	private final static class KMeansClustering {
 		private List<Vector2D> clusterCenters = new ArrayList<Vector2D>();
-		private Map<Robot, Integer> clusterOfRobot = new HashMap<Robot, Integer>();
+		private Map<RobotState, Integer> clusterOfRobot = new HashMap<RobotState, Integer>();
 
 		public boolean iterate(int k) {
 			// assign robots to clusters
 			boolean clusterChanged = false;
-			for (Robot state : clusterOfRobot.keySet()) {
+			for (RobotState state : clusterOfRobot.keySet()) {
 				double bestDistanceSoFar = Double.MAX_VALUE;
 				int oldCluster = clusterOfRobot.get(state);
 				int newCluster = oldCluster;
@@ -41,7 +41,7 @@ public class ClusteringRobotStateEstimator implements RobotStateEstimator {
 					newClusterCenters.add(new Vector2D());
 					clusterPointCount.add(0);
 				}
-				for (Robot state : clusterOfRobot.keySet()) {
+				for (RobotState state : clusterOfRobot.keySet()) {
 					int cluster = clusterOfRobot.get(state);
 					Vector2D center = newClusterCenters.get(cluster);
 					Vector2D position = state.getPosition();
@@ -64,41 +64,41 @@ public class ClusteringRobotStateEstimator implements RobotStateEstimator {
 			return clusterChanged;
 		}
 
-		public List<List<Robot>> calculateClusters(List<Robot> states, int k) {
-			List<List<Robot>> clusters = new ArrayList<List<Robot>>();
+		public List<List<RobotState>> calculateClusters(List<RobotState> states, int k) {
+			List<List<RobotState>> clusters = new ArrayList<List<RobotState>>();
 			initClusterCenters(states, k);
-			for (Robot state : states) {
+			for (RobotState state : states) {
 				clusterOfRobot.put(state, (int)(Math.random() * k));
 			}
 			while (iterate(k))
 				;
 			for (int i = 0; i < k; ++i) {
-				clusters.add(new ArrayList<Robot>());
-				for (Robot state : clusterOfRobot.keySet()) {
+				clusters.add(new ArrayList<RobotState>());
+				for (RobotState state : clusterOfRobot.keySet()) {
 					if (i == clusterOfRobot.get(state)) {
 						clusters.get(i).add(state);
 					}
 				}
 			}
 			// return in descending size order
-			Collections.sort(clusters, new Comparator<List<Robot>>() {
+			Collections.sort(clusters, new Comparator<List<RobotState>>() {
 				@Override
-				public int compare(List<Robot> cluster1, List<Robot> cluster2) {
+				public int compare(List<RobotState> cluster1, List<RobotState> cluster2) {
 					return cluster2.size() - cluster1.size();
 				}
 			});
 			return clusters;
 		}
 
-		private void initClusterCenters(List<Robot> states, int k) {
-			List<Robot> shuffledStates = shuffleStates(states);
+		private void initClusterCenters(List<RobotState> states, int k) {
+			List<RobotState> shuffledStates = shuffleStates(states);
 			for (int i = 0; i < k; ++i) {
 				clusterCenters.add(shuffledStates.get(i).getPosition());
 			}
 		}
 
-		private List<Robot> shuffleStates(List<Robot> states) {
-			List<Robot> shuffledStates = new ArrayList<Robot>(states);
+		private List<RobotState> shuffleStates(List<RobotState> states) {
+			List<RobotState> shuffledStates = new ArrayList<RobotState>(states);
 			Collections.shuffle(shuffledStates);
 			return shuffledStates;
 		}
@@ -107,10 +107,10 @@ public class ClusteringRobotStateEstimator implements RobotStateEstimator {
 	private AveragingRobotStateEstimator averagingRobotStateEstimator = new AveragingRobotStateEstimator();
 
 	@Override
-	public Robot estimateState(List<Robot> states) {
+	public RobotState estimateState(List<RobotState> states) {
 		KMeansClustering clustering = new KMeansClustering();
-		List<List<Robot>> clusters = clustering.calculateClusters(states, 3);
-		List<Robot> largestCluster = clusters.get(0);
+		List<List<RobotState>> clusters = clustering.calculateClusters(states, 3);
+		List<RobotState> largestCluster = clusters.get(0);
 
 		return averagingRobotStateEstimator.estimateState(largestCluster);
 	}

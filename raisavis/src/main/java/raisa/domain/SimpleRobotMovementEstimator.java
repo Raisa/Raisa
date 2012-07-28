@@ -11,8 +11,11 @@ public class SimpleRobotMovementEstimator implements RobotMovementEstimator {
 	}
 	
 	@Override
-	public Robot moveRobot(Robot state, Sample sample) {
-		Robot robot = new Robot();
+	public RobotState moveRobot(RobotState state, Sample sample) {
+		RobotState robot = new RobotState();
+		if (sample == null) {
+			return robot;
+		}
 		float leftTrackTrip = (Robot.WHEEL_DIAMETER * sample.getLeftTrackTicks() * Robot.TICK_RADIANS) / 2.0f;
 		float rightTrackTrip = (Robot.WHEEL_DIAMETER * sample.getRightTrackTicks() * Robot.TICK_RADIANS) / 2.0f;
 

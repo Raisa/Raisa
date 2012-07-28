@@ -4,6 +4,6 @@ import java.util.List;
 
 public interface RobotStateEstimator {
 
-	Robot estimateState(List<Robot> states);
+	RobotState estimateState(List<RobotState> states);
 
 }
