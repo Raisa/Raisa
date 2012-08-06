@@ -7,10 +7,14 @@ public class SensorReading {
 	private Integer messageNumber;
 	private Vector3D gyro;
 	private Vector3D acceleration;
-	private Integer irDistance;
-	private Integer sonarDistance;
-	private Integer irDirection;
-	private Integer sonarDirection;
+	private Integer irDistance1;
+	private Integer sonarDistance1;
+	private Integer irDirection1;
+	private Integer sonarDirection1;
+	private Integer irDistance2;
+	private Integer sonarDistance2;
+	private Integer irDirection2;
+	private Integer sonarDirection2;
 	private Integer compassHeading;
 	private Integer leftEncoder;
 	private Integer rightEncoder;
@@ -22,10 +26,10 @@ public class SensorReading {
 		addField(builder, "TI", timestamp);
 		addField(builder, "RR", rightEncoder);
 		addField(builder, "RL", leftEncoder);
-		addField(builder, "Sd", sonarDistance);
-		addField(builder, "Id", irDistance);
-		addField(builder, "SR", sonarDirection);
-		addField(builder, "IR", irDirection);
+		addField(builder, "Sd", sonarDistance1);
+		addField(builder, "Id", irDistance1);
+		addField(builder, "SR", sonarDirection1);
+		addField(builder, "IR", irDirection1);
 		addField(builder, "Cd", compassHeading);
 		if (gyro != null) {
 			addField(builder, "Gx", gyro.getX());
@@ -96,39 +100,39 @@ public class SensorReading {
 		return this;
 	}
 
-	public Integer getIrDistance() {
-		return irDistance;
+	public Integer getIrDistance1() {
+		return irDistance1;
 	}
 
-	public SensorReading setIrDistance(Integer irDistance) {
-		this.irDistance = irDistance;
+	public SensorReading setIrDistance1(Integer irDistance1) {
+		this.irDistance1 = irDistance1;
 		return this;
 	}
 
-	public Integer getSonarDistance() {
-		return sonarDistance;
+	public Integer getSonarDistance1() {
+		return sonarDistance1;
 	}
 
-	public SensorReading setSonarDistance(Integer sonarDistance) {
-		this.sonarDistance = sonarDistance;
+	public SensorReading setSonarDistance1(Integer sonarDistance1) {
+		this.sonarDistance1 = sonarDistance1;
 		return this;
 	}
 
-	public Integer getIrDirection() {
-		return irDirection;
+	public Integer getIrDirection1() {
+		return irDirection1;
 	}
 
-	public SensorReading setIrDirection(Integer irDirection) {
-		this.irDirection = irDirection;
+	public SensorReading setIrDirection1(Integer irDirection1) {
+		this.irDirection1 = irDirection1;
 		return this;
 	}
 
-	public Integer getSonarDirection() {
-		return sonarDirection;
+	public Integer getSonarDirection1() {
+		return sonarDirection1;
 	}
 
-	public SensorReading setSonarDirection(Integer sonarDirection) {
-		this.sonarDirection = sonarDirection;
+	public SensorReading setSonarDirection1(Integer sonarDirection1) {
+		this.sonarDirection1 = sonarDirection1;
 		return this;
 	}
 
@@ -157,5 +161,37 @@ public class SensorReading {
 	public SensorReading setRightEncoder(Integer rightEncoder) {
 		this.rightEncoder = rightEncoder;
 		return this;
+	}
+
+	public Integer getIrDistance2() {
+		return irDistance2;
+	}
+
+	public void setIrDistance2(Integer irDistance2) {
+		this.irDistance2 = irDistance2;
+	}
+
+	public Integer getSonarDistance2() {
+		return sonarDistance2;
+	}
+
+	public void setSonarDistance2(Integer sonarDistance2) {
+		this.sonarDistance2 = sonarDistance2;
+	}
+
+	public Integer getIrDirection2() {
+		return irDirection2;
+	}
+
+	public void setIrDirection2(Integer irDirection2) {
+		this.irDirection2 = irDirection2;
+	}
+
+	public Integer getSonarDirection2() {
+		return sonarDirection2;
+	}
+
+	public void setSonarDirection2(Integer sonarDirection2) {
+		this.sonarDirection2 = sonarDirection2;
 	}
 }

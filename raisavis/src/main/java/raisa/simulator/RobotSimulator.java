@@ -32,8 +32,10 @@ public class RobotSimulator implements SimulatorState, ServoScanListener, Commun
 	private float heading;
 	private Vector2D position;
 	private RotatingServo rotatingServo = new RotatingServo(this);
-	private DistanceScanner irScanner = new IRDistanceScanner();
-	private DistanceScanner sonarScanner = new SonarDistanceScanner();
+	private DistanceScanner irScanner1 = new IRDistanceScanner();
+	private DistanceScanner sonarScanner1 = new SonarDistanceScanner();
+	private DistanceScanner irScanner2 = new IRDistanceScanner();
+	private DistanceScanner sonarScanner2 = new SonarDistanceScanner();
 	private DriveSystem driveSystem;
 	private WorldModel worldModel;
 	private List<SensorListener> sensorListeners = new ArrayList<SensorListener>();
@@ -66,12 +68,12 @@ public class RobotSimulator implements SimulatorState, ServoScanListener, Commun
 		rotatingServo.rotate(timestep);
 	}
 
-	public float getIRDistance() {
-		return irScanner.scanDistance(worldModel, this, rotatingServo.getHeading());
+	public float getIRDistance1() {
+		return irScanner1.scanDistance(worldModel, this, rotatingServo.getHeading());
 	}
 
-	public float getSonarDistance() {
-		return sonarScanner.scanDistance(worldModel, this, rotatingServo.getHeading());
+	public float getSonarDistance1() {
+		return sonarScanner1.scanDistance(worldModel, this, rotatingServo.getHeading());
 	}
 
 	/**
@@ -104,16 +106,27 @@ public class RobotSimulator implements SimulatorState, ServoScanListener, Commun
 	@Override
 	public void scan(float servoHeading) {
 		SensorReading reading = new SensorReading();
-		float irDistance = irScanner.scanDistance(worldModel, this, servoHeading);
-		float sonarDistance = sonarScanner.scanDistance(worldModel, this, servoHeading);
-		if(irDistance > 0 ) {
-			reading.setIrDistance(round(irDistance));
-			reading.setIrDirection(round(servoHeading) + 90);
+		float irDistance1 = irScanner1.scanDistance(worldModel, this, servoHeading);
+		float sonarDistance1 = sonarScanner1.scanDistance(worldModel, this, servoHeading);
+		float irDistance2 = irScanner2.scanDistance(worldModel, this, servoHeading + 180);
+		float sonarDistance2 = sonarScanner2.scanDistance(worldModel, this, servoHeading + 180);
+		if(irDistance1 > 0 ) {
+			reading.setIrDistance1(round(irDistance1));
+			reading.setIrDirection1(round(servoHeading) + 90);
 		}
-		if(sonarDistance > 0 ) {
-			reading.setSonarDistance(round(sonarDistance));
-			reading.setSonarDirection(round(servoHeading) + 90);
+		if(sonarDistance1 > 0 ) {
+			reading.setSonarDistance1(round(sonarDistance1));
+			reading.setSonarDirection1(round(servoHeading) + 90);
 		}
+		if(irDistance2 > 0 ) {
+			reading.setIrDistance2(round(irDistance2));
+			reading.setIrDirection2(round(servoHeading) + 90 + 180);
+		}
+		if(sonarDistance2 > 0 ) {
+			reading.setSonarDistance2(round(sonarDistance2));
+			reading.setSonarDirection2(round(servoHeading) + 90 + 180);
+		}
+		
 		reading.setCompassHeading(360-round(heading));
 		reading.setTimestamp(System.currentTimeMillis() - startTime).setMessageNumber(messageNumber++);
 		
