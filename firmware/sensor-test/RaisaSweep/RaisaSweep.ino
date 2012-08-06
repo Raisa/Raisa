@@ -20,11 +20,13 @@ boolean servoOn = true;
 // cool blue leds
 const int blueLedPin = 12;
 
-// ultrasonic sensor
-const int pingPin = 3;
+// ultrasonic sensors
+const int pingPinForward = 6;
+const int pingPinBackward = 7;
 
-// IR sensor
-const int irPin = 2;
+// IR sensors
+const int irPinForward = 2;
+const int irPinBackward = 3;
 float irSensorValue;    //Must be of type float for pow()
 
 // motors
@@ -194,20 +196,20 @@ void receiveMessage() {
   }  
 }
 
-long measureDistanceUltraSonic() {
+long measureDistanceUltraSonic(int pin) {
   //Used to read in the analog voltage output that is being sent by the MaxSonar device.
   //Scale factor is (Vcc/512) per inch. A 5V supply yields ~9.8mV/in
   //Arduino analog pin goes from 0 to 1024, so the value has to be divided by 2 to get the actual inches
   //return ( analogRead(pingPin)/2 ) * 2.54;
-  return analogRead(pingPin);
+  return analogRead(pin);
 }
 
-long measureDistanceInfraRed() {
+long measureDistanceInfraRed(int pin) {
   //irSensorValue = analogRead(irPin);
   // http://arduinomega.blogspot.fi/2011/05/infrared-long-range-sensor-gift-of.html
   //inches = 4192.936 * pow(sensorValue,-0.935) - 3.937;
   //return 10650.08 * pow(irSensorValue,-0.935) - 10; //cm
-  return analogRead(irPin);
+  return analogRead(pin);
 }
 
 void measureCompassAndAccelerometer() {
@@ -237,18 +239,23 @@ void sendFieldToServer(char * field, long value) {
   t.update();
 }
   
-void sendDataToServer(int angle, long distanceUltraSonic, long distanceInfraRed, 
-    long soundValue1, long soundValue2, long compassDirection, long timeSinceStart,
+void sendDataToServer(int angle, long distanceUltraSonicForward, long distanceUltraSonicBackward, 
+    long distanceInfraRedForward, long distanceInfraRedBackward, 
+    long compassDirection, long timeSinceStart,
     int tmpEncoderLeftCount, int tmpEncoderRightCount,
     long accelerationX, long accelerationY, long accelerationZ) {
   static long messageNumber = 0;
   Serial.print("STA;");
   sendFieldToServer("SR", angle);
-  sendFieldToServer("SD", distanceUltraSonic);
+  sendFieldToServer("SD", distanceUltraSonicForward);
+  sendFieldToServer("TR", angle - 180);
+  sendFieldToServer("TD", distanceUltraSonicBackward);
   sendFieldToServer("IR", angle);
-  sendFieldToServer("ID", distanceInfraRed);
-  sendFieldToServer("SA", soundValue1);
-  sendFieldToServer("SB", soundValue2);
+  sendFieldToServer("ID", distanceInfraRedForward);
+  sendFieldToServer("JR", angle - 180);
+  sendFieldToServer("JD", distanceInfraRedBackward);
+  //sendFieldToServer("SA", soundValue1);
+  //sendFieldToServer("SB", soundValue2);
   sendFieldToServer("CD", compassDirection);
   sendFieldToServer("TI", timeSinceStart);
   sendFieldToServer("NO", ++messageNumber);
@@ -296,15 +303,19 @@ void scan(int angle, int scanDelay) {
 
   measureGyro();  
   t.update();
-  long distanceUltraSonic = measureDistanceUltraSonic();
+  long distanceUltraSonicForward = measureDistanceUltraSonic(pingPinForward);
   t.update();
-  long distanceInfraRed = measureDistanceInfraRed();
+  long distanceInfraRedForward = measureDistanceInfraRed(irPinForward);
+  t.update();
+  long distanceUltraSonicBackward = measureDistanceUltraSonic(pingPinBackward);
+  t.update();
+  long distanceInfraRedBackward = measureDistanceInfraRed(irPinBackward);
   t.update();
   
   // TODO writing serial takes time
   // organize code so that servo is turning while serial data is sent
-  sendDataToServer(angle, distanceUltraSonic, distanceInfraRed, 
-    soundValue1, soundValue2, compassDirection, millis(),
+  sendDataToServer(angle, distanceUltraSonicForward, distanceUltraSonicBackward, distanceInfraRedForward, distanceInfraRedBackward, 
+    compassDirection, millis(),
     tmpEncoderLeftCount, tmpEncoderRightCount,
     tmpAccMeasurementX, tmpAccMeasurementY, tmpAccMeasurementZ);
 }

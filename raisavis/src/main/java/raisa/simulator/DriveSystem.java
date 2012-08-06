@@ -5,7 +5,7 @@ public interface DriveSystem {
 
 	DriveSystem setRightWheelSpeed(float speed);
 
-	void move(RobotState roverState, float timestep);
+	void move(SimulatorState roverState, float timestep);
 	
 	int readLeftWheelEncoderTicks();
 	

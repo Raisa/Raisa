@@ -28,7 +28,7 @@ public class DifferentialDrive implements DriveSystem {
 	}
 
 	@Override
-	public void move(RobotState roverState, float timestep) {
+	public void move(SimulatorState roverState, float timestep) {
 		double theta0 = Math.toRadians(roverState.getHeading());
 		
 		double wheelDistance = Math.PI * wheelDiameter; 
