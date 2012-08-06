@@ -4,5 +4,5 @@ import raisa.domain.WorldModel;
 
 
 public interface DistanceScanner {	
-	float scanDistance(WorldModel worldModel, RobotState roverState, float heading);
+	float scanDistance(WorldModel worldModel, SimulatorState roverState, float heading);
 }

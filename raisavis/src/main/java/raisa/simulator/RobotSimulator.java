@@ -23,7 +23,7 @@ import raisa.util.Vector3D;
  * Simulated Rover.
  * 
  */
-public class RobotSimulator implements RobotState, ServoScanListener, Communicator, VisualizerConfigListener, Runnable {
+public class RobotSimulator implements SimulatorState, ServoScanListener, Communicator, VisualizerConfigListener, Runnable {
 	
 	private static final Logger log = LoggerFactory.getLogger(RobotSimulator.class);
 	private static final float SPEED_PER_GEAR = 0.02f;
