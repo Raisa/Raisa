@@ -21,6 +21,10 @@ public class SampleParser {
 		boolean infrared1DistanceIsValid = false;
 		boolean ultrasound1AngleIsValid = false;
 		boolean ultrasound1DistanceIsValid = false;
+		boolean infrared2AngleIsValid = false;
+		boolean infrared2DistanceIsValid = false;
+		boolean ultrasound2AngleIsValid = false;
+		boolean ultrasound2DistanceIsValid = false;
 		if (!isValid(sampleString)) {
 			log.warn("INVALID SAMPLE! \"{}\"", sampleString);
 		} else {
@@ -39,8 +43,7 @@ public class SampleParser {
 					sample.setInfrared1Angle(angle);
 					infrared1AngleIsValid = true;
 				} else if (part.startsWith("ID")) {
-					float irSensorValue = Integer.parseInt(value);
-					float distance = 10650.08f * (float)Math.pow(irSensorValue, -0.935f) - 10.0f; // cm
+					float distance = parseIrSensorValue(value);
 					if (distance > 20.0f && distance < 150.0f) {
 						sample.setInfrared1Distance(distance);
 						infrared1DistanceIsValid = true;
@@ -51,14 +54,30 @@ public class SampleParser {
 						sample.setInfrared1Distance(distance);
 						infrared1DistanceIsValid = true;
 					}
+				} else if (part.startsWith("JR")) {
+					float angle = (float) Math.toRadians(Integer.parseInt(value));
+					angle = angle - (float)Math.PI / 2.0f;
+					sample.setInfrared2Angle(angle);
+					infrared2AngleIsValid = true;
+				} else if (part.startsWith("JD")) {
+					float distance = parseIrSensorValue(value);
+					if (distance > 20.0f && distance < 150.0f) {
+						sample.setInfrared2Distance(distance);
+						infrared2DistanceIsValid = true;
+					}
+				} else if(part.startsWith("Jd")) {
+					float distance = Integer.parseInt(value);
+					if (distance > 20.0f && distance < 150.0f) {
+						sample.setInfrared2Distance(distance);
+						infrared2DistanceIsValid = true;
+					}
 				} else if (part.startsWith("SR")) {
 					float angle = (float) Math.toRadians(Integer.parseInt(value));
 					angle = angle + (float)Math.PI / 2.0f;
 					sample.setUltrasound1Angle(angle);
 					ultrasound1AngleIsValid = true;
 				} else if (part.startsWith("SD")) {
-					float srSensorValue = Integer.parseInt(value);
-					float distance = (srSensorValue / 2.0f) * 2.54f; // cm
+					float distance = parseSoundSensorValue(value);
 					if (distance > 15.0f && distance < 645.0f) {
 						sample.setUltrasound1Distance(distance);
 						ultrasound1DistanceIsValid = true;
@@ -68,6 +87,23 @@ public class SampleParser {
 					if (distance > 15.0f && distance < 645.0f) {
 						sample.setUltrasound1Distance(distance);
 						ultrasound1DistanceIsValid = true;
+					}
+				} else if (part.startsWith("TR")) {
+					float angle = (float) Math.toRadians(Integer.parseInt(value));
+					angle = angle + (float)Math.PI / 2.0f;
+					sample.setUltrasound2Angle(angle);
+					ultrasound1AngleIsValid = true;
+				} else if (part.startsWith("TD")) {
+					float distance = parseSoundSensorValue(value);
+					if (distance > 15.0f && distance < 645.0f) {
+						sample.setUltrasound2Distance(distance);
+						ultrasound2DistanceIsValid = true;
+					}
+				} else if(part.startsWith("Td")) {
+					float distance = Integer.parseInt(value);
+					if (distance > 15.0f && distance < 645.0f) {
+						sample.setUltrasound2Distance(distance);
+						ultrasound2DistanceIsValid = true;
 					}
 				} else if (part.startsWith("CD")) {
 					float compass = (float) (Math.toRadians(Integer.parseInt(value)));
@@ -125,6 +161,18 @@ public class SampleParser {
 		}		
 		
 		return sample;
+	}
+
+	private float parseSoundSensorValue(String value) {
+		float srSensorValue = Integer.parseInt(value);
+		float distance = (srSensorValue / 2.0f) * 2.54f; // cm
+		return distance;
+	}
+
+	private float parseIrSensorValue(String value) {
+		float irSensorValue = Integer.parseInt(value);
+		float distance = 10650.08f * (float)Math.pow(irSensorValue, -0.935f) - 10.0f; // cm
+		return distance;
 	}
 
 	public boolean isValid(String sample) {

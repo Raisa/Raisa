@@ -8,9 +8,15 @@ public class Sample {
 	private float infrared1Angle;
 	private float infrared1Distance;
 	private boolean infrared1MeasurementValid;
+	private float infrared2Angle;
+	private float infrared2Distance;
+	private boolean infrared2MeasurementValid;
 	private float ultrasound1Angle;
 	private float ultrasound1Distance;
 	private boolean ultrasound1MeasurementValid;
+	private float ultrasound2Angle;
+	private float ultrasound2Distance;
+	private boolean ultrasound2MeasurementValid;
 	private float compassDirection;
 	private Vector3D acceleration = new Vector3D();
 	private Vector3D gyro = new Vector3D();
@@ -176,6 +182,54 @@ public class Sample {
 
 	public void setMessageNumber(int messageNumber) {
 		this.messageNumber = messageNumber;
+	}
+
+	public float getInfrared2Angle() {
+		return infrared2Angle;
+	}
+
+	public void setInfrared2Angle(float infrared2Angle) {
+		this.infrared2Angle = infrared2Angle;
+	}
+
+	public float getInfrared2Distance() {
+		return infrared2Distance;
+	}
+
+	public void setInfrared2Distance(float infrared2Distance) {
+		this.infrared2Distance = infrared2Distance;
+	}
+
+	public boolean isInfrared2MeasurementValid() {
+		return infrared2MeasurementValid;
+	}
+
+	public void setInfrared2MeasurementValid(boolean infrared2MeasurementValid) {
+		this.infrared2MeasurementValid = infrared2MeasurementValid;
+	}
+
+	public float getUltrasound2Angle() {
+		return ultrasound2Angle;
+	}
+
+	public void setUltrasound2Angle(float ultrasound2Angle) {
+		this.ultrasound2Angle = ultrasound2Angle;
+	}
+
+	public float getUltrasound2Distance() {
+		return ultrasound2Distance;
+	}
+
+	public void setUltrasound2Distance(float ultrasound2Distance) {
+		this.ultrasound2Distance = ultrasound2Distance;
+	}
+
+	public boolean isUltrasound2MeasurementValid() {
+		return ultrasound2MeasurementValid;
+	}
+
+	public void setUltrasound2MeasurementValid(boolean ultrasound2MeasurementValid) {
+		this.ultrasound2MeasurementValid = ultrasound2MeasurementValid;
 	}
 	
 }
