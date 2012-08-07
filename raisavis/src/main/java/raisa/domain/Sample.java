@@ -1,5 +1,7 @@
 package raisa.domain;
 
+import org.apache.commons.lang3.builder.ToStringBuilder;
+
 import raisa.util.Vector3D;
 
 
@@ -37,6 +39,12 @@ public class Sample {
 		this.ultrasound1Angle = copy.ultrasound1Angle;
 		this.ultrasound1Distance = copy.ultrasound1Distance;
 		this.ultrasound1MeasurementValid = copy.ultrasound1MeasurementValid;
+		this.infrared2Angle = copy.infrared2Angle;
+		this.infrared2Distance = copy.infrared2Distance;
+		this.infrared2MeasurementValid = copy.infrared2MeasurementValid;
+		this.ultrasound2Angle = copy.ultrasound2Angle;
+		this.ultrasound2Distance = copy.ultrasound2Distance;
+		this.ultrasound2MeasurementValid = copy.ultrasound2MeasurementValid;
 		this.compassDirection = copy.compassDirection;
 		this.acceleration = new Vector3D(copy.acceleration);
 		this.gyro = new Vector3D(copy.gyro);
@@ -230,6 +238,14 @@ public class Sample {
 
 	public void setUltrasound2MeasurementValid(boolean ultrasound2MeasurementValid) {
 		this.ultrasound2MeasurementValid = ultrasound2MeasurementValid;
+	}
+	
+	public String toString() {
+		ToStringBuilder builder = new ToStringBuilder(this)
+				.append("infrared2MeasurementValid", infrared2MeasurementValid)
+				.append("infrared2Angle", infrared2Angle)
+				.append("infrared2Distance", infrared2Distance);
+		return builder.toString();
 	}
 	
 }

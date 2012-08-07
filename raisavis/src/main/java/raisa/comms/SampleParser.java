@@ -73,7 +73,7 @@ public class SampleParser {
 					}
 				} else if (part.startsWith("SR")) {
 					float angle = (float) Math.toRadians(Integer.parseInt(value));
-					angle = angle + (float)Math.PI / 2.0f;
+					angle = angle - (float)Math.PI / 2.0f;
 					sample.setUltrasound1Angle(angle);
 					ultrasound1AngleIsValid = true;
 				} else if (part.startsWith("SD")) {
@@ -90,7 +90,7 @@ public class SampleParser {
 					}
 				} else if (part.startsWith("TR")) {
 					float angle = (float) Math.toRadians(Integer.parseInt(value));
-					angle = angle + (float)Math.PI / 2.0f;
+					angle = angle - (float)Math.PI / 2.0f;
 					sample.setUltrasound2Angle(angle);
 					ultrasound1AngleIsValid = true;
 				} else if (part.startsWith("TD")) {
@@ -158,8 +158,9 @@ public class SampleParser {
 			}
 			sample.setInfrared1MeasurementValid(infrared1AngleIsValid && infrared1DistanceIsValid);
 			sample.setUltrasound1MeasurementValid(ultrasound1AngleIsValid && ultrasound1DistanceIsValid);
+			sample.setInfrared2MeasurementValid(infrared2AngleIsValid && infrared2DistanceIsValid);
+			sample.setUltrasound2MeasurementValid(ultrasound2AngleIsValid && ultrasound2DistanceIsValid);
 		}		
-		
 		return sample;
 	}
 

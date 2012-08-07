@@ -259,58 +259,70 @@ public class VisualizerPanel extends JPanel implements SampleListener, Visualize
 			List<Sample> irs = new ArrayList<Sample>(latestIR);
 			Collections.reverse(irs);
 			float ir = 1.0f;
+			RobotState robot = worldModel.getLatestState().getEstimatedState();
 			for (Sample sample : irs) {
-				RobotState robot = worldModel.getLatestState().getEstimatedState();
-				if (sample.isInfrared1MeasurementValid()) {
-					g2.setColor(GraphicsUtil.makeTransparentColor(measurementColor, ir));
-					Vector2D spot = GeometryUtil.calculatePosition(robot.getPosition(), robot.getHeading() + sample.getInfrared1Angle(), sample.getInfrared1Distance());
-					if (ir >= 1.0f) {
-						drawMeasurementLine(g2, robot.getPosition(), spot);
-					} else {
-						drawMeasurementLine(g2, robot.getPosition(), spot, false);
-					}
-					drawPoint(g2, spot);
-					ir *= 0.8f;
-				} else {
-					g2.setColor(new Color(1.0f, 0.0f, 0.0f, ir));
-					Stroke stroke = g2.getStroke();
-					g2.setStroke(dashed);
-					float angle = robot.getHeading() + sample.getInfrared1Angle() - (float) Math.PI * 0.5f;
-					float dx = (float) Math.cos(angle) * 250.0f;
-					float dy = (float) Math.sin(angle) * 250.0f;
-					Vector2D position = robot.getPosition();
-					Vector2D away = new Vector2D(position.x + dx, position.y + dy);
-					drawMeasurementLine(g2, position, away, false);
-					g2.setStroke(stroke);
-				}
+				drawIrMeasurement(g2, ir, sample.isInfrared1MeasurementValid(), sample.getInfrared1Angle(), sample.getInfrared1Distance(), robot);
+				drawIrMeasurement(g2, ir, sample.isInfrared2MeasurementValid(), sample.getInfrared2Angle(), sample.getInfrared2Distance(), robot);
+				ir *= 0.8f;
 			}
 		}
 	}
 
+	private void drawIrMeasurement(Graphics2D g2, float ir, boolean irMeasurementValid, float irAngle, float irDistance,
+			RobotState robot) {
+		if (irMeasurementValid) {
+			g2.setColor(GraphicsUtil.makeTransparentColor(measurementColor, ir));
+			Vector2D spot = GeometryUtil.calculatePosition(robot.getPosition(), robot.getHeading() + irAngle, irDistance);
+			if (ir >= 1.0f) {
+				drawMeasurementLine(g2, robot.getPosition(), spot);
+			} else {
+				drawMeasurementLine(g2, robot.getPosition(), spot, false);
+			}
+			drawPoint(g2, spot);
+		} else {
+			g2.setColor(new Color(1.0f, 0.0f, 0.0f, ir));
+			Stroke stroke = g2.getStroke();
+			g2.setStroke(dashed);
+			float angle = robot.getHeading() + irAngle - (float) Math.PI * 0.5f;
+			float dx = (float) Math.cos(angle) * 250.0f;
+			float dy = (float) Math.sin(angle) * 250.0f;
+			Vector2D position = robot.getPosition();
+			Vector2D away = new Vector2D(position.x + dx, position.y + dy);
+			drawMeasurementLine(g2, position, away, false);
+			g2.setStroke(stroke);
+		}
+	}
+	
 	private void drawUltrasoundResults(Graphics g) {
 		RobotState robot = worldModel.getLatestState().getEstimatedState();
 		if (!latestSR.isEmpty()) {
-			float sonarWidth = 42.0f;
 			List<Sample> srs = new ArrayList<Sample>(latestSR);
 			Collections.reverse(srs);
 			float sr = 1.0f;
 			Vector2D position = robot.getPosition();
 			for (Sample sample : srs) {
-				Vector2D spot = GeometryUtil.calculatePosition(position, robot.getHeading() + sample.getUltrasound1Angle(), sample.getUltrasound1Distance());
-				g.setColor(new Color(0.0f, 0.6f, 0.6f, sr));
-				if (sr >= 1.0f) {
-					drawMeasurementLine(g, position, spot);
-					// g.setColor(new Color(0.0f, 0.6f, 0.6f, 0.05f));
-					drawSector(g, position, spot, sonarWidth);
-				} else {
-					// g.setColor(new Color(0.0f, 0.6f, 0.6f, 0.05f));
-					drawSector(g, position, spot, sonarWidth);
-				}
-				g.setColor(new Color(0.0f, 0.6f, 0.6f, sr));
-				drawPoint(g, spot);
+				drawUltrasoundMeasurement(g, robot, sr, position, sample.getUltrasound1Angle(), sample.getUltrasound1Distance());
+				drawUltrasoundMeasurement(g, robot, sr, position, sample.getUltrasound2Angle(), sample.getUltrasound2Distance());
 				sr *= 0.8f;
 			}
 		}
+	}
+
+	private void drawUltrasoundMeasurement(Graphics g, RobotState robot,
+			float sr, Vector2D position, float ultrasoundAngle, float ultrasoundDistance) {
+		float sonarWidth = 42.0f;
+		Vector2D spot = GeometryUtil.calculatePosition(position, robot.getHeading() + ultrasoundAngle, ultrasoundDistance);
+		g.setColor(new Color(0.0f, 0.6f, 0.6f, sr));
+		if (sr >= 1.0f) {
+			drawMeasurementLine(g, position, spot);
+			// g.setColor(new Color(0.0f, 0.6f, 0.6f, 0.05f));
+			drawSector(g, position, spot, sonarWidth);
+		} else {
+			// g.setColor(new Color(0.0f, 0.6f, 0.6f, 0.05f));
+			drawSector(g, position, spot, sonarWidth);
+		}
+		g.setColor(new Color(0.0f, 0.6f, 0.6f, sr));
+		drawPoint(g, spot);
 	}
 
 	private void drawRobotSimulator(Graphics2D g2) {
