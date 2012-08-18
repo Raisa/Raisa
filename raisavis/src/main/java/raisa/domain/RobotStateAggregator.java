@@ -6,10 +6,7 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import raisa.config.LocalizationModeEnum;
 import raisa.config.VisualizerConfig;
-import raisa.config.VisualizerConfigItemEnum;
-import raisa.config.VisualizerConfigListener;
 import raisa.util.CollectionUtil;
 import raisa.util.Vector2D;
 

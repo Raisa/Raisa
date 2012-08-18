@@ -20,9 +20,8 @@ public class ControlPanel extends JPanel {
 		add(toolPanel);
 		add(new CommunicatorPanel(communicator));
 		add(new MovementPanel(controller));
-		add(new OtherControlsPanel(controller, sessionWriter, robotSimulator));
-		
-		add(new VisualizationOptionsPanel());
+		add(new PanAndTiltSystemPanel(controller));
+		add(new OtherControlsPanel(controller, sessionWriter, robotSimulator));		
 	}
 
 }

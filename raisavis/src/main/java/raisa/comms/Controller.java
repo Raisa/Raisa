@@ -21,5 +21,9 @@ public abstract class Controller {
 	public abstract int getLeftSpeed();
 
 	public abstract int getRightSpeed();
+	
+	public abstract int getPanServoAngle();
+	
+	public abstract int getTiltServoAngle();
 
 }

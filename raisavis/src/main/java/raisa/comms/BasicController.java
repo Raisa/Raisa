@@ -12,6 +12,8 @@ public class BasicController extends Controller {
 	private int leftSpeed;
 	private int rightSpeed;
 	private boolean lights;
+	private int panServoAngle = 90;
+	private int tiltServoAngle = 120;
 	private long sessionStartTimestamp = -1;
 	
 	public BasicController(Communicator ... communicators) {
@@ -36,7 +38,7 @@ public class BasicController extends Controller {
 		if(sessionStartTimestamp  < 0) {
 			resetSession();
 		}
-		return new ControlMessage(leftSpeed, rightSpeed, lights);
+		return new ControlMessage(leftSpeed, rightSpeed, lights, panServoAngle, tiltServoAngle);
 	}
 
 	public void sendForward() {
@@ -76,6 +78,45 @@ public class BasicController extends Controller {
 		notifyControlListeners();
 	}
 	
+	public void sendPanLeft() {
+		if (panServoAngle + 5 <= 140) {
+			panServoAngle += 5;
+			sendPackage();
+			notifyControlListeners();
+		}
+	}
+	
+	public void sendPanRight() {
+		if (panServoAngle - 5 >= 40) {
+			panServoAngle -= 5;
+			sendPackage();
+			notifyControlListeners();
+		}
+	}
+	
+	public void sendCenterPanAndTilt() {
+		panServoAngle = 90;
+		tiltServoAngle = 120;
+		sendPackage();
+		notifyControlListeners();
+	}
+	
+	public void sendTiltDown() {
+		if (tiltServoAngle + 10 <= 120) {
+			tiltServoAngle += 10;
+			sendPackage();
+			notifyControlListeners();
+		}
+	}
+	
+	public void sendTiltUp() {
+		if (tiltServoAngle - 10 >= 0) {
+			tiltServoAngle -= 10;
+			sendPackage();
+			notifyControlListeners();
+		}
+	}	
+	
 	public void sendLights() {
 		lights = !lights;
 		sendPackage();
@@ -101,6 +142,16 @@ public class BasicController extends Controller {
 	@Override
 	public boolean getLights() {
 		return lights;
+	}
+	
+	@Override
+	public int getPanServoAngle() {
+		return panServoAngle;
+	}
+
+	@Override
+	public int getTiltServoAngle() {
+		return tiltServoAngle;
 	}
 
 	public void copyListenersTo(Controller targetController) {

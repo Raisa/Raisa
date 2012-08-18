@@ -38,6 +38,7 @@ public class VisualizationOptionsPanel extends JPanel {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				VisualizerConfig.getInstance().setDisplayParticles(particles.isSelected());
+				VisualizerConfig.getInstance().notifyVisualizerConfigListeners();
 			}
 		});
 
@@ -49,6 +50,7 @@ public class VisualizationOptionsPanel extends JPanel {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				VisualizerConfig.getInstance().setDisplayTrail(trail.isSelected());
+				VisualizerConfig.getInstance().notifyVisualizerConfigListeners();
 			}
 		});
 		add(trail);
@@ -59,6 +61,7 @@ public class VisualizationOptionsPanel extends JPanel {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				VisualizerConfig.getInstance().setDisplayRobot(robot.isSelected());
+				VisualizerConfig.getInstance().notifyVisualizerConfigListeners();
 			}
 		});
 		add(robot);
@@ -69,6 +72,7 @@ public class VisualizationOptionsPanel extends JPanel {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				VisualizerConfig.getInstance().setDisplaySimulator(simulator.isSelected());
+				VisualizerConfig.getInstance().notifyVisualizerConfigListeners();
 			}
 		});
 		add(simulator);
@@ -79,6 +83,7 @@ public class VisualizationOptionsPanel extends JPanel {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				VisualizerConfig.getInstance().setDisplayIrScan(irScan.isSelected());
+				VisualizerConfig.getInstance().notifyVisualizerConfigListeners();
 			}
 		});
 		add(irScan);
@@ -89,6 +94,7 @@ public class VisualizationOptionsPanel extends JPanel {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				VisualizerConfig.getInstance().setDisplaySonarScan(sonarScan.isSelected());
+				VisualizerConfig.getInstance().notifyVisualizerConfigListeners();
 			}
 		});
 		add(sonarScan);
@@ -99,6 +105,7 @@ public class VisualizationOptionsPanel extends JPanel {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				VisualizerConfig.getInstance().setDisplayMap(map.isSelected());
+				VisualizerConfig.getInstance().notifyVisualizerConfigListeners();
 			}
 		});
 		add(map);
@@ -118,9 +125,9 @@ public class VisualizationOptionsPanel extends JPanel {
 			
 			@Override
 			public void stateChanged(ChangeEvent e) {
-				System.out.println(e);
 				JSlider source = (JSlider)e.getSource();
 				VisualizerConfig.getInstance().setDisplayMinAgeForParticles(source.getValue());
+				VisualizerConfig.getInstance().notifyVisualizerConfigListeners();
 			}
 		});
 		add(particleMinAge);

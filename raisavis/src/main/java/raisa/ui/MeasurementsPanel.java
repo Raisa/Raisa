@@ -50,8 +50,8 @@ public class MeasurementsPanel extends JPanel implements SampleListener {
 		this.add(accelerationPanel);
 		gyroscopePanel = new GyroscopePanel(worldModel);
 		this.add(gyroscopePanel);
-		soundPanel = new SoundPanel(worldModel);
-		this.add(soundPanel);
+		//soundPanel = new SoundPanel(worldModel);
+		//this.add(soundPanel);
 		this.add(sampleCounterPanel = new SampleCounterPanel() );
 	}
 

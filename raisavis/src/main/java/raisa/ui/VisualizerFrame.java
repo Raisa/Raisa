@@ -37,12 +37,8 @@ import raisa.comms.ReplayController;
 import raisa.comms.SampleParser;
 import raisa.comms.SerialCommunicator;
 import raisa.config.VisualizerConfig;
-import raisa.domain.ClusteringRobotStateEstimator;
 import raisa.domain.RobotStateAggregator;
-import raisa.domain.Particle;
 import raisa.domain.ParticleFilter;
-import raisa.domain.Robot;
-import raisa.domain.RobotStateEstimator;
 import raisa.domain.Sample;
 import raisa.domain.WorldModel;
 import raisa.session.SessionWriter;
@@ -72,6 +68,7 @@ public class VisualizerFrame extends JFrame {
 	private SessionWriter sessionWriter;
 	private RobotSimulator robotSimulator;
 	private FileBasedSimulation fileBasedSimulation;
+	private VisualizationOptionsDialog visualizationOptionsDialog;
 	
 	public VisualizerFrame(final WorldModel worldModel) {
 		addIcon();
@@ -84,6 +81,7 @@ public class VisualizerFrame extends JFrame {
 		
 		visualizerPanel = new VisualizerPanel(this, worldModel, robotSimulator);
 		VisualizerConfig.getInstance().addVisualizerConfigListener(visualizerPanel);
+		visualizationOptionsDialog = new VisualizationOptionsDialog(this);
 		
 		MeasurementsPanel measurementsPanel = new MeasurementsPanel(worldModel);
 		JMenuBar menuBar = new JMenuBar();
@@ -311,9 +309,20 @@ public class VisualizerFrame extends JFrame {
 			}
 		});
 		zoomOut.setMnemonic('o');
+		
+		JMenuItem visualizationOptions = new JMenuItem("Options");
+		visualizationOptions.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				visualizationOptionsDialog.setVisible(true);
+			}
+		});
 
 		viewMenu.add(zoomIn);
 		viewMenu.add(zoomOut);
+		viewMenu.addSeparator();
+		viewMenu.add(visualizationOptions);
+		
 		menuBar.add(viewMenu);
 	}
 

@@ -13,15 +13,19 @@ public class ControlMessage {
 
 	private final int leftSpeed;
 	private final int rightSpeed;
+	private final int panServoAngle;
+	private final int tiltServoAngle;
 	private final boolean lights;
 
 	private long timestamp;
 
 	public ControlMessage(int leftSpeed, int rightSpeed,
-			boolean lights) {
+			boolean lights, int panServoAngle, int tiltServoAngle) {
 		this.leftSpeed = leftSpeed;
 		this.rightSpeed = rightSpeed;
 		this.lights = lights;
+		this.panServoAngle = panServoAngle;
+		this.tiltServoAngle = tiltServoAngle;
 	}
 
 	public static ControlMessage fromJson(String json) {
@@ -33,7 +37,10 @@ public class ControlMessage {
 				speedPowerMap[Math.abs(leftSpeed)],
 				(byte) (leftSpeed >= 0 ? 'F' : 'B'),
 				speedPowerMap[Math.abs(rightSpeed)],
-				(byte) (rightSpeed >= 0 ? 'F' : 'B'), (byte) (lights ? 2 : 1),
+				(byte) (rightSpeed >= 0 ? 'F' : 'B'), 
+				(byte) (panServoAngle & 0xFF),
+				(byte) (tiltServoAngle & 0xFF),
+				(byte) (lights ? 2 : 1),
 				'i', 's', };
 		return bytes;
 	}
@@ -63,6 +70,14 @@ public class ControlMessage {
 	public int getRightSpeed() {
 		return rightSpeed;
 	}
+	
+	public int getPanServoAngle() {
+		return panServoAngle;
+	}	
+
+	public int getTiltServoAngle() {
+		return tiltServoAngle;
+	}	
 
 	@Override
 	public boolean equals(Object obj) {

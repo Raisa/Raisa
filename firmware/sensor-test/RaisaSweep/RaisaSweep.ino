@@ -4,9 +4,9 @@
 #include <L3G4200D.h>
 #include <Timer.h>
 
-Servo myservo;  
-
 const long serialSpeed=111111L;
+
+boolean servosOn = true;
 
 // servo
 const int servoPin = 2;
@@ -15,7 +15,13 @@ int maxAngle = 180;
 int maxDelay = 120;
 int angleStep = 20;
 int scanOffset = 0;
-boolean servoOn = true;
+Servo myservo;
+
+// pan & tilt system
+const int panServoPin = 4;
+const int tiltServoPin = 3;
+Servo panServo;
+Servo tiltServo;
 
 // cool blue leds
 const int blueLedPin = 12;
@@ -90,8 +96,10 @@ void setup()
 { 
   Serial.begin(serialSpeed);
   Wire.begin();  
-  if (servoOn) {
+  if (servosOn) {
     myservo.attach(servoPin);  
+    panServo.attach(panServoPin);
+    tiltServo.attach(tiltServoPin);
   } 
   
   pinMode(motorLeftSpeedPin, OUTPUT);
@@ -144,7 +152,9 @@ void doEncoderRead() {
   }
 }
 
-void handleMessage(int leftSpeed, int leftDirection, int rightSpeed, int rightDirection, int control) {
+void handleMessage(int leftSpeed, int leftDirection, 
+    int rightSpeed, int rightDirection, 
+    int panServoAngle, int tiltServoAngle, int control) {
   // drive motors
   motorLeftForward = (leftDirection == 'B' ? false : true);
   motorRightForward = (rightDirection == 'B' ? false : true); 
@@ -153,6 +163,16 @@ void handleMessage(int leftSpeed, int leftDirection, int rightSpeed, int rightDi
   digitalWrite(motorLeftDirectionPin, (motorLeftForward ? LOW : HIGH));
   analogWrite(motorRightSpeedPin, rightSpeed);
   digitalWrite(motorRightDirectionPin, (motorRightForward ? LOW : HIGH));
+  
+  // prevent camera from breaking mechanically by constraining servo angles
+  if (servosOn) {
+    if (panServoAngle >= 40 && panServoAngle <= 140) {
+      panServo.write(panServoAngle);
+    }
+    if (tiltServoAngle >= 0 && tiltServoAngle <= 120) {
+      tiltServo.write(tiltServoAngle);
+    }
+  }
   
   // turn lights on/off
   int lightBits = (control & 3);
@@ -165,13 +185,14 @@ void handleMessage(int leftSpeed, int leftDirection, int rightSpeed, int rightDi
   }
 }
 
-char receiveBuffer[10];
-char receiveIndex = 0;
-char receiveValue = -1;
 // include 2 start bytes
 const int startBytes = 2;
-const int messagePayloadLength = 5;
+const int messagePayloadLength = 7;
 const int lastCommandIndex = startBytes + messagePayloadLength - 1;
+const int bufferSize = 12;
+char receiveBuffer[bufferSize];
+char receiveIndex = 0;
+char receiveValue = -1;
 
 void receiveMessage() {
   while(Serial.available() > 0) {
@@ -187,7 +208,8 @@ void receiveMessage() {
       // end of message
       handleMessage(receiveBuffer[startBytes], receiveBuffer[startBytes + 1], 
                     receiveBuffer[startBytes + 2], receiveBuffer[startBytes + 3],
-                    receiveBuffer[startBytes + 4]);
+                    (unsigned byte)receiveBuffer[startBytes + 4], (unsigned byte)receiveBuffer[startBytes + 5],
+                    receiveBuffer[startBytes + 6]);
       receiveIndex = 0;
     } else {
       // out of sync or message ended
@@ -271,7 +293,7 @@ void sendDataToServer(int angle, long distanceUltraSonicForward, long distanceUl
 }
 
 void scan(int angle, int scanDelay) {
-  if (servoOn) {
+  if (servosOn) {
     myservo.write(angle);
   }
   

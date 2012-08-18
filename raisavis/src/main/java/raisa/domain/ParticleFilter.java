@@ -8,9 +8,6 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import raisa.config.VisualizerConfig;
-import raisa.config.VisualizerConfigItemEnum;
-import raisa.config.VisualizerConfigListener;
 import raisa.util.CollectionUtil;
 import raisa.util.Vector2D;
 
@@ -21,7 +18,6 @@ public class ParticleFilter {
 	private WorldModel world;
 	private List<Particle> particles;
 	private List<Sample> samples = new ArrayList<Sample>();
-	private boolean active = false;
 
 	public ParticleFilter(WorldModel world, int nparticles) {
 		this.world = world;

@@ -84,4 +84,14 @@ public class ReplayController extends Controller {
 		return getCurrentControlMessage().getRightSpeed();
 	}
 
+	@Override
+	public int getPanServoAngle() {
+		return getCurrentControlMessage().getPanServoAngle();
+	}	
+	
+	@Override
+	public int getTiltServoAngle() {
+		return getCurrentControlMessage().getTiltServoAngle();
+	}	
+	
 }
