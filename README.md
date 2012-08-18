@@ -18,7 +18,7 @@ In the future, the vehicle will be supplied with arms (lasers and stuff). Beware
 
 <table style="width:auto;"><tr><td>
 <a href="https://picasaweb.google.com/lh/photo/R7cJ_9L8GoK_LDo5zjRHu9MTjNZETYmyPJy0liipFm0?feat=embedwebsite">
-<img src="https://lh6.googleusercontent.com/-PQsxBCkb6wk/UB_hSCNi7DI/AAAAAAAAHbw/Mz9PeSob5AU/s800/IMG_2861.JPG"
+<img src="https://lh6.googleusercontent.com/-tqCr3Qrq6Ds/UB_hURgFF4I/AAAAAAAAHbE/N-FFdrRfXD8/s800/IMG_2864.JPG"
 height="600" width="800" /></a></td></tr><tr><td style="font-family:arial,sans-serif; font-size:11px; text-align:right">
 <a href="https://picasaweb.google.com/102265649034609640012/Unboxing_of_Raisa?authuser=0&feat=embedwebsite">Pictures of Raisa</a></td></tr></table>
 
