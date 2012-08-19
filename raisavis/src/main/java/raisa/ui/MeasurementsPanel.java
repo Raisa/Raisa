@@ -62,7 +62,7 @@ public class MeasurementsPanel extends JPanel implements SampleListener {
 		odometerPanel.update(sample);
 		accelerationPanel.update(sample);
 		gyroscopePanel.update(sample);
-		soundPanel.update(sample);
+		//soundPanel.update(sample);
 		sampleCounterPanel.update(sample);
 	}
 

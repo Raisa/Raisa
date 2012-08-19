@@ -16,16 +16,19 @@ public class ControlMessage {
 	private final int panServoAngle;
 	private final int tiltServoAngle;
 	private final boolean lights;
+	private final boolean takePicture;
 
 	private long timestamp;
 
 	public ControlMessage(int leftSpeed, int rightSpeed,
-			boolean lights, int panServoAngle, int tiltServoAngle) {
+			boolean lights, int panServoAngle, int tiltServoAngle,
+			boolean takePicture) {
 		this.leftSpeed = leftSpeed;
 		this.rightSpeed = rightSpeed;
 		this.lights = lights;
 		this.panServoAngle = panServoAngle;
 		this.tiltServoAngle = tiltServoAngle;
+		this.takePicture = takePicture;
 	}
 
 	public static ControlMessage fromJson(String json) {
@@ -40,7 +43,7 @@ public class ControlMessage {
 				(byte) (rightSpeed >= 0 ? 'F' : 'B'), 
 				(byte) (panServoAngle & 0xFF),
 				(byte) (tiltServoAngle & 0xFF),
-				(byte) (lights ? 2 : 1),
+				(byte) ((lights ? 2 : 1) | (takePicture ? 4 : 0)),
 				'i', 's', };
 		return bytes;
 	}

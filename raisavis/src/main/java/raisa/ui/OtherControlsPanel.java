@@ -39,6 +39,7 @@ public class OtherControlsPanel extends JPanel implements VisualizerConfigListen
 		setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
 		setAlignmentX(Component.CENTER_ALIGNMENT);
 		createLightsControl(controller);
+		createTakePictureControl(controller);
 		createDataCaptureControl(sessionWriter);
 		createInputOutputTargetControl();
 		createLocalizationModeControl();
@@ -112,6 +113,18 @@ public class OtherControlsPanel extends JPanel implements VisualizerConfigListen
 			}
 		});
 	}
+	
+	private void createTakePictureControl(final BasicController controller) {
+		final JToggleButton takePictureButton = new JToggleButton("Take picture");
+		takePictureButton.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				controller.sendTakePicture();
+				takePictureButton.setSelected(false);
+			}
+		});
+		add(takePictureButton);
+	}	
 
 	private void createLocalizationModeControl() {
 		final JLabel label = new JLabel("Localization:");

@@ -14,6 +14,7 @@ public class BasicController extends Controller {
 	private boolean lights;
 	private int panServoAngle = 90;
 	private int tiltServoAngle = 120;
+	private boolean takePicture = false;
 	private long sessionStartTimestamp = -1;
 	
 	public BasicController(Communicator ... communicators) {
@@ -38,7 +39,7 @@ public class BasicController extends Controller {
 		if(sessionStartTimestamp  < 0) {
 			resetSession();
 		}
-		return new ControlMessage(leftSpeed, rightSpeed, lights, panServoAngle, tiltServoAngle);
+		return new ControlMessage(leftSpeed, rightSpeed, lights, panServoAngle, tiltServoAngle, takePicture);
 	}
 
 	public void sendForward() {
@@ -121,6 +122,13 @@ public class BasicController extends Controller {
 		lights = !lights;
 		sendPackage();
 		notifyControlListeners();
+	}
+	
+	public void sendTakePicture() {
+		takePicture = true;
+		sendPackage();
+		notifyControlListeners();
+		takePicture = false;
 	}
 
 	private void sendPackage() {

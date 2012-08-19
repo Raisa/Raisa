@@ -3,6 +3,7 @@
 #include <LSM303.h>
 #include <L3G4200D.h>
 #include <Timer.h>
+#include <SoftwareSerial.h>
 
 const long serialSpeed=111111L;
 
@@ -25,6 +26,7 @@ Servo tiltServo;
 
 // cool blue leds
 const int blueLedPin = 12;
+boolean blueLedOn = true;
 
 // ultrasonic sensors
 const int pingPinForward = 6;
@@ -38,10 +40,12 @@ float irSensorValue;    //Must be of type float for pow()
 // motors
 const int motorRightSpeedPin = 5;
 const int motorRightDirectionPin = 7;
+int motorRightSpeed = 0;
 boolean motorRightForward = true;
 
 const int motorLeftSpeedPin = 6;
 const int motorLeftDirectionPin = 8;
+int motorLeftSpeed = 0;
 boolean motorLeftForward = true;
 
 // encoders
@@ -66,6 +70,13 @@ long accMeasurementSumY = 0;
 long accMeasurementSumZ = 0;
 long compassMeasurementSum = 0;
 short imuMeasurementCount = 0;
+
+// JPEG-camera
+const long cameraSerialSpeed=38400L;
+SoftwareSerial cameraSerial(9,10);
+int cameraCurrentReadAddress = 0x0000;
+uint8_t cameraReadAddressMH, cameraReadAddressML;
+boolean cameraTakePictureFlag = false;
 
 // Gyroscope
 L3G4200D gyro;
@@ -95,6 +106,10 @@ void configureGyro() {
 void setup() 
 { 
   Serial.begin(serialSpeed);
+  cameraSerial.begin(cameraSerialSpeed);
+  
+  sendCameraResetCmd();
+  
   Wire.begin();  
   if (servosOn) {
     myservo.attach(servoPin);  
@@ -116,9 +131,22 @@ void setup()
   readSoundEvent = t.every(20, readSoundIntensity);
   
   pinMode(blueLedPin, OUTPUT);
-  digitalWrite(blueLedPin, HIGH);
-  Serial.println("RaisaSweep starting");
+  blink(6);
 } 
+
+void blink(int times) {
+  for (int i = 0; i < times; i++) {
+    digitalWrite(blueLedPin, LOW);
+    delay(100);
+    digitalWrite(blueLedPin, HIGH);
+    delay(100);
+  }
+  if (blueLedOn) {
+    digitalWrite(blueLedPin, HIGH);
+  } else {
+    digitalWrite(blueLedPin, LOW);  
+  }  
+}
 
 void readSoundIntensity() {
   soundMeasurement1Sum = analogRead(soundPin1);
@@ -158,6 +186,8 @@ void handleMessage(int leftSpeed, int leftDirection,
   // drive motors
   motorLeftForward = (leftDirection == 'B' ? false : true);
   motorRightForward = (rightDirection == 'B' ? false : true); 
+  motorLeftSpeed = leftSpeed;
+  motorRightSpeed = rightSpeed;
   
   analogWrite(motorLeftSpeedPin, leftSpeed);
   digitalWrite(motorLeftDirectionPin, (motorLeftForward ? LOW : HIGH));
@@ -177,12 +207,25 @@ void handleMessage(int leftSpeed, int leftDirection,
   // turn lights on/off
   int lightBits = (control & 3);
   switch(lightBits) {
-    case 1: digitalWrite(blueLedPin, LOW);
-            break;
-    case 2: digitalWrite(blueLedPin, HIGH);
-            break;
+    case 1: 
+      digitalWrite(blueLedPin, LOW);
+      blueLedOn = false;
+      break;
+    case 2: 
+      digitalWrite(blueLedPin, HIGH);
+      blueLedOn = true;
+      break;
     default: ;// no change
   }
+  
+  int cameraBit = (control & 4);
+  switch(cameraBit) {
+    case 4: 
+      cameraTakePictureFlag = true;
+      break;
+    default: ;
+  }
+  
 }
 
 // include 2 start bytes
@@ -289,6 +332,9 @@ void sendDataToServer(int angle, long distanceUltraSonicForward, long distanceUl
   sendFieldToServer("AX", accelerationX);
   sendFieldToServer("AY", accelerationY);
   sendFieldToServer("AZ", accelerationZ);
+  if (cameraTakePictureFlag) {
+    handleTakeAndSendPicture();
+  }
   Serial.println("END;");  
 }
 
@@ -342,8 +388,110 @@ void scan(int angle, int scanDelay) {
     tmpAccMeasurementX, tmpAccMeasurementY, tmpAccMeasurementZ);
 }
 
-void loop() 
-{ 
+void handleTakeAndSendPicture() {
+  blink(3);
+  analogWrite(motorLeftSpeedPin, 0);
+  analogWrite(motorRightSpeedPin, 0);
+  
+  sendCameraResetCmd();
+  delay(4000); 
+  sendCameraTakePhotoCmd();
+  readAndSendCameraPicture();
+  
+  analogWrite(motorLeftSpeedPin, motorLeftSpeed);
+  analogWrite(motorRightSpeedPin, motorRightSpeed);
+  cameraTakePictureFlag = false;
+  cameraCurrentReadAddress = 0x0000;
+}
+
+void readAndSendCameraPicture() {
+  int j = 0, k = 0, count = 0;
+  byte incomingByte;
+  boolean cameraReadEndFlag = false;
+  byte a[32];
+  long timeMillisBefore = millis();
+    
+  while(cameraSerial.available() > 0) {
+    incomingByte = cameraSerial.read();
+  }   
+  
+  Serial.print("CA");
+  while(!cameraReadEndFlag) {  
+    j = 0;
+    k = 0;
+    count = 0;
+    sendCameraReadDataCmd();
+    
+    delay(25);
+    while(cameraSerial.available() > 0) {
+      incomingByte = cameraSerial.read();
+      k++;
+      if((k>5)&&(j<32)&&(!cameraReadEndFlag)) {
+        a[j] = incomingByte;
+        //Check if the picture is over
+        if((a[j-1]==0xFF)&&(a[j]==0xD9)) { 
+          cameraReadEndFlag = true;     
+        }          
+        j++;
+	count++;
+      }
+    }
+     
+    //Send jpeg picture over the serial port as hexadecimal    
+    for(j=0;j<count;j++) {   
+      if(a[j]<0x10) {
+        Serial.print("0");
+      }
+      Serial.print(a[j],HEX);
+    }
+    
+    if ((millis() - timeMillisBefore) > 20000) {
+      cameraReadEndFlag = true;           
+    }
+  }
+  Serial.print(";");  
+  cameraCurrentReadAddress = 0x0000;
+}
+
+void sendCameraReadDataCmd() {
+  cameraReadAddressMH = cameraCurrentReadAddress / 0x100;
+  cameraReadAddressML = cameraCurrentReadAddress % 0x100;
+  cameraSerial.write((byte)0x56);
+  cameraSerial.write((byte)0x00);
+  cameraSerial.write((byte)0x32);
+  cameraSerial.write((byte)0x0c);
+  cameraSerial.write((byte)0x00); 
+  cameraSerial.write((byte)0x0a);
+  cameraSerial.write((byte)0x00);
+  cameraSerial.write((byte)0x00);
+  cameraSerial.write((byte)cameraReadAddressMH);
+  cameraSerial.write((byte)cameraReadAddressML);   
+  cameraSerial.write((byte)0x00);
+  cameraSerial.write((byte)0x00);
+  cameraSerial.write((byte)0x00);
+  cameraSerial.write((byte)0x20); // read 20h = 32 bytes at a time
+  cameraSerial.write((byte)0x00);  
+  cameraSerial.write((byte)0x0a);
+  cameraCurrentReadAddress += 0x20;
+}
+
+// note: camera requires 2-3 seconds after reset before accepting "take picture"-command
+void sendCameraResetCmd() {
+  cameraSerial.write((byte)0x56);
+  cameraSerial.write((byte)0x00);
+  cameraSerial.write((byte)0x26);
+  cameraSerial.write((byte)0x00);
+}
+
+void sendCameraTakePhotoCmd() {
+  cameraSerial.write((byte)0x56);
+  cameraSerial.write((byte)0x00);
+  cameraSerial.write((byte)0x36);
+  cameraSerial.write((byte)0x01);
+  cameraSerial.write((byte)0x00);  
+}
+
+void loop() { 
   scanOffset ++;
   if(scanOffset > angleStep) {
     scanOffset = 0;
@@ -357,3 +505,5 @@ void loop()
     scan(angle, maxDelay);
   } 
 } 
+
+
