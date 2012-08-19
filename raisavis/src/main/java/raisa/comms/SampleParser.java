@@ -1,10 +1,16 @@
 package raisa.comms;
 
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+
+import javax.imageio.ImageIO;
+
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import raisa.domain.Sample;
+import raisa.util.HexToBinaryUtil;
 
 public class SampleParser {
 	private static final Logger log = LoggerFactory.getLogger(SampleParser.class);
@@ -153,6 +159,13 @@ public class SampleParser {
 				} else if (part.startsWith("TI")) {
 					long timestampMillis = Long.parseLong(value);
 					sample.setTimestampMillis(timestampMillis);										
+				} else if (part.startsWith("CA")) {
+					byte[] imageBytes = HexToBinaryUtil.hexStringToByteArray(value);
+					try {
+						sample.setImage(ImageIO.read(new ByteArrayInputStream(imageBytes)));	
+					} catch(IOException iex) {
+						log.error("Failed to parse image", iex);
+					}
 				} else {
 				}
 			}
@@ -177,6 +190,6 @@ public class SampleParser {
 	}
 
 	public boolean isValid(String sample) {
-		return sample.matches("STA;([A-Z][A-Za-z]+[-]?[0-9]*\\.?[0-9]+;)*END;[\n\r]*");
+		return sample.matches("STA;([A-Z][A-Za-z]+[-]?[0-9]*\\.?[0-9]+;)*(CA[A-F0-9]*;)*END;[\n\r]*");
 	}
 }

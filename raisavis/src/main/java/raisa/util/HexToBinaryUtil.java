@@ -1,4 +1,4 @@
-package raisa;
+package raisa.util;
 
 import java.io.BufferedReader;
 import java.io.FileInputStream;
@@ -8,7 +8,7 @@ import java.io.InputStreamReader;
 /**
  * Convert ascii hex-file to binary file (e.g. hex jpeg to binary jpeg)
  */
-public class HexToBinaryConverter {
+public class HexToBinaryUtil {
 
 	public static byte[] hexStringToByteArray(String s) {
 	    int len = s.length();

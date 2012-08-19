@@ -13,6 +13,7 @@ import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Path2D;
+import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -58,6 +59,7 @@ public class VisualizerPanel extends JPanel implements SampleListener, Visualize
 	private VisualizerFrame visualizerFrame;
 	private WorldModel worldModel;
 	private RobotSimulator robotSimulator;
+	private BufferedImage currentImage;
 	
 	public void reset() {
 		worldModel.reset();
@@ -105,6 +107,9 @@ public class VisualizerPanel extends JPanel implements SampleListener, Visualize
 			latestSR.add(sample);
 			latestSR = CollectionUtil.takeLast(latestSR, 10);
 		}
+		if (sample.getImage() != null) {
+			currentImage = sample.getImage();
+		}
 		repaint();
 	}
 
@@ -144,8 +149,15 @@ public class VisualizerPanel extends JPanel implements SampleListener, Visualize
 			drawAngle(g2, worldMouseDown, worldMouse);
 		}
 		drawCoordinates(g2, worldMouse);
+		drawCurrentImage(g2);
 	}
 
+	private void drawCurrentImage(Graphics2D g2) {
+		if (currentImage != null) {
+			g2.drawImage(currentImage, 0, 0, null);
+		}
+	}
+	
 	private void drawOriginArrows(Graphics2D g2) {
 		Vector2D origin = toScreen(0, 0);
 		g2.setColor(mapMarkerColor);

@@ -25,7 +25,7 @@ Servo panServo;
 Servo tiltServo;
 
 // cool blue leds
-const int blueLedPin = 12;
+const int blueLedPin = 13;
 boolean blueLedOn = true;
 
 // ultrasonic sensors
@@ -73,7 +73,7 @@ short imuMeasurementCount = 0;
 
 // JPEG-camera
 const long cameraSerialSpeed=38400L;
-SoftwareSerial cameraSerial(9,10);
+SoftwareSerial cameraSerial(11,12);
 int cameraCurrentReadAddress = 0x0000;
 uint8_t cameraReadAddressMH, cameraReadAddressML;
 boolean cameraTakePictureFlag = false;

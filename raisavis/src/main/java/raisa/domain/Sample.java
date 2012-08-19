@@ -1,5 +1,7 @@
 package raisa.domain;
 
+import java.awt.image.BufferedImage;
+
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
 import raisa.util.Vector3D;
@@ -27,6 +29,7 @@ public class Sample {
 	private int soundIntensity;
 	private long timestampMillis;
 	private int messageNumber;
+	private BufferedImage image;
 	
 	public Sample() {		
 	}
@@ -53,6 +56,7 @@ public class Sample {
 		this.soundIntensity = copy.soundIntensity;
 		this.timestampMillis = copy.timestampMillis;
 		this.messageNumber = copy.messageNumber;
+		this.image = copy.image;
 	}
 	
 
@@ -238,6 +242,14 @@ public class Sample {
 
 	public void setUltrasound2MeasurementValid(boolean ultrasound2MeasurementValid) {
 		this.ultrasound2MeasurementValid = ultrasound2MeasurementValid;
+	}
+	
+	public void setImage(BufferedImage image) {
+		this.image = image;
+	}
+	
+	public BufferedImage getImage() {
+		return image;
 	}
 	
 	public String toString() {
