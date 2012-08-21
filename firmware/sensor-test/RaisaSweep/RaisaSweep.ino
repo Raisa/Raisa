@@ -393,9 +393,10 @@ void handleTakeAndSendPicture() {
   analogWrite(motorLeftSpeedPin, 0);
   analogWrite(motorRightSpeedPin, 0);
   
-  sendCameraResetCmd();
-  delay(4000); 
+  //sendCameraResetCmd();
+  //delay(4000); 
   sendCameraTakePhotoCmd();
+  delay(500);
   readAndSendCameraPicture();
   
   analogWrite(motorLeftSpeedPin, motorLeftSpeed);
@@ -422,7 +423,7 @@ void readAndSendCameraPicture() {
     count = 0;
     sendCameraReadDataCmd();
     
-    delay(25);
+    delay(75);
     while(cameraSerial.available() > 0) {
       incomingByte = cameraSerial.read();
       k++;
@@ -450,6 +451,8 @@ void readAndSendCameraPicture() {
     }
   }
   Serial.print(";");  
+  sendCameraStopTakePhotoCmd();
+  sendCameraResetCmd();
   cameraCurrentReadAddress = 0x0000;
 }
 
@@ -489,6 +492,14 @@ void sendCameraTakePhotoCmd() {
   cameraSerial.write((byte)0x36);
   cameraSerial.write((byte)0x01);
   cameraSerial.write((byte)0x00);  
+}
+
+void sendCameraStopTakePhotoCmd() {
+  cameraSerial.write((byte)0x56);
+  cameraSerial.write((byte)0x00);
+  cameraSerial.write((byte)0x36);
+  cameraSerial.write((byte)0x01);
+  cameraSerial.write((byte)0x03);  
 }
 
 void loop() { 
