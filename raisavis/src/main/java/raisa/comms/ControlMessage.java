@@ -10,7 +10,10 @@ public class ControlMessage {
 			(byte) 160, (byte) 175, (byte) 195, (byte) 220, (byte) 255 };
 
 	public static final int SPEED_STEPS = speedPowerMap.length;
-
+	
+	private static int idSequence = 0;
+	
+	private final int id;
 	private final int leftSpeed;
 	private final int rightSpeed;
 	private final int panServoAngle;
@@ -23,6 +26,7 @@ public class ControlMessage {
 	public ControlMessage(int leftSpeed, int rightSpeed,
 			boolean lights, int panServoAngle, int tiltServoAngle,
 			boolean takePicture) {
+		this.id = getNextId();
 		this.leftSpeed = leftSpeed;
 		this.rightSpeed = rightSpeed;
 		this.lights = lights;
@@ -30,7 +34,11 @@ public class ControlMessage {
 		this.tiltServoAngle = tiltServoAngle;
 		this.takePicture = takePicture;
 	}
-
+	
+	private synchronized static int getNextId() {
+		return idSequence++;
+	}
+	
 	public static ControlMessage fromJson(String json) {
 		return new Gson().fromJson(json, ControlMessage.class);
 	}
@@ -44,6 +52,7 @@ public class ControlMessage {
 				(byte) (panServoAngle & 0xFF),
 				(byte) (tiltServoAngle & 0xFF),
 				(byte) ((lights ? 2 : 1) | (takePicture ? 4 : 0)),
+				(byte) (id % 10),
 				'i', 's', };
 		return bytes;
 	}
@@ -54,12 +63,16 @@ public class ControlMessage {
 
 	@Override
 	public String toString() {
-		return String.format("time:%s,left:%s,right:%s,lights:%s",
-				getTimestamp(), leftSpeed, rightSpeed, lights);
+		return String.format("id:%s,time:%s,left:%s,right:%s,lights:%s,panangle:%s,tiltangle:%s,picture:%s",
+				id, getTimestamp(), leftSpeed, rightSpeed, lights, panServoAngle, tiltServoAngle, takePicture);
 	}
 
 	public String toJson() {
 		return new Gson().toJson(this);
+	}
+	
+	public int getId() {
+		return id;
 	}
 
 	public boolean isLights() {

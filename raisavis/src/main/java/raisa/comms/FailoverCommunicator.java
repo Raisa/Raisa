@@ -43,6 +43,17 @@ public class FailoverCommunicator implements Communicator, VisualizerConfigListe
 
 		return false;
 	}
+	
+	@Override
+	public void close() {
+		for (Communicator communicator : communicators) {
+			try {
+				communicator.close();
+			} catch (Throwable t) {
+				log.warn("Failed to close {}", communicator);
+			}
+		}
+	}	
 
 	@Override
 	public void setActive(boolean active) {
@@ -84,6 +95,5 @@ public class FailoverCommunicator implements Communicator, VisualizerConfigListe
 			}
 		}
 	}
-
 
 }

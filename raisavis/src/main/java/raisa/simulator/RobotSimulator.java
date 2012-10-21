@@ -184,6 +184,11 @@ public class RobotSimulator implements SimulatorState, ServoScanListener, Commun
 	public boolean connect() {
 		return true;
 	}
+
+	@Override
+	public void close() {
+		;
+	}	
 	
 	@Override
 	public void setActive(boolean active) {

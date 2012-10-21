@@ -6,12 +6,13 @@ import gnu.io.SerialPortEvent;
 import gnu.io.SerialPortEventListener;
 
 import java.io.IOException;
-import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
-import java.util.Scanner;
 
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -26,15 +27,23 @@ public class SerialCommunicator implements SerialPortEventListener, Communicator
 			"COM3", // Windows
 	};
 	/** Buffered input stream from the port */
-	private InputStream input;
+	private InputStreamReader input;
+	
+	/** Thread for sending control messages to serial */
+	private Thread serialWriterThread;
+	private SerialWriter serialWriter;
+	
 	/** Milliseconds to block while waiting for port open */
 	private static final int TIME_OUT = 2000;
 	/** Default bits per second for COM port. */
 	private static final int DATA_RATE = 111111;
+	private static final String ACK_STR = "ACK";	
+	
 	private List<SensorListener> sensorListeners = new ArrayList<SensorListener>();
 	private CommPortIdentifier portId = null;
 	private boolean active = false;
-
+	private String unfinishedSample = "";
+	
 	@Override
 	public boolean connect() {
 		Enumeration<?> portEnum = CommPortIdentifier.getPortIdentifiers();
@@ -62,7 +71,11 @@ public class SerialCommunicator implements SerialPortEventListener, Communicator
 			serialPort.setSerialPortParams(DATA_RATE, SerialPort.DATABITS_8, SerialPort.STOPBITS_1, SerialPort.PARITY_NONE);
 
 			// open the streams
-			input = serialPort.getInputStream();
+			input = new InputStreamReader(serialPort.getInputStream());
+			
+			serialWriter = new SerialWriter(serialPort.getOutputStream());
+			serialWriterThread = new Thread(serialWriter);
+			serialWriterThread.start();
 
 			// add event listeners
 			serialPort.addEventListener(this);
@@ -79,10 +92,14 @@ public class SerialCommunicator implements SerialPortEventListener, Communicator
 	 * This should be called when you stop using the port. This will prevent
 	 * port locking on platforms like Linux.
 	 */
+	@Override
 	public synchronized void close() {
 		if (serialPort != null) {
 			serialPort.removeEventListener();
 			serialPort.close();
+		}
+		if (serialWriter != null) {
+			serialWriter.close();
 		}
 	}
 
@@ -96,20 +113,33 @@ public class SerialCommunicator implements SerialPortEventListener, Communicator
 			return;
 		}
 		if (oEvent.getEventType() == SerialPortEvent.DATA_AVAILABLE) {
-			try {
-				Scanner scanner = new Scanner(input).useDelimiter("\n");
+			try {			
 				SampleParser parser = new SampleParser();
-				String line;
-				while (scanner.hasNext() && active) {
-					line = scanner.next();
-					if (!parser.isValid(line)) {
-						log.warn("Invalid sample! {}", line);
+				int tmp;
+				while ((tmp = input.read()) != -1) {
+					unfinishedSample += String.valueOf((char)tmp);
+					if (!unfinishedSample.endsWith("\n")) {
+						continue;
+					}
+					if (unfinishedSample.startsWith(ACK_STR)) {
+						log.debug("Sample {}", unfinishedSample);
+						try {
+							int ackId = Character.getNumericValue(unfinishedSample.charAt(3));
+							serialWriter.setAckReceived(ackId);
+							synchronized(serialWriterThread) {
+								serialWriterThread.notifyAll();
+							}
+						} catch (Throwable nex) {
+							log.warn("Invalid acknowledgement: " + unfinishedSample);
+						}
+					} else if (!parser.isValid(unfinishedSample)) {
+						log.warn("Invalid sample! {}", unfinishedSample);
 					} else {
-						log.debug("Sample {}", line);
 						for (SensorListener sensorListener : sensorListeners) {
-							sensorListener.sampleReceived(line);
+							sensorListener.sampleReceived(unfinishedSample);
 						}
 					}
+					unfinishedSample = "";
 				}
 			} catch (Exception e) {
 				log.error("Error in processing serial event", e);
@@ -124,11 +154,11 @@ public class SerialCommunicator implements SerialPortEventListener, Communicator
 		if (!active) {
 			return;
 		}
-		try {
-			serialPort.getOutputStream().write(controlMessage.toSerialMessage());
-			serialPort.getOutputStream().flush();
-		} catch (IOException e) {
-			e.printStackTrace();
+		if (serialWriter != null) {
+			serialWriter.sendMessage(controlMessage);
+			synchronized(serialWriterThread) {
+				serialWriterThread.notifyAll();
+			}
 		}
 	}
 
@@ -167,3 +197,53 @@ public class SerialCommunicator implements SerialPortEventListener, Communicator
 	}
 
 }
+
+class SerialWriter implements Runnable {
+
+	private static final Logger log = LoggerFactory.getLogger(SerialWriter.class);
+	
+	private static final long RETRANSMISSION_DELAY = 500L;
+	
+	private OutputStream output;
+	private ControlMessage latestMessage;
+	private int ackId = -1;
+	private boolean running = true;
+	
+	public SerialWriter(OutputStream output) {
+		this.output = output;
+	}
+	
+	public void setAckReceived(int id) {
+		this.ackId = id;
+	}
+	
+	public void sendMessage(ControlMessage message) {
+		this.latestMessage = message;
+	}
+	
+	public void close() {
+		this.running = false;
+	}
+	
+	@Override
+	public void run() {
+		while (running)	{
+			if (latestMessage != null && (latestMessage.getId() % 10) != ackId) {
+				try {
+					output.write(latestMessage.toSerialMessage());
+					output.flush();
+					log.debug(latestMessage.toString());
+				} catch (IOException e) {
+					log.error("Error sending command to serial", e);
+				}
+			}
+			try {
+				Thread.sleep(RETRANSMISSION_DELAY);
+			} catch (InterruptedException e) {
+				log.debug("Thread sleep interrupted", e);
+			}
+		}
+	}
+		
+}
+

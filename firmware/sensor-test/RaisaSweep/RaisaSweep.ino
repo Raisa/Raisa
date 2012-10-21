@@ -95,8 +95,8 @@ void configureCompass() {
   
   // Calibration values. Use the Calibrate example program to get the values for
   // your compass.
-  compass.m_min.x = -419; compass.m_min.y = -723; compass.m_min.z = -402;
-  compass.m_max.x = +429; compass.m_max.y = +278; compass.m_max.z = 546;  
+  compass.m_min.x = -592; compass.m_min.y = -649; compass.m_min.z = -545;
+  compass.m_max.x = +356; compass.m_max.y = +480; compass.m_max.z = +748;  
 }
 
 void configureGyro() {
@@ -182,7 +182,7 @@ void doEncoderRead() {
 
 void handleMessage(int leftSpeed, int leftDirection, 
     int rightSpeed, int rightDirection, 
-    int panServoAngle, int tiltServoAngle, int control) {
+    int panServoAngle, int tiltServoAngle, int control, int seqNo) {
   // drive motors
   motorLeftForward = (leftDirection == 'B' ? false : true);
   motorRightForward = (rightDirection == 'B' ? false : true); 
@@ -225,14 +225,17 @@ void handleMessage(int leftSpeed, int leftDirection,
       break;
     default: ;
   }
-  
+
+  Serial.print("ACK");
+  Serial.println(seqNo);
+  Serial.flush();
 }
 
 // include 2 start bytes
 const int startBytes = 2;
-const int messagePayloadLength = 7;
+const int messagePayloadLength = 8;
 const int lastCommandIndex = startBytes + messagePayloadLength - 1;
-const int bufferSize = 12;
+const int bufferSize = 13;
 char receiveBuffer[bufferSize];
 char receiveIndex = 0;
 char receiveValue = -1;
@@ -252,7 +255,7 @@ void receiveMessage() {
       handleMessage(receiveBuffer[startBytes], receiveBuffer[startBytes + 1], 
                     receiveBuffer[startBytes + 2], receiveBuffer[startBytes + 3],
                     (unsigned byte)receiveBuffer[startBytes + 4], (unsigned byte)receiveBuffer[startBytes + 5],
-                    receiveBuffer[startBytes + 6]);
+                    receiveBuffer[startBytes + 6], receiveBuffer[startBytes + 7]);
       receiveIndex = 0;
     } else {
       // out of sync or message ended
@@ -301,7 +304,6 @@ void sendFieldToServer(char * field, long value) {
   Serial.print(field);
   Serial.print(value);
   Serial.print(";");
-  t.update();
 }
   
 void sendDataToServer(int angle, long distanceUltraSonicForward, long distanceUltraSonicBackward, 
@@ -326,16 +328,20 @@ void sendDataToServer(int angle, long distanceUltraSonicForward, long distanceUl
   sendFieldToServer("NO", ++messageNumber);
   sendFieldToServer("RL", tmpEncoderLeftCount);  
   sendFieldToServer("RR", tmpEncoderRightCount);
-  sendFieldToServer("GX", (long)gyro.g.x);
-  sendFieldToServer("GY", (long)gyro.g.y);
-  sendFieldToServer("GZ", (long)gyro.g.z);
-  sendFieldToServer("AX", accelerationX);
-  sendFieldToServer("AY", accelerationY);
-  sendFieldToServer("AZ", accelerationZ);
+  
+  // when uncommented, sample size exceeds arduino serial buffer size 128 bytes
+  // ==> have problems and should add flush & delay in the middle of the sample
+  //sendFieldToServer("GX", (long)gyro.g.x);
+  //sendFieldToServer("GY", (long)gyro.g.y);
+  //sendFieldToServer("GZ", (long)gyro.g.z);
+  //sendFieldToServer("AX", accelerationX);
+  //sendFieldToServer("AY", accelerationY);
+  //sendFieldToServer("AZ", accelerationZ);
   if (cameraTakePictureFlag) {
     handleTakeAndSendPicture();
   }
   Serial.println("END;");  
+  Serial.flush();
 }
 
 void scan(int angle, int scanDelay) {
@@ -445,6 +451,7 @@ void readAndSendCameraPicture() {
       }
       Serial.print(a[j],HEX);
     }
+    Serial.flush();
     
     if ((millis() - timeMillisBefore) > 20000) {
       cameraReadEndFlag = true;           

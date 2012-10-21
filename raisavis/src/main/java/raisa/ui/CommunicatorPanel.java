@@ -25,6 +25,7 @@ public class CommunicatorPanel extends JPanel {
 
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
+				CommunicatorPanel.this.communicator.close();
 				CommunicatorPanel.this.communicator.connect();
 			}			
 		});

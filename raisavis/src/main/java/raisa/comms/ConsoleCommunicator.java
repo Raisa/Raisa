@@ -30,5 +30,10 @@ public class ConsoleCommunicator implements Communicator {
 	public void setActive(boolean active) {
 		;
 	}
+
+	@Override
+	public void close() {
+		;
+	}
 	
 }
