@@ -95,14 +95,20 @@ public class VisualizerPanel extends JPanel implements SampleListener, Visualize
 
 	@Override
 	public void sampleAdded(Sample sample) {
+		RobotState latestState = worldModel.getLatestState().getEstimatedState();
 		if (sample.isInfrared1MeasurementValid()) {
-			RobotState latestState = worldModel.getLatestState().getEstimatedState();
 			Vector2D spotPosition = GeometryUtil.calculatePosition(latestState.getPosition(), latestState.getHeading() + sample.getInfrared1Angle(), sample.getInfrared1Distance());
 			worldModel.setGridPosition(spotPosition, true);
+		}
+		if (sample.isInfrared1MeasurementValid()) {
+			Vector2D spotPosition = GeometryUtil.calculatePosition(latestState.getPosition(), latestState.getHeading() + sample.getInfrared2Angle(), sample.getInfrared2Distance());
+			worldModel.setGridPosition(spotPosition, true);
+		}		
+		if (sample.isInfrared1MeasurementValid() || sample.isInfrared2MeasurementValid()) {
 			latestIR.add(sample);
 			latestIR = CollectionUtil.takeLast(latestIR, 10);
 		}
-		if (sample.isUltrasound1MeasurementValid()) {
+		if (sample.isUltrasound1MeasurementValid() || sample.isUltrasound2MeasurementValid()) {
 			//grid.addSpot(sample.getSrSpot());
 			latestSR.add(sample);
 			latestSR = CollectionUtil.takeLast(latestSR, 10);

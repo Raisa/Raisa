@@ -94,7 +94,7 @@ public class ParticleFilter {
 			executeThrunResampling(weights, maxWeight, newParticles);		
 
 			// add a few random particles to avoid local maxima
-			for (int i = 0; i < particles.size() / 10; ++i) {
+			for (int i = 0; i < particles.size() / 7; ++i) {
 				newParticles.set(i, makeRandomParticle());
 			}
 

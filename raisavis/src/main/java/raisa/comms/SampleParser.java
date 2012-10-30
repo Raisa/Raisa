@@ -98,7 +98,7 @@ public class SampleParser {
 					float angle = (float) Math.toRadians(Integer.parseInt(value));
 					angle = angle - (float)Math.PI / 2.0f;
 					sample.setUltrasound2Angle(angle);
-					ultrasound1AngleIsValid = true;
+					ultrasound2AngleIsValid = true;
 				} else if (part.startsWith("TD")) {
 					float distance = parseSoundSensorValue(value);
 					if (distance > 15.0f && distance < 645.0f) {

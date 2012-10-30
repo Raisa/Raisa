@@ -25,6 +25,8 @@ public class Particle {
 	
 	public float calculateWeight(WorldModel world, List<Sample> samples) {
 		int windowLength = Math.min(states.size(), samples.size());
+		int missingStatesCount = Math.max(states.size(), samples.size()) - windowLength;
+
 		if (samples.size() != windowLength) {
 			samples = CollectionUtil.takeLast(samples, windowLength);
 		}
@@ -40,28 +42,32 @@ public class Particle {
 			// weight based on samples
 			Sample sample = samples.get(i);
 			RobotState state = states.get(i);
+			
 			if (sample.isInfrared1MeasurementValid()) {
-				float expectedDistance = world.traceRay(state.getPosition(), state.getHeading() + sample.getInfrared1Angle());			
-				float measuredDistance = sample.getInfrared1Distance();	
-				float ratio = Math.min(expectedDistance, measuredDistance) / Math.max(expectedDistance, measuredDistance);
-		
-				// weight based on compass reading (take angle between unit vectors)
-				float cosa = (float)(Math.cos(state.getHeading()) * Math.cos(sample.getCompassDirection()) + Math.sin(state.getHeading()) * Math.sin(sample.getCompassDirection()));
-				// cosinus is -1..+1 and near 1 when angles are close to each other, scale to 0..1
-				weights +=  (ratio * ratio + 0.05f * (1.0f + cosa) * (1.0f + cosa)) * (sample.isUltrasound1MeasurementValid() ? 1.0f : 1.5f);
+				weights += calculateSingleWeight(world, state, sample.getCompassDirection(), sample.getInfrared1Angle(), sample.getInfrared1Distance(), sample.isUltrasound1MeasurementValid());
 			} 
 			if (sample.isUltrasound1MeasurementValid()) {
-				float expectedDistance = world.traceRay(state.getPosition(), state.getHeading() + sample.getUltrasound1Angle());                
-				float measuredDistance = sample.getUltrasound1Distance();
-				float ratio = Math.min(expectedDistance, measuredDistance) / Math.max(expectedDistance, measuredDistance);
-				
-				// weight based on compass reading (take angle between unit vectors)
-				float cosa = (float)(Math.cos(state.getHeading()) * Math.cos(sample.getCompassDirection()) + Math.sin(state.getHeading()) * Math.sin(sample.getCompassDirection()));
-				// cosinus is -1..+1 and near 1 when angles are close to each other, scale to 0..1
-				weights += (ratio * ratio + 0.05f * (1.0f + cosa) * (1.0f + cosa)) * (sample.isInfrared1MeasurementValid() ? 1.0f : 1.5f);
+				weights += calculateSingleWeight(world, state, sample.getCompassDirection(), sample.getUltrasound1Angle(), sample.getUltrasound1Distance(), sample.isInfrared1MeasurementValid());
+			}
+			if (sample.isInfrared2MeasurementValid()) {
+				weights += calculateSingleWeight(world, state, sample.getCompassDirection(), sample.getInfrared2Angle(), sample.getInfrared2Distance(), sample.isUltrasound2MeasurementValid());
+			} 
+			if (sample.isUltrasound2MeasurementValid()) {
+				weights += calculateSingleWeight(world, state, sample.getCompassDirection(), sample.getUltrasound2Angle(), sample.getUltrasound2Distance(), sample.isInfrared2MeasurementValid());
 			}
 		}
-		return weights;
+		return weights + (0.2f * missingStatesCount * (weights / (float)windowLength));
+	}
+	
+	private float calculateSingleWeight(WorldModel world, RobotState state, float compassDirection, float angle, float distance, boolean otherSensorMeasurementValid) {
+		float expectedDistance = world.traceRay(state.getPosition(), state.getHeading() + angle);			
+		float measuredDistance = distance;	
+		float ratio = Math.min(expectedDistance, measuredDistance) / Math.max(expectedDistance, measuredDistance);
+
+		// weight based on compass reading (take angle between unit vectors)
+		float cosa = (float)(Math.cos(state.getHeading()) * Math.cos(compassDirection) + Math.sin(state.getHeading()) * Math.sin(compassDirection));
+		// cosinus is -1..+1 and near 1 when angles are close to each other, scale to 0..1
+		return (ratio * ratio + 0.05f * (1.0f + cosa) * (1.0f + cosa)) * (otherSensorMeasurementValid ? 1.0f : 1.5f);
 	}
 
 	public RobotState getLastState() {
