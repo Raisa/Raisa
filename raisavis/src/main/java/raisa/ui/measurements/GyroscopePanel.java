@@ -1,11 +1,11 @@
 package raisa.ui.measurements;
 
 import java.awt.Dimension;
+import java.awt.GridLayout;
 import java.text.DecimalFormat;
 import java.util.LinkedList;
 import java.util.List;
 
-import javax.swing.BoxLayout;
 import javax.swing.border.TitledBorder;
 
 import raisa.domain.Sample;
@@ -27,7 +27,7 @@ import raisa.util.Vector3D;
 		this.setMaximumSize(new Dimension(190, 150));
 		TitledBorder border = new TitledBorder("Gyroscope (dps)");
 		setBorder(border);
-		setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
+		setLayout(new GridLayout(3, 1));
 		xPanel = new MeasurementGraphPanel(20f);
 		xPanel.setTextValue("X: -");
 		xPanel.setAlignmentX(LEFT_ALIGNMENT);

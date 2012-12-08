@@ -1,6 +1,7 @@
 package raisa.ui.measurements;
 
 import java.awt.Dimension;
+import java.awt.GridLayout;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -26,13 +27,15 @@ public class MeasurementsPanel extends JPanel implements SampleListener, Visuali
 		TitledBorder border = new TitledBorder("Measurements");
 		setBorder(border);
 		setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
-		this.setMinimumSize(new Dimension(200, 300));
+
 		this.setPreferredSize(new Dimension(200, 300));
-		this.setMaximumSize(new Dimension(200, 300));
+		this.setMinimumSize(getPreferredSize());
+		this.setMaximumSize(getPreferredSize());
 		
 		subpanels.add(new HeadingPanel(worldModel));
 		subpanels.add(new SpeedPanel(worldModel));
 		subpanels.add(new OdometerPanel(worldModel));
+		subpanels.add(new DistanceSensorStatusPanel(worldModel));
 		subpanels.add(new AccelerationPanel(worldModel));
 		subpanels.add(new GyroscopePanel(worldModel));
 		subpanels.add(new SoundPanel(worldModel));

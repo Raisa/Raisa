@@ -39,6 +39,7 @@ public class VisualizerConfig {
 		this.displayedMeasurements.add(MeasurementTypeEnum.SPEED);
 		this.displayedMeasurements.add(MeasurementTypeEnum.ODOMETER);
 		this.displayedMeasurements.add(MeasurementTypeEnum.SAMPLE_COUNTER);
+		this.displayedMeasurements.add(MeasurementTypeEnum.DISTANCE_SENSOR_STATUS);
 	}
 	
 	public static VisualizerConfig getInstance() {

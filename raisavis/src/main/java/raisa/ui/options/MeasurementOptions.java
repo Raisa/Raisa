@@ -21,6 +21,7 @@ class MeasurementsOptions extends JPanel {
 		setAlignmentX(Component.CENTER_ALIGNMENT);
 		
 		this.add(new MeasurementCheckBox("Acceleration", MeasurementTypeEnum.ACCELERATION));
+		this.add(new MeasurementCheckBox("Distance sensors", MeasurementTypeEnum.DISTANCE_SENSOR_STATUS));
 		this.add(new MeasurementCheckBox("Gyroscope", MeasurementTypeEnum.GYROSCOPE));
 		this.add(new MeasurementCheckBox("Heading", MeasurementTypeEnum.HEADING));
 		this.add(new MeasurementCheckBox("Odometer", MeasurementTypeEnum.ODOMETER));

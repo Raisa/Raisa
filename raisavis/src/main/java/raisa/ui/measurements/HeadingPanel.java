@@ -1,9 +1,9 @@
 package raisa.ui.measurements;
 
 import java.awt.Dimension;
+import java.awt.GridLayout;
 import java.text.DecimalFormat;
 
-import javax.swing.BoxLayout;
 import javax.swing.JLabel;
 import javax.swing.border.TitledBorder;
 
@@ -24,7 +24,7 @@ import raisa.domain.WorldModel;
 		this.setMaximumSize(getMinimumSize());
 		TitledBorder border = new TitledBorder("Heading (degrees)");
 		setBorder(border);
-		setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
+		setLayout(new GridLayout(2, 1));
 		headingMeasuredField = new JLabel(":- (compass)");
 		headingMeasuredField.setAlignmentX(LEFT_ALIGNMENT);
 		this.add(headingMeasuredField);

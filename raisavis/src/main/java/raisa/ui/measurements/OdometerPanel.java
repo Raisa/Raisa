@@ -1,6 +1,7 @@
 package raisa.ui.measurements;
 
 import java.awt.Dimension;
+import java.awt.GridLayout;
 import java.text.DecimalFormat;
 
 import javax.swing.BoxLayout;
@@ -24,7 +25,7 @@ import raisa.domain.WorldModel;
 		this.setMaximumSize(getMinimumSize());
 		TitledBorder border = new TitledBorder("Odometer (m)");
 		setBorder(border);
-		setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
+		setLayout(new GridLayout(2, 1));
 		measuredDistance = new JLabel("- (encoders)");
 		measuredDistance.setAlignmentX(LEFT_ALIGNMENT);
 		this.add(measuredDistance);

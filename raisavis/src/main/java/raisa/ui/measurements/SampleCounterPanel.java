@@ -1,8 +1,8 @@
 package raisa.ui.measurements;
 
 import java.awt.Dimension;
+import java.awt.GridLayout;
 
-import javax.swing.BoxLayout;
 import javax.swing.JLabel;
 import javax.swing.border.TitledBorder;
 
@@ -23,7 +23,7 @@ import raisa.domain.WorldModel;
 		this.setMaximumSize(getMinimumSize());
 		TitledBorder border = new TitledBorder("Sample counters");
 		setBorder(border);
-		setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
+		setLayout(new GridLayout(2, 1));
 		sentField = new JLabel("Sent: -");
 		sentField.setAlignmentX(LEFT_ALIGNMENT);
 		sentField.setToolTipText("Message number from the latest sample. Set by the sender.");

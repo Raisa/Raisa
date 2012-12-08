@@ -13,6 +13,7 @@ import raisa.domain.WorldModel;
 	protected boolean isDisplayed;
 	
 	public MeasurementSubPanel(WorldModel worldModel) {
+		super();
 		this.worldModel = worldModel;
 	}
 		

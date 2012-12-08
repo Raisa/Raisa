@@ -1,11 +1,11 @@
 package raisa.ui.measurements;
 
 import java.awt.Dimension;
+import java.awt.GridLayout;
 import java.text.DecimalFormat;
 import java.util.LinkedList;
 import java.util.List;
 
-import javax.swing.BoxLayout;
 import javax.swing.border.TitledBorder;
 
 import raisa.domain.Sample;
@@ -23,7 +23,7 @@ import raisa.domain.WorldModel;
 		this.setMaximumSize(new Dimension(190, 70));
 		TitledBorder border = new TitledBorder("Sound intensity");
 		setBorder(border);
-		setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
+		setLayout(new GridLayout(1, 1));
 		soundGraphPanel = new MeasurementGraphPanel(-0.3f);
 		soundGraphPanel.setTextValue("Value: -");
 		soundGraphPanel.setAlignmentX(LEFT_ALIGNMENT);
