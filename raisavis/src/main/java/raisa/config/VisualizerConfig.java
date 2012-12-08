@@ -1,17 +1,23 @@
 package raisa.config;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+
+import raisa.ui.measurements.MeasurementTypeEnum;
 
 public class VisualizerConfig {
 		
 	private List<VisualizerConfigListener> visualizerConfigListeners;
 	private static VisualizerConfig instance;
+	private List<VisualizerConfigItemEnum> changedConfigs;
 	
+	// IO-source and state for activated algorithms
 	private InputOutputTargetEnum inputOutputTarget = InputOutputTargetEnum.FILE_SIMULATION;
 	private LocalizationModeEnum localizationMode = LocalizationModeEnum.NONE;	
-	private List<VisualizerConfigItemEnum> changedConfigs;
 
+	// map area visualization options
 	private boolean displayMap = true;
 	private boolean displayTrail = true;
 	private boolean displayRobot = true;
@@ -21,9 +27,18 @@ public class VisualizerConfig {
 	private boolean displayIrScan = true;
 	private int displayMinAgeForParticles = 0;
 	
+	// measurements panel visualization options
+	private Set<MeasurementTypeEnum> displayedMeasurements;
+	
 	private VisualizerConfig() {
 		this.visualizerConfigListeners = new ArrayList<VisualizerConfigListener>();
 		this.changedConfigs = new ArrayList<VisualizerConfigItemEnum>();
+		
+		this.displayedMeasurements = new HashSet<MeasurementTypeEnum>();
+		this.displayedMeasurements.add(MeasurementTypeEnum.HEADING);
+		this.displayedMeasurements.add(MeasurementTypeEnum.SPEED);
+		this.displayedMeasurements.add(MeasurementTypeEnum.ODOMETER);
+		this.displayedMeasurements.add(MeasurementTypeEnum.SAMPLE_COUNTER);
 	}
 	
 	public static VisualizerConfig getInstance() {
@@ -163,5 +178,19 @@ public class VisualizerConfig {
 	public void setDisplayMinAgeForParticles(int displayMinAgeForParticles) {
 		this.displayMinAgeForParticles = displayMinAgeForParticles;
 	}
+	
+	public void addDisplayedMeasurement(MeasurementTypeEnum measurementType) {
+		this.displayedMeasurements.add(measurementType);
+		this.setChanged(VisualizerConfigItemEnum.DISPLAYED_MEASUREMENTS);
+	}
+	
+	public void removeDisplayedMeasurement(MeasurementTypeEnum measurementType) {
+		this.displayedMeasurements.remove(measurementType);
+		this.setChanged(VisualizerConfigItemEnum.DISPLAYED_MEASUREMENTS);		
+	}
 
+	public Set<MeasurementTypeEnum> getDisplayedMeasurements() {
+		return this.displayedMeasurements;
+	}
+	
 }

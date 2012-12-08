@@ -12,7 +12,7 @@ import raisa.domain.WorldModel;
  */
 public class SonarDistanceScanner extends IRDistanceScanner {
 	// simulate wide beam by doing several scans and taking the minimum distance
-	private static final List<Float> beamHeadings = Arrays.asList(-10f, -8f, -6f, -2f, 0f, 2f, 4f, 6f, 8f, 10f); 
+	private static final List<Float> beamHeadings = Arrays.asList(-5f, -2.5f, 0f, 2.5f, 5f); 
 
 	@Override
 	public float scanDistance(WorldModel worldModel, SimulatorState roverState, float heading) {

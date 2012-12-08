@@ -1,4 +1,4 @@
-package raisa.ui;
+package raisa.ui.controls;
 
 import java.awt.Component;
 import java.awt.Dimension;

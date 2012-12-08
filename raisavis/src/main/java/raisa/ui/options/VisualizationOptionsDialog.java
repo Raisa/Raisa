@@ -1,4 +1,4 @@
-package raisa.ui;
+package raisa.ui.options;
 
 import java.awt.Dimension;
 import java.awt.Frame;
@@ -19,7 +19,7 @@ public class VisualizationOptionsDialog extends JDialog {
 	    int screenWidth = screenSize.width;
 	    setLocation(screenWidth / 4, screenHeight / 4);
 
-	    setPreferredSize(new Dimension(200,300));
+	    setPreferredSize(new Dimension(350,300));
 		setMinimumSize(getPreferredSize());
 		setMaximumSize(getPreferredSize());
 	}

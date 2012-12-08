@@ -1,4 +1,4 @@
-package raisa.ui;
+package raisa.ui.controls;
 
 import java.awt.Component;
 
@@ -9,6 +9,9 @@ import raisa.comms.BasicController;
 import raisa.comms.Communicator;
 import raisa.session.SessionWriter;
 import raisa.simulator.RobotSimulator;
+import raisa.ui.ToolPanel;
+import raisa.ui.VisualizerFrame;
+import raisa.ui.VisualizerPanel;
 
 public class ControlPanel extends JPanel {
 	private static final long serialVersionUID = 1L;

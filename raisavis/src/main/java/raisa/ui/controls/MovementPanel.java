@@ -1,4 +1,4 @@
-package raisa.ui;
+package raisa.ui.controls;
 
 import java.awt.Dimension;
 import java.awt.GridLayout;

@@ -1,4 +1,4 @@
-package raisa.ui;
+package raisa.ui.options;
 
 import java.awt.Component;
 import java.awt.Dimension;
@@ -16,8 +16,9 @@ import javax.swing.event.ChangeListener;
 
 import raisa.config.VisualizerConfig;
 
-public class VisualizationOptionsPanel extends JPanel {
-	private static final long serialVersionUID = 1L;
+class MapAreaOptions extends JPanel {		
+	private static final long serialVersionUID = 1L;		
+	
 	private JCheckBox particles;
 	private JCheckBox trail;
 	private JCheckBox simulator;
@@ -26,12 +27,12 @@ public class VisualizationOptionsPanel extends JPanel {
 	private JCheckBox irScan;
 	private JCheckBox sonarScan;
 	private JSlider particleMinAge;
-	
-	public VisualizationOptionsPanel() {
-		setBorder(new TitledBorder("Visualization options"));
+
+	public MapAreaOptions() {
+		setBorder(new TitledBorder("Map area"));
 		setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
 		setAlignmentX(Component.CENTER_ALIGNMENT);
-		
+
 		particles = new JCheckBox("Particles");
 		particles.setSelected(true);
 		particles.addActionListener(new ActionListener() {
@@ -131,7 +132,6 @@ public class VisualizationOptionsPanel extends JPanel {
 			}
 		});
 		add(particleMinAge);
-		
 	}
 	
 }
