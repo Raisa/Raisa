@@ -100,7 +100,7 @@ public class VisualizerPanel extends JPanel implements SampleListener, Visualize
 			Vector2D spotPosition = GeometryUtil.calculatePosition(latestState.getPosition(), latestState.getHeading() + sample.getInfrared1Angle(), sample.getInfrared1Distance());
 			worldModel.setGridPosition(spotPosition, true);
 		}
-		if (sample.isInfrared1MeasurementValid()) {
+		if (sample.isInfrared2MeasurementValid()) {
 			Vector2D spotPosition = GeometryUtil.calculatePosition(latestState.getPosition(), latestState.getHeading() + sample.getInfrared2Angle(), sample.getInfrared2Distance());
 			worldModel.setGridPosition(spotPosition, true);
 		}		

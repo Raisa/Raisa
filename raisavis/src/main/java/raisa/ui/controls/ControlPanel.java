@@ -9,7 +9,6 @@ import raisa.comms.BasicController;
 import raisa.comms.Communicator;
 import raisa.session.SessionWriter;
 import raisa.simulator.RobotSimulator;
-import raisa.ui.ToolPanel;
 import raisa.ui.VisualizerFrame;
 import raisa.ui.VisualizerPanel;
 

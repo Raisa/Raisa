@@ -1,4 +1,4 @@
-package raisa.ui;
+package raisa.ui.controls;
 
 import java.awt.Component;
 import java.awt.event.ActionEvent;
@@ -10,6 +10,9 @@ import javax.swing.JButton;
 import javax.swing.JPanel;
 import javax.swing.JToggleButton;
 import javax.swing.border.TitledBorder;
+
+import raisa.ui.UserEditUndoListener;
+import raisa.ui.VisualizerFrame;
 
 public class ToolPanel extends JPanel {
 	private static final long serialVersionUID = 1L;

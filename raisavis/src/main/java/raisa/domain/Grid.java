@@ -14,7 +14,7 @@ public class Grid {
 	public static final int MAX_UNDO_LEVELS = 10;
 	private static final Color transparentColor = new Color(1.0f, 0.0f, 1.0f, 0.0f);
 	private static final Color blockedColor = new Color(0.5f, 0.6f, 0.7f, 1.0f);
-	private static final Color userBlockedColor = Color.black;
+	private static final Color userBlockedColor = Color.red;
 	private static final Color clearColor = Color.white;
 
 	private BufferedImage blockedImage = new BufferedImage(GRID_SIZE, GRID_SIZE, BufferedImage.TYPE_INT_ARGB);
@@ -39,8 +39,16 @@ public class Grid {
 	public void setGridPosition(Vector2D position, boolean isBlocked) {
 		int x = Math.round(position.x / CELL_SIZE) + GRID_SIZE / 2;
 		int y = Math.round(position.y / CELL_SIZE) + GRID_SIZE / 2;
-		int rgb1 = (isBlocked ? blockedColor : clearColor).getRGB();
-		this.blockedImage.setRGB(x, y, rgb1);
+		int rgbNew = clearColor.getRGB();
+		if (isBlocked) {
+			int rgbOld = this.blockedImage.getRGB(x, y);
+			if (rgbOld == clearColor.getRGB() || rgbOld == transparentColor.getRGB()) {
+				rgbNew = blockedColor.getRGB();
+			} else {
+				rgbNew = (new Color(rgbOld).darker()).getRGB();
+			}
+		} 
+		this.blockedImage.setRGB(x, y, rgbNew);
 	}
 
 	public void setUserPosition(Vector2D position, boolean isBlocked) {
