@@ -17,8 +17,8 @@ public class SonarDistanceScanner extends IRDistanceScanner {
 	@Override
 	public float scanDistance(WorldModel worldModel, SimulatorState roverState, float heading) {
 		float min = -1;
-		for(float beamHeading: beamHeadings) {
-			float distance = super.scanDistance(worldModel, roverState, heading +180 + beamHeading);
+		for (float beamHeading : beamHeadings) {
+			float distance = super.scanDistance(worldModel, roverState, heading + beamHeading);
 			if(min < 0 || (distance > 0 && distance < min)) {
 				min = distance;
 			}
