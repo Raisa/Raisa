@@ -1,7 +1,10 @@
 package raisa.domain.landmarks;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+
+import org.apache.commons.math3.stat.regression.SimpleRegression;
 
 import raisa.domain.RobotState;
 import raisa.domain.Sample;
@@ -26,7 +29,7 @@ public class RansacExtractor implements LandmarkExtractor {
 	private final static int MIN_LINEPOINTS = 30;
 
 	/* if point is within x distance of line its part of line */
-	private final static double RANSAC_TOLERANCE = 0.05; 
+	private final static float RANSAC_TOLERANCE = 8.0f; 
 
 	/* at least 30 votes required to determine if a line */
 	private final static int RANSAC_CONSENSUS = 30;
@@ -80,18 +83,45 @@ public class RansacExtractor implements LandmarkExtractor {
 
 	private LineEquation leastSquaresLineEstimate(
 			List<Vector2D> rndSelectedPoints) {
-		// TODO Auto-generated method stub
-		return null;
+		double[][] pointArray = new double[rndSelectedPoints.size()][2];
+		for (int i=0; i<rndSelectedPoints.size(); i++) {
+			Vector2D point = rndSelectedPoints.get(i);
+			pointArray[i][0] = point.getX();
+			pointArray[i][1] = point.getY();
+		}
+		SimpleRegression r = new SimpleRegression();
+		r.addData(pointArray);
+		return new LineEquation((float)r.getSlope(), (float)r.getIntercept());
 	}
 
-	private List<Vector2D> getRandomLinePoints(List<Vector2D> linepoints2) {
-		// TODO Auto-generated method stub
-		return null;
+	private List<Vector2D> getRandomLinePoints(List<Vector2D> points) {
+		List<Vector2D> result = new ArrayList<Vector2D>();
+		for (int i=0; i<MAX_SAMPLE; i++) {
+			Collections.shuffle(points);
+			result.add(points.get(0));
+		}
+		return result;
 	}
 
 	private List<Vector2D> extractPoints(List<Sample> samples,
 			List<RobotState> states) {
-		return null;
+		List<Vector2D> points = new ArrayList<Vector2D>();
+		float pointX, pointY;
+		for (int i=0; i<samples.size(); i++) {
+			Sample sample = samples.get(i);
+			RobotState state = states.get(i);
+			if (sample.isInfrared1MeasurementValid()) {
+				pointX = (float)(state.getPosition().getX() + Math.cos(state.getHeading() + sample.getInfrared1Angle()) * sample.getInfrared1Distance());
+				pointY = (float)(state.getPosition().getY() + Math.sin(state.getHeading() + sample.getInfrared1Angle()) * sample.getInfrared1Distance());
+				points.add(new Vector2D(pointX, pointY));
+			}
+			if (sample.isInfrared2MeasurementValid()) {
+				pointX = (float)(state.getPosition().getX() + Math.cos(state.getHeading() + sample.getInfrared2Angle()) * sample.getInfrared2Distance());
+				pointY = (float)(state.getPosition().getY() + Math.sin(state.getHeading() + sample.getInfrared2Angle()) * sample.getInfrared2Distance());
+				points.add(new Vector2D(pointX, pointY));
+			}
+		}
+		return points;
 	}
 
 }

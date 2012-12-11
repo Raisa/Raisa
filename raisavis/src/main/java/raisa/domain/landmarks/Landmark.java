@@ -9,9 +9,8 @@ public class Landmark {
 
     private Vector2D position;
 	
-    /* equation for the landmark line */
-    private float a;
-    private float b;
-    
-    
+    /* start and end points for the line landmark */
+    private Vector2D startPosition;
+    private Vector2D endPosition;
+        
 }
