@@ -11,15 +11,18 @@ import raisa.util.Vector2D;
 
 public class LandmarkManager {
 
-	private static final int RANSAC_SAMPLES = 200;
+	private static final int RANSAC_SAMPLES = 190;
 	private static final int SPIKE_SAMPLES = 50;
 
 	private List<Landmark> landmarks = new ArrayList<Landmark>();
+	
 	private List<Vector2D> dataPoints = new ArrayList<Vector2D>();
+	private List<Sample> samples = new ArrayList<Sample>();
+	private List<Robot> states = new ArrayList<Robot>();
 	private int sampleCounter = 0;
 	
-	private LandmarkExtractor ransacExtractor = new RansacExtractor();
-	private LandmarkExtractor spikeExtractor = new SpikeExtractor();
+	private RansacExtractor ransacExtractor = new RansacExtractor();
+	private SpikeExtractor spikeExtractor = new SpikeExtractor();
 
 	public List<Landmark> getLandmarks() {
 		return this.landmarks;
@@ -31,15 +34,18 @@ public class LandmarkManager {
 		}
 		sampleCounter++;
 		dataPoints.addAll(extractPoints(sample, state));
+		samples.add(sample);
+		states.add(state);
 		if (sampleCounter % RANSAC_SAMPLES == 0) {
 			landmarks.addAll(
 				ransacExtractor.extractLandmarks(
 					CollectionUtil.takeLast(dataPoints, 4 * RANSAC_SAMPLES)));
 		} 
 		if (sampleCounter % SPIKE_SAMPLES == 0) {
-			//landmarks.addAll(
-			//	spikeExtractor.extractLandmarks(
-			//		CollectionUtil.takeLast(dataPoints, SPIKE_SAMPLES)));			
+			landmarks.addAll(
+				spikeExtractor.extractLandmarks(
+					CollectionUtil.takeLast(samples, SPIKE_SAMPLES),
+					CollectionUtil.takeLast(states, SPIKE_SAMPLES)));			
 		}
 	}
 	

@@ -13,9 +13,7 @@ import javax.imageio.ImageIO;
 import raisa.comms.SampleParser;
 import raisa.comms.SensorListener;
 import raisa.domain.landmarks.Landmark;
-import raisa.domain.landmarks.LandmarkExtractor;
 import raisa.domain.landmarks.LandmarkManager;
-import raisa.domain.landmarks.RansacExtractor;
 import raisa.util.CollectionUtil;
 import raisa.util.Vector2D;
 

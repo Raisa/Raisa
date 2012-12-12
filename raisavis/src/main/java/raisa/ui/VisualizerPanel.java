@@ -34,6 +34,8 @@ import raisa.domain.Sample;
 import raisa.domain.SampleListener;
 import raisa.domain.WorldModel;
 import raisa.domain.landmarks.Landmark;
+import raisa.domain.landmarks.LineLandmark;
+import raisa.domain.landmarks.SpikeLandmark;
 import raisa.domain.landmarks.RansacExtractor;
 import raisa.simulator.RobotSimulator;
 import raisa.util.CollectionUtil;
@@ -166,14 +168,24 @@ public class VisualizerPanel extends JPanel implements SampleListener, Visualize
 			Vector2D s = toScreen(v);
 			g2.drawRect((int)s.x, (int)s.y, 1, 1);
 		}
-		g2.setColor(Color.cyan);
 		for (Landmark landmark : landmarks) {
-			Segment2D segment = landmark.getSegment();
-			Vector2D startPoint = toScreen(segment.x1, segment.y1);
-			Vector2D endPoint = toScreen(segment.x2, segment.y2);
-			g2.drawLine((int)startPoint.x, (int)startPoint.y, (int)endPoint.x, (int)endPoint.y);
+			if (landmark instanceof LineLandmark) {
+				g2.setColor(Color.cyan);
+				g2.setStroke(new BasicStroke(3.0f));
+				Segment2D segment = ((LineLandmark)landmark).getSegment();
+				Vector2D startPoint = toScreen(segment.x1, segment.y1);
+				Vector2D endPoint = toScreen(segment.x2, segment.y2);
+				g2.drawLine((int)startPoint.x, (int)startPoint.y, (int)endPoint.x, (int)endPoint.y);
+			} 
 		}
-
+		for (Landmark landmark : landmarks) {
+			if (landmark instanceof SpikeLandmark) {
+				g2.setColor(Color.red);
+				g2.setStroke(new BasicStroke(7.0f));
+				Vector2D s = toScreen(landmark);
+				g2.drawRect((int)s.x, (int)s.y, 1, 1);
+			}
+		}
 		drawCurrentImage(g2);
 	}
 

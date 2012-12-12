@@ -13,7 +13,7 @@ import raisa.util.Vector2D;
  * Adapted from "SLAM for dummies" 
  * http://ocw.mit.edu/courses/aeronautics-and-astronautics/16-412j-cognitive-robotics-spring-2005/projects/1aslam_blas_repo.pdf
  */
-public class RansacExtractor implements LandmarkExtractor {
+public class RansacExtractor {
 	
 	/* max times to run algorithm */
 	private final static int MAX_TRIALS = 1000; 
@@ -22,18 +22,16 @@ public class RansacExtractor implements LandmarkExtractor {
 	private final static int MAX_SAMPLE = 2; 
 
 	/* if less than 40 points left don't bother trying to find consensus (stop algorithm) */
-	private final static int MIN_LINEPOINTS = 20;
+	private final static int MIN_LINEPOINTS = 40;
 
 	/* if point is within x distance of line its part of line */
-	private final static float RANSAC_TOLERANCE = 2.0f; 
+	private final static float RANSAC_TOLERANCE = 1.8f; 
 
 	/* at least votes required to determine if a line */
-	private final static int RANSAC_CONSENSUS = 30;
+	private final static int RANSAC_CONSENSUS = 32;
 	
 	public static List<Vector2D> allPoints = new ArrayList<Vector2D>();
 	
-	
-	@Override
 	public List<Landmark> extractLandmarks(List<Vector2D> dataPoints) {
 	    int noTrials = 0;
 	    List<Vector2D> allPoints = new ArrayList<Vector2D>(dataPoints);
@@ -93,7 +91,7 @@ public class RansacExtractor implements LandmarkExtractor {
 	private List<Landmark> convertToLandmarks(List<Segment2D> foundLines) {
 		List<Landmark> landmarks = new ArrayList<Landmark>();
 		for (Segment2D segment : foundLines) {
-			landmarks.add(new Landmark(segment));
+			landmarks.add(new LineLandmark(segment));
 		}
 		return landmarks;
 	}
