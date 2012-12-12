@@ -2,11 +2,10 @@ package raisa.domain.landmarks;
 
 import java.util.List;
 
-import raisa.domain.RobotState;
-import raisa.domain.Sample;
+import raisa.util.Vector2D;
 
 public interface LandmarkExtractor {
 
-	public List<Landmark> extractLandmarks(List<Sample> samples, List<RobotState> states);
+	public List<Landmark> extractLandmarks(List<Vector2D> dataPoints);
 	
 }

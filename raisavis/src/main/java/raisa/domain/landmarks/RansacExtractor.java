@@ -6,8 +6,7 @@ import java.util.List;
 
 import org.apache.commons.math3.stat.regression.SimpleRegression;
 
-import raisa.domain.RobotState;
-import raisa.domain.Sample;
+import raisa.util.Segment2D;
 import raisa.util.Vector2D;
 
 /**
@@ -15,31 +14,31 @@ import raisa.util.Vector2D;
  * http://ocw.mit.edu/courses/aeronautics-and-astronautics/16-412j-cognitive-robotics-spring-2005/projects/1aslam_blas_repo.pdf
  */
 public class RansacExtractor implements LandmarkExtractor {
-
-	/* Number of times a landmark must be observed to be recognized as a landmark */
-	private final static int MIN_OBSERVATIONS = 5;
 	
 	/* max times to run algorithm */
-	private final static int MAX_TRIALS = 100; 
+	private final static int MAX_TRIALS = 1000; 
     
 	/* randomly select X points */
-	private final static int MAX_SAMPLE = 10; 
+	private final static int MAX_SAMPLE = 2; 
 
 	/* if less than 40 points left don't bother trying to find consensus (stop algorithm) */
-	private final static int MIN_LINEPOINTS = 30;
+	private final static int MIN_LINEPOINTS = 20;
 
 	/* if point is within x distance of line its part of line */
-	private final static float RANSAC_TOLERANCE = 8.0f; 
+	private final static float RANSAC_TOLERANCE = 2.0f; 
 
-	/* at least 30 votes required to determine if a line */
+	/* at least votes required to determine if a line */
 	private final static int RANSAC_CONSENSUS = 30;
 	
+	public static List<Vector2D> allPoints = new ArrayList<Vector2D>();
+	
+	
 	@Override
-	public List<Landmark> extractLandmarks(List<Sample> samples,
-			List<RobotState> states) {
+	public List<Landmark> extractLandmarks(List<Vector2D> dataPoints) {
 	    int noTrials = 0;
-	    List<Vector2D> allPoints = extractPoints(samples, states);
-	    List<LineEquation> foundLines = new ArrayList<LineEquation>();
+	    List<Vector2D> allPoints = new ArrayList<Vector2D>(dataPoints);
+	    RansacExtractor.allPoints = allPoints;
+	    List<Segment2D> foundLines = new ArrayList<Segment2D>();
 	    
 	    while (noTrials < MAX_TRIALS && allPoints.size() > MIN_LINEPOINTS) {
 	    	List<Vector2D> newAllPoints = new ArrayList<Vector2D>();
@@ -47,9 +46,9 @@ public class RansacExtractor implements LandmarkExtractor {
 	    	
 	    	// randomly select line points and check how many remaining points fit into it
 	    	List<Vector2D> rndSelectedPoints = getRandomLinePoints(allPoints);
-	        LineEquation estimatedLine = leastSquaresLineEstimate(rndSelectedPoints);
+	    	Segment2D estimatedLine = leastSquaresLineEstimate(rndSelectedPoints);
 	        for (Vector2D point : allPoints) {
-	        	float distance = distanceToLine(point, estimatedLine);
+	        	float distance = (float) estimatedLine.ptLineDist(point);
 	        	if (distance < RANSAC_TOLERANCE) {
 	        		consensusPoints.add(point);
 	        	} else {
@@ -57,11 +56,31 @@ public class RansacExtractor implements LandmarkExtractor {
 	        	}
 	        }
 	        
-	        // calculate new line landmark from consensus points, if enought evidence for landmark
+	        // remove points that are far from the average consensus point
+	        float avgX = 0.0f;
+	        float avgY = 0.0f;
+	        for (Vector2D point : consensusPoints) {
+	        	avgX += point.x;
+	        	avgY += point.y;
+	        }
+	        avgX /= consensusPoints.size();
+	        avgY /= consensusPoints.size();
+	        
+	        List<Vector2D> tmpConsensusPoints = new ArrayList<Vector2D>(consensusPoints);
+	        consensusPoints.clear();
+	        for (Vector2D point : tmpConsensusPoints) {
+	        	if (Math.sqrt(Math.pow(avgX - point.x, 2.0f) + Math.pow(avgY - point.y, 2.0f)) < 400.0f) {
+	        		consensusPoints.add(point);
+	        	} else {
+	        		newAllPoints.add(point);	        		
+	        	}
+	        }
+
+	        // calculate new line landmark from consensus points, if enough evidence for landmark
 	        if (consensusPoints.size() > RANSAC_CONSENSUS) {
 	        	estimatedLine = leastSquaresLineEstimate(consensusPoints);
-	        	allPoints = newAllPoints;
 	        	foundLines.add(estimatedLine);
+	        	allPoints = newAllPoints;
 	        	noTrials = 0;
 	        } else {
 	        	noTrials++;
@@ -71,27 +90,47 @@ public class RansacExtractor implements LandmarkExtractor {
 		return convertToLandmarks(foundLines);
 	}
 	
-	private List<Landmark> convertToLandmarks(List<LineEquation> foundLines) {
-		// TODO Auto-generated method stub
-		return null;
+	private List<Landmark> convertToLandmarks(List<Segment2D> foundLines) {
+		List<Landmark> landmarks = new ArrayList<Landmark>();
+		for (Segment2D segment : foundLines) {
+			landmarks.add(new Landmark(segment));
+		}
+		return landmarks;
 	}
 
-	private float distanceToLine(Vector2D linePoint, LineEquation estimatedLine) {
-		// TODO Auto-generated method stub
-		return 0;
-	}
-
-	private LineEquation leastSquaresLineEstimate(
+	private Segment2D leastSquaresLineEstimate(
 			List<Vector2D> rndSelectedPoints) {
+		double minX = Double.MAX_VALUE;
+		double maxX = Double.MIN_VALUE;
+		double minY = Double.MAX_VALUE;
+		double maxY = Double.MIN_VALUE;
 		double[][] pointArray = new double[rndSelectedPoints.size()][2];
 		for (int i=0; i<rndSelectedPoints.size(); i++) {
 			Vector2D point = rndSelectedPoints.get(i);
 			pointArray[i][0] = point.getX();
 			pointArray[i][1] = point.getY();
+			if (minX > point.getX()) {
+				minX = point.getX();
+			}
+			if (maxX < point.getX()) {
+				maxX = point.getX();
+			}
+			if (minY > point.getY()) {
+				minY = point.getY();
+			}
+			if (maxY < point.getY()) {
+				maxY = point.getY();
+			}
 		}
 		SimpleRegression r = new SimpleRegression();
 		r.addData(pointArray);
-		return new LineEquation((float)r.getSlope(), (float)r.getIntercept());
+		return new Segment2D(
+				(float)r.getSlope(), 
+				(float)r.getIntercept(),
+				(float)minX,
+				(float)minY,
+				(float)maxX,
+				(float)maxY);
 	}
 
 	private List<Vector2D> getRandomLinePoints(List<Vector2D> points) {
@@ -101,27 +140,6 @@ public class RansacExtractor implements LandmarkExtractor {
 			result.add(points.get(0));
 		}
 		return result;
-	}
-
-	private List<Vector2D> extractPoints(List<Sample> samples,
-			List<RobotState> states) {
-		List<Vector2D> points = new ArrayList<Vector2D>();
-		float pointX, pointY;
-		for (int i=0; i<samples.size(); i++) {
-			Sample sample = samples.get(i);
-			RobotState state = states.get(i);
-			if (sample.isInfrared1MeasurementValid()) {
-				pointX = (float)(state.getPosition().getX() + Math.cos(state.getHeading() + sample.getInfrared1Angle()) * sample.getInfrared1Distance());
-				pointY = (float)(state.getPosition().getY() + Math.sin(state.getHeading() + sample.getInfrared1Angle()) * sample.getInfrared1Distance());
-				points.add(new Vector2D(pointX, pointY));
-			}
-			if (sample.isInfrared2MeasurementValid()) {
-				pointX = (float)(state.getPosition().getX() + Math.cos(state.getHeading() + sample.getInfrared2Angle()) * sample.getInfrared2Distance());
-				pointY = (float)(state.getPosition().getY() + Math.sin(state.getHeading() + sample.getInfrared2Angle()) * sample.getInfrared2Distance());
-				points.add(new Vector2D(pointX, pointY));
-			}
-		}
-		return points;
 	}
 
 }

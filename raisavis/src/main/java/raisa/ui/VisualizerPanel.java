@@ -33,10 +33,13 @@ import raisa.domain.RobotState;
 import raisa.domain.Sample;
 import raisa.domain.SampleListener;
 import raisa.domain.WorldModel;
+import raisa.domain.landmarks.Landmark;
+import raisa.domain.landmarks.RansacExtractor;
 import raisa.simulator.RobotSimulator;
 import raisa.util.CollectionUtil;
 import raisa.util.GeometryUtil;
 import raisa.util.GraphicsUtil;
+import raisa.util.Segment2D;
 import raisa.util.Vector2D;
 
 public class VisualizerPanel extends JPanel implements SampleListener, VisualizerConfigListener {
@@ -155,6 +158,22 @@ public class VisualizerPanel extends JPanel implements SampleListener, Visualize
 			drawAngle(g2, worldMouseDown, worldMouse);
 		}
 		drawCoordinates(g2, worldMouse);
+		
+		List<Landmark> landmarks = worldModel.getLandmarks();
+		g2.setStroke(new BasicStroke(3.0f));
+		for (Vector2D v : RansacExtractor.allPoints) {
+			g2.setColor(Color.pink);
+			Vector2D s = toScreen(v);
+			g2.drawRect((int)s.x, (int)s.y, 1, 1);
+		}
+		g2.setColor(Color.cyan);
+		for (Landmark landmark : landmarks) {
+			Segment2D segment = landmark.getSegment();
+			Vector2D startPoint = toScreen(segment.x1, segment.y1);
+			Vector2D endPoint = toScreen(segment.x2, segment.y2);
+			g2.drawLine((int)startPoint.x, (int)startPoint.y, (int)endPoint.x, (int)endPoint.y);
+		}
+
 		drawCurrentImage(g2);
 	}
 

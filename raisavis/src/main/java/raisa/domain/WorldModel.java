@@ -12,19 +12,24 @@ import javax.imageio.ImageIO;
 
 import raisa.comms.SampleParser;
 import raisa.comms.SensorListener;
+import raisa.domain.landmarks.Landmark;
+import raisa.domain.landmarks.LandmarkExtractor;
+import raisa.domain.landmarks.LandmarkManager;
+import raisa.domain.landmarks.RansacExtractor;
 import raisa.util.CollectionUtil;
 import raisa.util.Vector2D;
 
 
 public class WorldModel implements Serializable, SensorListener {
 	private static final long serialVersionUID = 1L;
-
+	
 	private List<Sample> samples = new ArrayList<Sample>();
 	private List<Robot> states = new ArrayList<Robot>();
 	private List<SampleFixer> sampleFixers = new ArrayList<SampleFixer>();
 
 	private Grid grid = new Grid();
-	
+	private LandmarkManager landmarkManager = new LandmarkManager();
+		
 	private List<SampleListener> sampleListeners = new ArrayList<SampleListener>();
 	private String latestMapFilename;
 	
@@ -45,8 +50,12 @@ public class WorldModel implements Serializable, SensorListener {
 		return copy;
 	}
 	
+	public List<Landmark> getLandmarks() {
+		return this.landmarkManager.getLandmarks();
+	}
+	
 	@Override
-	public synchronized void sampleReceived(String message) {
+	public synchronized void sampleReceived(String message) {		
 		Sample sample = new SampleParser().parse(message);
 		for (SampleFixer fixer : sampleFixers) {
 		 sample = fixer.fix(sample);
@@ -62,6 +71,7 @@ public class WorldModel implements Serializable, SensorListener {
 	public void addState(Robot state) {
 		synchronized(states) {
 			states.add(state);
+			landmarkManager.addData(getLatestSample(), state);
 		}
 	}
 	

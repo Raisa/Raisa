@@ -1,16 +1,34 @@
 package raisa.domain.landmarks;
 
+import raisa.util.Segment2D;
 import raisa.util.Vector2D;
 
 public class Landmark {
 
 	/* a life counter used to determine whether to discard a landmark */
     private int life;  
-
-    private Vector2D position;
+    private Segment2D segment;    
+    
+    public Landmark(Segment2D segment) {
+    	this.segment = segment;
+    }
 	
-    /* start and end points for the line landmark */
-    private Vector2D startPosition;
-    private Vector2D endPosition;
+    public Vector2D getPosition() {
+    	// closest point of origin in line
+    	float apx = 0.0f - segment.x1;
+    	float apy = 0.0f - segment.y1;
+    	float abx = segment.x2 - segment.x1;
+    	float aby = segment.y2 - segment.y1;
+
+        float ab2 = (float) (abx * abx + aby * aby);
+        float ap_ab = (float) (apx * abx + apy * aby);
+        float t = ap_ab / ab2;
         
+        return new Vector2D(segment.x1 + abx * t, segment.y1 + aby * t);
+    }
+    
+    public Segment2D getSegment() {
+    	return this.segment;
+    }
+    
 }
