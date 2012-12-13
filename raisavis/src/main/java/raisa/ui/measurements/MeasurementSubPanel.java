@@ -2,8 +2,8 @@ package raisa.ui.measurements;
 
 import javax.swing.JPanel;
 
-import raisa.domain.Sample;
 import raisa.domain.WorldModel;
+import raisa.domain.samples.Sample;
 
 /* package */ abstract class MeasurementSubPanel extends JPanel {
 	private static final long serialVersionUID = 1L;

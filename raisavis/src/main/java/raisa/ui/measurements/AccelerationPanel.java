@@ -8,8 +8,8 @@ import java.util.List;
 
 import javax.swing.border.TitledBorder;
 
-import raisa.domain.Sample;
 import raisa.domain.WorldModel;
+import raisa.domain.samples.Sample;
 import raisa.util.Vector3D;
 
 /* package */ class AccelerationPanel extends MeasurementSubPanel {

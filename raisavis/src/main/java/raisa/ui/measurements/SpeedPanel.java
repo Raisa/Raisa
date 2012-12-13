@@ -7,9 +7,9 @@ import java.text.DecimalFormat;
 import javax.swing.JLabel;
 import javax.swing.border.TitledBorder;
 
-import raisa.domain.RobotState;
-import raisa.domain.Sample;
 import raisa.domain.WorldModel;
+import raisa.domain.robot.RobotState;
+import raisa.domain.samples.Sample;
 
 /* package */ class SpeedPanel extends MeasurementSubPanel {
 	private static final long serialVersionUID = 1L;

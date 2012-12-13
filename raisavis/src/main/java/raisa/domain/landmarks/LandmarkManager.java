@@ -3,15 +3,15 @@ package raisa.domain.landmarks;
 import java.util.ArrayList;
 import java.util.List;
 
-import raisa.domain.Robot;
-import raisa.domain.RobotState;
-import raisa.domain.Sample;
+import raisa.domain.robot.Robot;
+import raisa.domain.robot.RobotState;
+import raisa.domain.samples.Sample;
 import raisa.util.CollectionUtil;
 import raisa.util.Vector2D;
 
 public class LandmarkManager {
 
-	private static final int RANSAC_SAMPLES = 190;
+	private static final int RANSAC_SAMPLES = 20;
 	private static final int SPIKE_SAMPLES = 50;
 
 	private List<Landmark> landmarks = new ArrayList<Landmark>();

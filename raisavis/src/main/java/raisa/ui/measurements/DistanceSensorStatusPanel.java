@@ -8,8 +8,8 @@ import java.awt.GridLayout;
 import javax.swing.JPanel;
 import javax.swing.border.TitledBorder;
 
-import raisa.domain.Sample;
 import raisa.domain.WorldModel;
+import raisa.domain.samples.Sample;
 
 public class DistanceSensorStatusPanel extends MeasurementSubPanel {
 	private static final long serialVersionUID = 1L;

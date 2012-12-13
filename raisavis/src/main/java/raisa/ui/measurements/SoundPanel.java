@@ -8,8 +8,8 @@ import java.util.List;
 
 import javax.swing.border.TitledBorder;
 
-import raisa.domain.Sample;
 import raisa.domain.WorldModel;
+import raisa.domain.samples.Sample;
 
 /* package */ class SoundPanel extends MeasurementSubPanel {
 	private static final long serialVersionUID = 1L;

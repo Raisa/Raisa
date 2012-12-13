@@ -1,4 +1,4 @@
-package raisa.domain;
+package raisa.domain.samples;
 
 import java.awt.image.BufferedImage;
 

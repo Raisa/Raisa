@@ -9,7 +9,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import raisa.domain.Sample;
+import raisa.domain.samples.Sample;
 import raisa.util.HexToBinaryUtil;
 
 public class SampleParser {

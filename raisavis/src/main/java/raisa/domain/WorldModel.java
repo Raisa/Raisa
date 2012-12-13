@@ -14,6 +14,11 @@ import raisa.comms.SampleParser;
 import raisa.comms.SensorListener;
 import raisa.domain.landmarks.Landmark;
 import raisa.domain.landmarks.LandmarkManager;
+import raisa.domain.robot.Robot;
+import raisa.domain.samples.AveragingSampleFixer;
+import raisa.domain.samples.Sample;
+import raisa.domain.samples.SampleFixer;
+import raisa.domain.samples.SampleListener;
 import raisa.util.CollectionUtil;
 import raisa.util.Vector2D;
 

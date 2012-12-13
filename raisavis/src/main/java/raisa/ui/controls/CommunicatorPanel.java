@@ -5,12 +5,11 @@ import java.awt.event.ActionListener;
 
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
-import javax.swing.JPanel;
 import javax.swing.border.TitledBorder;
 
 import raisa.comms.Communicator;
 
-public class CommunicatorPanel extends JPanel {
+public class CommunicatorPanel extends ControlSubPanel {
 	private static final long serialVersionUID = 1L;
 
 	private Communicator communicator;
@@ -31,4 +30,10 @@ public class CommunicatorPanel extends JPanel {
 		});
 		add(reconnect);
 	}
+	
+	@Override
+	public ControlTypeEnum getControlSubPanelType() {
+		return ControlTypeEnum.COMMUNICATOR;
+	}
+	
 }

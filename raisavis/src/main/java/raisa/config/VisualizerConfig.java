@@ -5,17 +5,21 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import raisa.domain.AlgorithmTypeEnum;
+import raisa.ui.controls.ControlTypeEnum;
 import raisa.ui.measurements.MeasurementTypeEnum;
 
 public class VisualizerConfig {
 		
-	private List<VisualizerConfigListener> visualizerConfigListeners;
+	private List<VisualizerConfigListener> visualizerConfigListeners = new ArrayList<VisualizerConfigListener>();
 	private static VisualizerConfig instance;
-	private List<VisualizerConfigItemEnum> changedConfigs;
+	private List<VisualizerConfigItemEnum> changedConfigs = new ArrayList<VisualizerConfigItemEnum>();
 	
 	// IO-source and state for activated algorithms
 	private InputOutputTargetEnum inputOutputTarget = InputOutputTargetEnum.FILE_SIMULATION;
 	private LocalizationModeEnum localizationMode = LocalizationModeEnum.NONE;	
+	
+	private Set<AlgorithmTypeEnum> activatedAlgorithms = new HashSet<AlgorithmTypeEnum>();
 
 	// map area visualization options
 	private boolean displayMap = true;
@@ -28,18 +32,26 @@ public class VisualizerConfig {
 	private int displayMinAgeForParticles = 0;
 	
 	// measurements panel visualization options
-	private Set<MeasurementTypeEnum> displayedMeasurements;
+	private Set<MeasurementTypeEnum> displayedMeasurements = new HashSet<MeasurementTypeEnum>();
+	
+	// displayed controls subpanels
+	private Set<ControlTypeEnum> displayedControls = new HashSet<ControlTypeEnum>();
 	
 	private VisualizerConfig() {
-		this.visualizerConfigListeners = new ArrayList<VisualizerConfigListener>();
-		this.changedConfigs = new ArrayList<VisualizerConfigItemEnum>();
-		
-		this.displayedMeasurements = new HashSet<MeasurementTypeEnum>();
+		// TODO: default initialization can be moved to an init file some day
 		this.displayedMeasurements.add(MeasurementTypeEnum.HEADING);
 		this.displayedMeasurements.add(MeasurementTypeEnum.SPEED);
 		this.displayedMeasurements.add(MeasurementTypeEnum.ODOMETER);
 		this.displayedMeasurements.add(MeasurementTypeEnum.SAMPLE_COUNTER);
 		this.displayedMeasurements.add(MeasurementTypeEnum.DISTANCE_SENSOR_STATUS);
+		
+		this.displayedControls.add(ControlTypeEnum.DRAWING_TOOL);
+		this.displayedControls.add(ControlTypeEnum.MOVEMENT);
+		this.displayedControls.add(ControlTypeEnum.OTHER);
+		this.displayedControls.add(ControlTypeEnum.ALGORITHM_SELECTION);
+
+		this.activatedAlgorithms.add(AlgorithmTypeEnum.RANSAC_LANDMARK_EXTRACTION);
+		this.activatedAlgorithms.add(AlgorithmTypeEnum.SPIKES_LANDMARK_EXTRACTION);
 	}
 	
 	public static VisualizerConfig getInstance() {
@@ -194,4 +206,32 @@ public class VisualizerConfig {
 		return this.displayedMeasurements;
 	}
 	
+	public void addDisplayedControl(ControlTypeEnum controlType) {
+		this.displayedControls.add(controlType);
+		this.setChanged(VisualizerConfigItemEnum.DISPLAYED_CONTROLS);
+	}
+	
+	public void removeDisplayedControl(ControlTypeEnum controlType) {
+		this.displayedControls.remove(controlType);
+		this.setChanged(VisualizerConfigItemEnum.DISPLAYED_CONTROLS);		
+	}
+
+	public Set<ControlTypeEnum> getDisplayedControls() {
+		return this.displayedControls;
+	}	
+	
+	public void addActivatedAlgorithm(AlgorithmTypeEnum algoritmType) {
+		this.activatedAlgorithms.add(algoritmType);
+		this.setChanged(VisualizerConfigItemEnum.ACTIVATED_ALGORITHMS);
+	}
+	
+	public void removeActivatedAlgorithm(AlgorithmTypeEnum algoritmType) {
+		this.activatedAlgorithms.remove(algoritmType);
+		this.setChanged(VisualizerConfigItemEnum.ACTIVATED_ALGORITHMS);		
+	}
+
+	public Set<AlgorithmTypeEnum> getActivatedAlgorithms() {
+		return this.activatedAlgorithms;
+	}	
+		
 }

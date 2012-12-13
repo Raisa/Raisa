@@ -1,4 +1,5 @@
-package raisa.domain;
+package raisa.domain.robot;
+
 
 public class Robot {
 	public final static float ROBOT_WIDTH = 10f;

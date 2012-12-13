@@ -1,4 +1,4 @@
-package raisa.domain;
+package raisa.domain.particlefilter;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -8,6 +8,11 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import raisa.domain.WorldModel;
+import raisa.domain.robot.RobotMovementEstimator;
+import raisa.domain.robot.RobotState;
+import raisa.domain.robot.SimpleRobotMovementEstimator;
+import raisa.domain.samples.Sample;
 import raisa.util.CollectionUtil;
 import raisa.util.Vector2D;
 

@@ -14,8 +14,8 @@ import raisa.comms.ControlMessage;
 import raisa.comms.SensorListener;
 import raisa.config.VisualizerConfig;
 import raisa.config.VisualizerConfigListener;
-import raisa.domain.Robot;
 import raisa.domain.WorldModel;
+import raisa.domain.robot.Robot;
 import raisa.util.Vector2D;
 import raisa.util.Vector3D;
 

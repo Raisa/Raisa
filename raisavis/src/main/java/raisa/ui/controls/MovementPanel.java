@@ -7,7 +7,6 @@ import java.awt.event.ActionListener;
 
 import javax.swing.JButton;
 import javax.swing.JLabel;
-import javax.swing.JPanel;
 import javax.swing.JSeparator;
 import javax.swing.border.TitledBorder;
 
@@ -15,7 +14,7 @@ import raisa.comms.BasicController;
 import raisa.comms.Controller;
 import raisa.comms.ControllerListener;
 
-public class MovementPanel extends JPanel {
+public class MovementPanel extends ControlSubPanel {
 	private static final long serialVersionUID = 1L;
 
 	public MovementPanel(final BasicController controller) {
@@ -82,4 +81,10 @@ public class MovementPanel extends JPanel {
 			
 		});
 	}
+	
+	@Override
+	public ControlTypeEnum getControlSubPanelType() {
+		return ControlTypeEnum.MOVEMENT;
+	}
+
 }

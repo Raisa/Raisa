@@ -4,13 +4,12 @@ import java.awt.Dimension;
 import java.awt.GridLayout;
 import java.text.DecimalFormat;
 
-import javax.swing.BoxLayout;
 import javax.swing.JLabel;
 import javax.swing.border.TitledBorder;
 
-import raisa.domain.Robot;
-import raisa.domain.Sample;
 import raisa.domain.WorldModel;
+import raisa.domain.robot.Robot;
+import raisa.domain.samples.Sample;
 
 /* package */ class OdometerPanel extends MeasurementSubPanel {
 	private static final long serialVersionUID = 1L;

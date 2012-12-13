@@ -1,8 +1,11 @@
-package raisa.domain;
+package raisa.domain.particlefilter;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import raisa.domain.WorldModel;
+import raisa.domain.robot.RobotState;
+import raisa.domain.samples.Sample;
 import raisa.util.CollectionUtil;
 
 public class Particle {

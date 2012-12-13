@@ -1,4 +1,4 @@
-package raisa.domain;
+package raisa.domain.robot;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -7,6 +7,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import raisa.config.VisualizerConfig;
+import raisa.domain.WorldModel;
+import raisa.domain.particlefilter.Particle;
+import raisa.domain.particlefilter.ParticleFilter;
+import raisa.domain.samples.Sample;
+import raisa.domain.samples.SampleListener;
 import raisa.util.CollectionUtil;
 import raisa.util.Vector2D;
 

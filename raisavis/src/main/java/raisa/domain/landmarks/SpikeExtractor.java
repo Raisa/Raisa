@@ -3,14 +3,14 @@ package raisa.domain.landmarks;
 import java.util.ArrayList;
 import java.util.List;
 
-import raisa.domain.Robot;
-import raisa.domain.RobotState;
-import raisa.domain.Sample;
+import raisa.domain.robot.Robot;
+import raisa.domain.robot.RobotState;
+import raisa.domain.samples.Sample;
 
 public class SpikeExtractor  {
 
 	private final static float SPIKE_THRESHOLD_3_POINTS = 75.0f;
-	private final static float SPIKE_THRESHOLD_2_POINTS = 60.0f;
+	private final static float SPIKE_THRESHOLD_2_POINTS = 75.0f;
 
 	public List<Landmark> extractLandmarks(List<Sample> samples, List<Robot> states) {
 		List<Landmark> result = new ArrayList<Landmark>();

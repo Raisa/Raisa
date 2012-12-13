@@ -1,4 +1,5 @@
-package raisa.domain;
+package raisa.domain.samples;
+
 
 public interface SampleFixer {
 	Sample fix(Sample sample);

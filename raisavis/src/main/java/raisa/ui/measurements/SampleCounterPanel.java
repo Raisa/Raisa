@@ -6,8 +6,8 @@ import java.awt.GridLayout;
 import javax.swing.JLabel;
 import javax.swing.border.TitledBorder;
 
-import raisa.domain.Sample;
 import raisa.domain.WorldModel;
+import raisa.domain.samples.Sample;
 
 /* package */ class SampleCounterPanel extends MeasurementSubPanel {
 	private static final long serialVersionUID = 1L;

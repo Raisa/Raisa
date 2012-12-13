@@ -14,7 +14,7 @@ import javax.swing.border.TitledBorder;
 import raisa.ui.UserEditUndoListener;
 import raisa.ui.VisualizerFrame;
 
-public class ToolPanel extends JPanel {
+public class ToolPanel extends ControlSubPanel {
 	private static final long serialVersionUID = 1L;
 
 	public ToolPanel(final VisualizerFrame frame) {
@@ -81,5 +81,10 @@ public class ToolPanel extends JPanel {
 		undo.setText("Undo (" +frame.getUserUndoLevels() + ")");
 		redo.setEnabled(frame.isUserEditRedoable());
 		redo.setText("Redo (" + frame.getUserRedoLevels() + ")");
+	}
+
+	@Override
+	public ControlTypeEnum getControlSubPanelType() {
+		return ControlTypeEnum.DRAWING_TOOL;
 	}
 }

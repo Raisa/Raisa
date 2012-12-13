@@ -12,6 +12,7 @@ public class VisualizationOptionsPanel extends JPanel {
 		setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
 		setAlignmentY(Component.TOP_ALIGNMENT);
 		
+		add(new ControlPanelOptions());
 		add(new MapAreaOptions());
 		add(new MeasurementsOptions());
 	}

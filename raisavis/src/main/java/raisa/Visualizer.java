@@ -8,8 +8,8 @@ import raisa.config.InputOutputTargetEnum;
 import raisa.config.LocalizationModeEnum;
 import raisa.config.VisualizerConfig;
 import raisa.config.VisualizerConfigItemEnum;
-import raisa.domain.Sample;
 import raisa.domain.WorldModel;
+import raisa.domain.samples.Sample;
 import raisa.test.ExampleWorld1;
 import raisa.ui.VisualizerFrame;
 

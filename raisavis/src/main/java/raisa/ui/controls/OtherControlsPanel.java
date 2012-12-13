@@ -10,7 +10,6 @@ import javax.swing.BoxLayout;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
-import javax.swing.JPanel;
 import javax.swing.JToggleButton;
 import javax.swing.border.TitledBorder;
 
@@ -21,18 +20,13 @@ import raisa.comms.BasicController;
 import raisa.comms.Controller;
 import raisa.comms.ControllerListener;
 import raisa.config.InputOutputTargetEnum;
-import raisa.config.LocalizationModeEnum;
 import raisa.config.VisualizerConfig;
-import raisa.config.VisualizerConfigItemEnum;
-import raisa.config.VisualizerConfigListener;
 import raisa.session.SessionWriter;
 import raisa.simulator.RobotSimulator;
 
-public class OtherControlsPanel extends JPanel implements VisualizerConfigListener {
+public class OtherControlsPanel extends ControlSubPanel {
 	private static final long serialVersionUID = 1L;
 	private static final Logger log = LoggerFactory.getLogger(OtherControlsPanel.class);
-
-	private JComboBox localizationModeBox;
 	
 	public OtherControlsPanel(final BasicController controller, SessionWriter sessionWriter, RobotSimulator robotSimulator) {
 		setBorder(new TitledBorder("Other"));
@@ -42,8 +36,6 @@ public class OtherControlsPanel extends JPanel implements VisualizerConfigListen
 		createTakePictureControl(controller);
 		createDataCaptureControl(sessionWriter);
 		createInputOutputTargetControl();
-		createLocalizationModeControl();
-		VisualizerConfig.getInstance().addVisualizerConfigListener(this);
 	}
 	
 	private void createDataCaptureControl(final SessionWriter sessionWriter) {
@@ -125,41 +117,15 @@ public class OtherControlsPanel extends JPanel implements VisualizerConfigListen
 		});
 		add(takePictureButton);
 	}	
-
-	private void createLocalizationModeControl() {
-		final JLabel label = new JLabel("Localization:");
-		final String[] targets = { "None", "Particle filter" };
-		localizationModeBox = new JComboBox(targets);
-		final VisualizerConfig config = VisualizerConfig.getInstance();
-		localizationModeBox.setMaximumSize(new Dimension(150,50));
-		localizationModeBox.setSelectedIndex(config.getLocalizationMode().getIndex());
-		localizationModeBox.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent arg0) {
-				switch (localizationModeBox.getSelectedIndex()) {
-				case 0:
-					config.setLocalizationMode(LocalizationModeEnum.NONE);
-					break;
-				default:
-					config.setLocalizationMode(LocalizationModeEnum.PARTICLE_FILTER);
-					break;	
-				}
-				config.notifyVisualizerConfigListeners();
-			}			
-		});
-		add(label);
-		add(localizationModeBox);
-	}	
 	
 	protected void add(JComponent component) {
 		component.setAlignmentX(LEFT_ALIGNMENT);
 		super.add(component);		
 	}
-
+	
 	@Override
-	public void visualizerConfigChanged(VisualizerConfig config) {
-		if (config.isChanged(VisualizerConfigItemEnum.LOCALIZATION_MODE)) {
-			localizationModeBox.setSelectedIndex(config.getLocalizationMode().getIndex());
-		}
+	public ControlTypeEnum getControlSubPanelType() {
+		return ControlTypeEnum.OTHER;
 	}
+
 }

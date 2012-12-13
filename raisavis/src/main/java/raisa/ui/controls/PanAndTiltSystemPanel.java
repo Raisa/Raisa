@@ -7,7 +7,6 @@ import java.awt.event.ActionListener;
 
 import javax.swing.JButton;
 import javax.swing.JLabel;
-import javax.swing.JPanel;
 import javax.swing.JSeparator;
 import javax.swing.border.TitledBorder;
 
@@ -15,7 +14,7 @@ import raisa.comms.BasicController;
 import raisa.comms.Controller;
 import raisa.comms.ControllerListener;
 
-public class PanAndTiltSystemPanel extends JPanel {
+public class PanAndTiltSystemPanel extends ControlSubPanel {
 
 	private static final long serialVersionUID = 1L;
 
@@ -81,7 +80,11 @@ public class PanAndTiltSystemPanel extends JPanel {
 				tiltAngleLabel.setText(""+controller.getTiltServoAngle());
 			}		
 		});
-
+	}
+	
+	@Override
+	public ControlTypeEnum getControlSubPanelType() {
+		return ControlTypeEnum.PAN_AND_TILT;
 	}
 
 }

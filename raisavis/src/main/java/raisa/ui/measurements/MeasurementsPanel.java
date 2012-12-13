@@ -1,7 +1,6 @@
 package raisa.ui.measurements;
 
 import java.awt.Dimension;
-import java.awt.GridLayout;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -13,9 +12,9 @@ import javax.swing.border.TitledBorder;
 import raisa.config.VisualizerConfig;
 import raisa.config.VisualizerConfigItemEnum;
 import raisa.config.VisualizerConfigListener;
-import raisa.domain.Sample;
-import raisa.domain.SampleListener;
 import raisa.domain.WorldModel;
+import raisa.domain.samples.Sample;
+import raisa.domain.samples.SampleListener;
 
 public class MeasurementsPanel extends JPanel implements SampleListener, VisualizerConfigListener {
 	private static final long serialVersionUID = 1L;

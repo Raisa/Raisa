@@ -1,4 +1,4 @@
-package raisa.domain;
+package raisa.domain.robot;
 
 import java.util.List;
 

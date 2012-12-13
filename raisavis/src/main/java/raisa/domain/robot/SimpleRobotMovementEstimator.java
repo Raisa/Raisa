@@ -1,5 +1,6 @@
-package raisa.domain;
+package raisa.domain.robot;
 
+import raisa.domain.samples.Sample;
 import raisa.util.Vector2D;
 
 public class SimpleRobotMovementEstimator implements RobotMovementEstimator {
