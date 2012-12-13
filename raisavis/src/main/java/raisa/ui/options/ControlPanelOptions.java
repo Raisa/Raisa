@@ -17,9 +17,10 @@ public class ControlPanelOptions extends JPanel {
 	private static final long serialVersionUID = 1L;	
 	
 	public ControlPanelOptions() {
-		setBorder(new TitledBorder("Measurements"));
+		setBorder(new TitledBorder("Controls"));
 		setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
 		setAlignmentX(Component.CENTER_ALIGNMENT);
+		setAlignmentY(Component.TOP_ALIGNMENT);
 		
 		this.add(new ControlTypeCheckBox("Communicator", ControlTypeEnum.COMMUNICATOR));
 		this.add(new ControlTypeCheckBox("Drawing tool", ControlTypeEnum.DRAWING_TOOL));

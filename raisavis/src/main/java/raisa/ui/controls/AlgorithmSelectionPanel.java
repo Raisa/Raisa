@@ -37,6 +37,7 @@ public class AlgorithmSelectionPanel extends ControlSubPanel implements Visualiz
 		final JLabel label = new JLabel("Localization:");
 		final String[] targets = { "None", "Particle filter" };
 		localizationModeBox = new JComboBox(targets);
+		localizationModeBox.setAlignmentX(Component.LEFT_ALIGNMENT);
 		final VisualizerConfig config = VisualizerConfig.getInstance();
 		localizationModeBox.setMaximumSize(new Dimension(150,50));
 		localizationModeBox.setSelectedIndex(config.getLocalizationMode().getIndex());
@@ -68,6 +69,7 @@ public class AlgorithmSelectionPanel extends ControlSubPanel implements Visualiz
 			this.algorithmType = algorithmType;
 			VisualizerConfig config = VisualizerConfig.getInstance();
 			this.setSelected(config.getActivatedAlgorithms().contains(algorithmType));
+			this.setAlignmentX(Component.LEFT_ALIGNMENT);
 			this.addActionListener(this);
 		}
 		

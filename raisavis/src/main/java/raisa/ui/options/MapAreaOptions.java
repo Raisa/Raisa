@@ -32,6 +32,7 @@ class MapAreaOptions extends JPanel {
 		setBorder(new TitledBorder("Map area"));
 		setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
 		setAlignmentX(Component.CENTER_ALIGNMENT);
+		setAlignmentY(Component.TOP_ALIGNMENT);
 
 		particles = new JCheckBox("Particles");
 		particles.setSelected(true);

@@ -3,6 +3,8 @@ package raisa.domain.landmarks;
 import java.util.ArrayList;
 import java.util.List;
 
+import raisa.config.VisualizerConfig;
+import raisa.domain.AlgorithmTypeEnum;
 import raisa.domain.robot.Robot;
 import raisa.domain.robot.RobotState;
 import raisa.domain.samples.Sample;
@@ -11,7 +13,7 @@ import raisa.util.Vector2D;
 
 public class LandmarkManager {
 
-	private static final int RANSAC_SAMPLES = 20;
+	private static final int RANSAC_SAMPLES = 200;
 	private static final int SPIKE_SAMPLES = 50;
 
 	private List<Landmark> landmarks = new ArrayList<Landmark>();
@@ -24,6 +26,8 @@ public class LandmarkManager {
 	private RansacExtractor ransacExtractor = new RansacExtractor();
 	private SpikeExtractor spikeExtractor = new SpikeExtractor();
 
+	private VisualizerConfig config = VisualizerConfig.getInstance();
+	
 	public List<Landmark> getLandmarks() {
 		return this.landmarks;
 	}
@@ -32,16 +36,21 @@ public class LandmarkManager {
 		if (sample == null || state == null) {
 			return;
 		}
+		boolean executeRansac = config.getActivatedAlgorithms().contains(AlgorithmTypeEnum.RANSAC_LANDMARK_EXTRACTION);
+		boolean executeSpikes = config.getActivatedAlgorithms().contains(AlgorithmTypeEnum.SPIKES_LANDMARK_EXTRACTION);
+		if (!executeRansac && !executeSpikes) {
+			return;
+		}
 		sampleCounter++;
 		dataPoints.addAll(extractPoints(sample, state));
 		samples.add(sample);
 		states.add(state);
-		if (sampleCounter % RANSAC_SAMPLES == 0) {
+		if (sampleCounter % RANSAC_SAMPLES == 0 && executeRansac) {
 			landmarks.addAll(
 				ransacExtractor.extractLandmarks(
 					CollectionUtil.takeLast(dataPoints, 4 * RANSAC_SAMPLES)));
 		} 
-		if (sampleCounter % SPIKE_SAMPLES == 0) {
+		if (sampleCounter % SPIKE_SAMPLES == 0 && executeSpikes) {
 			landmarks.addAll(
 				spikeExtractor.extractLandmarks(
 					CollectionUtil.takeLast(samples, SPIKE_SAMPLES),
