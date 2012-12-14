@@ -32,6 +32,10 @@ public class RansacExtractor {
 	
 	public static List<Vector2D> allPoints = new ArrayList<Vector2D>();
 	
+	public void reset() {
+		allPoints = new ArrayList<Vector2D>();
+	}
+	
 	public List<Landmark> extractLandmarks(List<Vector2D> dataPoints) {
 	    int noTrials = 0;
 	    List<Vector2D> allPoints = new ArrayList<Vector2D>(dataPoints);

@@ -30,6 +30,15 @@ public class LandmarkManager {
 
 	private VisualizerConfig config = VisualizerConfig.getInstance();
 	
+	public void reset() {
+		landmarks = new ArrayList<Landmark>();
+		dataPoints = new ArrayList<Vector2D>();
+		samples = new ArrayList<Sample>();
+		states = new ArrayList<Robot>();
+		sampleCounter = 0;
+		ransacExtractor.reset();
+	}
+	
 	public List<Landmark> getLandmarks() {
 		return this.landmarks;
 	}

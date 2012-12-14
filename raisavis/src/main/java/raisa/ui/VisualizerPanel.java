@@ -5,6 +5,8 @@ import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Stroke;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.HierarchyBoundsListener;
 import java.awt.event.HierarchyEvent;
 import java.awt.event.MouseAdapter;
@@ -18,11 +20,14 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import javax.swing.JMenuItem;
 import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import raisa.config.InputOutputTargetEnum;
 import raisa.config.LocalizationModeEnum;
 import raisa.config.VisualizerConfig;
 import raisa.config.VisualizerConfigListener;
@@ -65,6 +70,7 @@ public class VisualizerPanel extends JPanel implements SampleListener, Visualize
 	private WorldModel worldModel;
 	private RobotSimulator robotSimulator;
 	private BufferedImage currentImage;
+	private PopupMenu popupMenu = new PopupMenu();
 	
 	public void reset() {
 		worldModel.reset();
@@ -139,7 +145,7 @@ public class VisualizerPanel extends JPanel implements SampleListener, Visualize
 			drawRobotTrail(g2, worldModel.getStates());
 		}
 		drawOriginArrows(g2);
-		if(VisualizerConfig.getInstance().isDisplaySimulator()) {
+		if(VisualizerConfig.getInstance().getInputOutputTarget().equals(InputOutputTargetEnum.REALTIME_SIMULATOR)) {
 			drawRobotSimulator(g2);
 		}
 		if(VisualizerConfig.getInstance().isDisplayRobot()) {
@@ -160,7 +166,11 @@ public class VisualizerPanel extends JPanel implements SampleListener, Visualize
 			drawAngle(g2, worldMouseDown, worldMouse);
 		}
 		drawCoordinates(g2, worldMouse);
-		
+		drawLandmarks(g2);
+		drawCurrentImage(g2);
+	}
+
+	private void drawLandmarks(Graphics2D g2) {
 		List<Landmark> landmarks = worldModel.getLandmarks();
 		g2.setStroke(new BasicStroke(3.0f));
 		for (Vector2D v : RansacExtractor.allPoints) {
@@ -193,10 +203,9 @@ public class VisualizerPanel extends JPanel implements SampleListener, Visualize
 				Vector2D s = toScreen(landmark);
 				g2.drawRect((int)s.x, (int)s.y, 1, 1);
 			}
-		}
-		drawCurrentImage(g2);
+		}		
 	}
-
+	
 	private void drawCurrentImage(Graphics2D g2) {
 		if (currentImage != null) {
 			g2.drawImage(currentImage, 0, 0, null);
@@ -532,7 +541,7 @@ public class VisualizerPanel extends JPanel implements SampleListener, Visualize
 		Vector2D f = new Vector2D(x1, y1);
 		return f;
 	}
-
+	
 	private final class PanelSizeHandler implements HierarchyBoundsListener {
 		@Override
 		public void ancestorResized(HierarchyEvent arg0) {
@@ -592,6 +601,9 @@ public class VisualizerPanel extends JPanel implements SampleListener, Visualize
 			mouseDownPosition.y = mouseEvent.getY();
 			mouseDragging = true;
 			visualizerFrame.getCurrentTool().mousePressed(mouseEvent, mouseDragStart);
+			if (mouseEvent.isPopupTrigger()) {
+				popupMenu.doPopup(mouseEvent);
+			}
 		}
 
 		@Override
@@ -600,9 +612,49 @@ public class VisualizerPanel extends JPanel implements SampleListener, Visualize
 			mouse.y = mouseEvent.getY();
 			mouseDragging = false;
 			visualizerFrame.getCurrentTool().mouseReleased(mouseEvent, mouseDownPosition, mouse);
+			if (mouseEvent.isPopupTrigger()) {
+				popupMenu.doPopup(mouseEvent);
+			}
+		}
+	}
+	
+	private final class PopupMenu extends JPopupMenu {
+		private static final long serialVersionUID = 1L;
+		JMenuItem placeRobot = new JMenuItem("Place robot here");
+		JMenuItem placeSimulator = new JMenuItem("Place simulator here");
+		
+		public PopupMenu() {
+			placeRobot.addActionListener(new ActionListener() {
+				@Override
+				public void actionPerformed(ActionEvent arg0) {
+					RobotState s = new RobotState(toWorld(new Vector2D(mouse.x, mouse.y)), 0);
+					worldModel.addState(new Robot(s, s));	
+					redraw();
+				}
+			});
+			placeSimulator.addActionListener(new ActionListener() {
+				@Override
+				public void actionPerformed(ActionEvent arg0) {
+					visualizerFrame.getRobotSimulator().setPosition(toWorld(new Vector2D(mouse.x, mouse.y)));
+					redraw();
+				}
+			});
+		}
+		public void doPopup(MouseEvent mouseEvent) {
+			this.removeAll();
+			VisualizerConfig config = VisualizerConfig.getInstance();
+			if (config.getInputOutputTarget().equals(InputOutputTargetEnum.REALTIME_SIMULATOR)) {
+				add(placeSimulator);
+			}
+			add(placeRobot);
+			this.show(mouseEvent.getComponent(), mouseEvent.getX(), mouseEvent.getY());
 		}
 	}
 
+	public void redraw() {
+		repaint();
+	}
+	
 	public void zoomIn() {
 		scale *= 1.25f;
 		repaint();
@@ -631,5 +683,5 @@ public class VisualizerPanel extends JPanel implements SampleListener, Visualize
 		camera.x += dx;
 		camera.y += dy;
 	}
-
+	
 }

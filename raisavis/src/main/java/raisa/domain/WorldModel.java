@@ -74,7 +74,10 @@ public class WorldModel implements Serializable, SensorListener {
 	public void addState(Robot state) {
 		synchronized(states) {
 			states.add(state);
-			landmarkManager.addData(getLatestSample(), state);
+			Sample latestSample = getLatestSample();
+			if (latestSample!=null) {
+				landmarkManager.addData(latestSample, state);
+			}
 		}
 	}
 	
@@ -109,8 +112,9 @@ public class WorldModel implements Serializable, SensorListener {
 			grid = new Grid();
 		}
 		addState(new Robot());
+		landmarkManager.reset();
 	}
-	
+		
 	public void removeOldSamples(int preserveLength) {
 		samples = CollectionUtil.takeLast(samples, preserveLength);
 	}

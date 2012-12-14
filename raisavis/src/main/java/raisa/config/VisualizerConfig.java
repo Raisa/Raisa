@@ -25,7 +25,6 @@ public class VisualizerConfig {
 	private boolean displayMap = true;
 	private boolean displayTrail = true;
 	private boolean displayRobot = true;
-	private boolean displaySimulator = true;
 	private boolean displayParticles = true;
 	private boolean displaySonarScan = true;
 	private boolean displayIrScan = true;
@@ -137,17 +136,6 @@ public class VisualizerConfig {
 		if(this.displayRobot != displayRobot) {
 			this.displayRobot = displayRobot;
 			this.changedConfigs.add(VisualizerConfigItemEnum.DISPLAY_ROBOT);
-		}
-	}
-
-	public boolean isDisplaySimulator() {
-		return displaySimulator;
-	}
-
-	public void setDisplaySimulator(boolean displaySimulator) {
-		if(this.displaySimulator != displaySimulator) {
-			this.displaySimulator = displaySimulator;
-			this.changedConfigs.add(VisualizerConfigItemEnum.DISPLAY_SIMULATOR);
 		}
 	}
 

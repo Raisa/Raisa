@@ -757,6 +757,10 @@ public class VisualizerFrame extends JFrame {
 	public ParticleFilter getParticleFilter() {
 		return particleFilter;
 	}
+	
+	public RobotSimulator getRobotSimulator() {
+		return robotSimulator;
+	}
 
 	private void addIcon() {
 		setIconImage(Toolkit.getDefaultToolkit().getImage(this.getClass().getResource("/raisa-icon.png")));

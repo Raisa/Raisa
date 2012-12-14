@@ -21,7 +21,6 @@ class MapAreaOptions extends JPanel {
 	
 	private JCheckBox particles;
 	private JCheckBox trail;
-	private JCheckBox simulator;
 	private JCheckBox map;
 	private JCheckBox robot;
 	private JCheckBox irScan;
@@ -67,17 +66,6 @@ class MapAreaOptions extends JPanel {
 			}
 		});
 		add(robot);
-
-		simulator = new JCheckBox("Simulator");
-		simulator.setSelected(true);
-		simulator.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				VisualizerConfig.getInstance().setDisplaySimulator(simulator.isSelected());
-				VisualizerConfig.getInstance().notifyVisualizerConfigListeners();
-			}
-		});
-		add(simulator);
 
 		irScan = new JCheckBox("Infra red scanner");
 		irScan.setSelected(true);
