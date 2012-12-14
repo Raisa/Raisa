@@ -169,8 +169,12 @@ public class VisualizerPanel extends JPanel implements SampleListener, Visualize
 			g2.drawRect((int)s.x, (int)s.y, 1, 1);
 		}
 		for (Landmark landmark : landmarks) {
-			if (landmark instanceof LineLandmark) {
-				g2.setColor(Color.cyan);
+			if (landmark instanceof LineLandmark && landmark.getLife() > 1) {
+				Color c = Color.magenta;
+				for (int i=0; i<landmark.getLife(); i++) {
+					c = c.brighter();
+				}
+				g2.setColor(c);
 				g2.setStroke(new BasicStroke(3.0f));
 				Segment2D segment = ((LineLandmark)landmark).getSegment();
 				Vector2D startPoint = toScreen(segment.x1, segment.y1);
@@ -179,8 +183,12 @@ public class VisualizerPanel extends JPanel implements SampleListener, Visualize
 			} 
 		}
 		for (Landmark landmark : landmarks) {
-			if (landmark instanceof SpikeLandmark) {
-				g2.setColor(Color.red);
+			if (landmark instanceof SpikeLandmark && landmark.getLife() > 3) {
+				Color c = Color.red;
+				for (int i=0; i<landmark.getLife(); i++) {
+					c = c.brighter();
+				}
+				g2.setColor(c);
 				g2.setStroke(new BasicStroke(7.0f));
 				Vector2D s = toScreen(landmark);
 				g2.drawRect((int)s.x, (int)s.y, 1, 1);

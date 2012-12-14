@@ -44,4 +44,12 @@ public class Segment2D extends Line2D.Float {
 		return this.intersect;
 	}
 	
+	public void setSlope(float slope) {
+		this.slope = slope;
+	}
+	
+	public void setIntersect(float intersect) {
+		this.intersect = intersect;
+	}
+	
 }

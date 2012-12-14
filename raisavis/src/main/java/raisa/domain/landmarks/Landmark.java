@@ -5,7 +5,26 @@ import raisa.util.Vector2D;
 public abstract class Landmark extends Vector2D {
 	private static final long serialVersionUID = 1L;
 	
-	/* a life counter used to determine whether to discard a landmark */
-    protected int life;  
+    protected int life = 1;  
+    
+    public void incLife() {
+    	life++;
+    }
+    
+    public void decLife() {
+    	life--;
+    }
+    
+    public int getLife() {
+    	return life;
+    }
+    
+    public boolean isSubtypeSame(Landmark landmark) {
+    	return landmark.getClass().getCanonicalName().equals(this.getClass().getCanonicalName());
+    }
         
+    public abstract Vector2D getPosition();
+    
+    public abstract void merge(Landmark landmark);
+    
 }

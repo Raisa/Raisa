@@ -16,6 +16,8 @@ public class LandmarkManager {
 	private static final int RANSAC_SAMPLES = 200;
 	private static final int SPIKE_SAMPLES = 50;
 
+	private static final float ASSOCIATION_THRESHOLD = 60.0f;
+	
 	private List<Landmark> landmarks = new ArrayList<Landmark>();
 	
 	private List<Vector2D> dataPoints = new ArrayList<Vector2D>();
@@ -45,17 +47,72 @@ public class LandmarkManager {
 		dataPoints.addAll(extractPoints(sample, state));
 		samples.add(sample);
 		states.add(state);
-		if (sampleCounter % RANSAC_SAMPLES == 0 && executeRansac) {
+		if (sampleCounter % (RANSAC_SAMPLES / 4) == 0 && executeRansac) {
 			landmarks.addAll(
-				ransacExtractor.extractLandmarks(
-					CollectionUtil.takeLast(dataPoints, 4 * RANSAC_SAMPLES)));
+					associateLandmarks(
+							ransacExtractor.extractLandmarks(
+									CollectionUtil.takeLast(dataPoints, 4 * RANSAC_SAMPLES))));
 		} 
-		if (sampleCounter % SPIKE_SAMPLES == 0 && executeSpikes) {
+		if (sampleCounter % (SPIKE_SAMPLES / 2) == 0 && executeSpikes) {
 			landmarks.addAll(
-				spikeExtractor.extractLandmarks(
-					CollectionUtil.takeLast(samples, SPIKE_SAMPLES),
-					CollectionUtil.takeLast(states, SPIKE_SAMPLES)));			
+					associateLandmarks(
+							spikeExtractor.extractLandmarks(
+									CollectionUtil.takeLast(samples, SPIKE_SAMPLES),
+									CollectionUtil.takeLast(states, SPIKE_SAMPLES))));			
 		}
+	}
+	
+	private List<Landmark> associateLandmarks(List<Landmark> landmarkProspects) {
+		List<Landmark> mergedProspects = new ArrayList<Landmark>(landmarkProspects);
+		List<Landmark> newLandmarks = new ArrayList<Landmark>();
+		
+		// merge landmark prospects with each other
+		boolean foundMerge = true;
+		while (foundMerge) {
+			foundMerge = false;
+			Landmark m1 = null, m2 = null;
+			for (Landmark prospect : mergedProspects) {
+				for (Landmark anotherProspect : mergedProspects) {
+					if (prospect != anotherProspect) {
+						if (prospect.isSubtypeSame(anotherProspect) &&
+							prospect.getPosition().distance(anotherProspect.getPosition()) < ASSOCIATION_THRESHOLD) {
+							m1 = prospect;
+							m2 = anotherProspect;
+							foundMerge = true;
+							break;
+						}
+					}
+				}
+				if (foundMerge) {
+					break;
+				}
+			}
+			if (foundMerge) {
+				mergedProspects.remove(m2);
+				m1.merge(m2);
+			}
+		}
+		
+		// merge prospects with existing landmarks
+		for (Landmark prospect : mergedProspects) {
+			Landmark bestAssociation = null;
+			float distanceToBestAssociation = ASSOCIATION_THRESHOLD;
+			for (Landmark existingLandmark : landmarks) {
+				if ((prospect instanceof LineLandmark && existingLandmark instanceof LineLandmark) || 
+					(prospect instanceof SpikeLandmark && existingLandmark instanceof SpikeLandmark)) {
+					if (distanceToBestAssociation > prospect.getPosition().distance(existingLandmark.getPosition())) {
+						bestAssociation = existingLandmark;
+						distanceToBestAssociation = (float) prospect.distance(existingLandmark);
+					}
+				}
+			}
+			if (bestAssociation == null) {
+				newLandmarks.add(prospect);
+			} else {
+				bestAssociation.merge(prospect);
+			}
+		}
+		return newLandmarks;
 	}
 	
 	private List<Vector2D> extractPoints(Sample sample, Robot robot) {

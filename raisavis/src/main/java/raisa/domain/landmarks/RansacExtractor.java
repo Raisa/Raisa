@@ -25,10 +25,10 @@ public class RansacExtractor {
 	private final static int MIN_LINEPOINTS = 40;
 
 	/* if point is within x distance of line its part of line */
-	private final static float RANSAC_TOLERANCE = 1.8f; 
+	private final static float RANSAC_TOLERANCE = 1.5f; 
 
 	/* at least votes required to determine if a line */
-	private final static int RANSAC_CONSENSUS = 32;
+	private final static int RANSAC_CONSENSUS = 35;
 	
 	public static List<Vector2D> allPoints = new ArrayList<Vector2D>();
 	
