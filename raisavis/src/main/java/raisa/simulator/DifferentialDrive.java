@@ -1,5 +1,7 @@
 package raisa.simulator;
 
+import java.util.Random;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -14,7 +16,7 @@ import raisa.domain.robot.Robot;
 public class DifferentialDrive implements DriveSystem {
 	
 	private static final Logger log = LoggerFactory.getLogger(DifferentialDrive.class);
-	
+
 	private float leftSpeed;
 	private float rightSpeed;
 	private final float axisWidth;
@@ -72,7 +74,7 @@ public class DifferentialDrive implements DriveSystem {
 		if (leftWheelTicks != 0) {
 			leftWheelDistanceSinceLastRead -= leftWheelTicks * distancePerTick;
 		}
-		return leftWheelTicks;
+		return leftWheelTicks + getErrorTicks(leftWheelTicks);
 	}
 
 	@Override
@@ -82,7 +84,17 @@ public class DifferentialDrive implements DriveSystem {
 		if (rightWheelTicks != 0) {
 			rightWheelDistanceSinceLastRead -= rightWheelTicks * distancePerTick;
 		}
-		return rightWheelTicks;
+		return rightWheelTicks + getErrorTicks(rightWheelTicks);
 	}
 
+	private int getErrorTicks(int ticks) {
+		double rnd = Math.random();
+		if (rnd < 0.01d * ticks) {
+			return -1;
+		} else if (rnd < 0.15d * ticks) {
+			return 1;
+		}
+		return 0;
+	}
+	
 }

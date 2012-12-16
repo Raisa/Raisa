@@ -11,7 +11,7 @@ public class LineLandmark extends Landmark {
 	public LineLandmark(Segment2D segment) {
 		this.segment = segment;
 	}
-
+	
 	@Override
 	public Vector2D getPosition() {
 		// closest point of origin in line
@@ -45,7 +45,11 @@ public class LineLandmark extends Landmark {
 		segment.y2 = (segment.y2 * life + mergedSegment.y2 * mergedLandmark.getLife()) / lifeSum;
 		segment.setSlope((segment.getSlope() * life + mergedSegment.getSlope() * mergedLandmark.getLife()) / lifeSum);
 		segment.setIntersect((segment.getIntersect() * life + mergedSegment.getIntersect() * mergedLandmark.getLife()) / lifeSum);
-		life = lifeSum;
+	}
+
+	@Override
+	public boolean isTrusted() {
+		return life > 1;
 	}
 
 }

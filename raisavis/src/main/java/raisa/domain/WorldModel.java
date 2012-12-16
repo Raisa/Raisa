@@ -57,6 +57,10 @@ public class WorldModel implements Serializable, SensorListener {
 		return this.landmarkManager.getLandmarks();
 	}
 	
+	public LandmarkManager getLandmarkManager() {
+		return this.landmarkManager;
+	}
+		
 	@Override
 	public synchronized void sampleReceived(String message) {		
 		Sample sample = new SampleParser().parse(message);

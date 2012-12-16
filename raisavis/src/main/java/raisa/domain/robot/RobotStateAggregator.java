@@ -8,10 +8,12 @@ import org.slf4j.LoggerFactory;
 
 import raisa.config.VisualizerConfig;
 import raisa.domain.WorldModel;
+import raisa.domain.landmarks.LandmarkManager;
 import raisa.domain.particlefilter.Particle;
 import raisa.domain.particlefilter.ParticleFilter;
 import raisa.domain.samples.Sample;
 import raisa.domain.samples.SampleListener;
+import raisa.domain.slam.SlamManager;
 import raisa.util.CollectionUtil;
 import raisa.util.Vector2D;
 
@@ -20,13 +22,17 @@ public class RobotStateAggregator implements SampleListener {
 	private static final Logger log = LoggerFactory.getLogger(RobotStateAggregator.class);
 	
 	private SimpleRobotMovementEstimator simpleRobotMovementEstimator;
-	private ClusteringRobotStateEstimator clusteringRobotStateEstimator;;
+	private ClusteringRobotStateEstimator clusteringRobotStateEstimator;
+	private LandmarkManager landmarkManager;
 	private ParticleFilter particleFilter;
+	private SlamManager slam;
 	private WorldModel world;
 	
-	public RobotStateAggregator(WorldModel world, ParticleFilter particleFilter) {
+	public RobotStateAggregator(WorldModel world, ParticleFilter particleFilter, LandmarkManager landmarkManager) {
 		this.simpleRobotMovementEstimator = new SimpleRobotMovementEstimator(false);
 		this.clusteringRobotStateEstimator = new ClusteringRobotStateEstimator();
+		this.slam = new SlamManager();
+		this.landmarkManager = landmarkManager;
 		this.particleFilter = particleFilter;
 		this.world = world;
 	}
@@ -51,6 +57,14 @@ public class RobotStateAggregator implements SampleListener {
 			}
 			estimatedState = clusteringRobotStateEstimator.estimateState(states);
 			estimatedState.setOdometer(calculateOdometer(estimatedState, lastRobot.getEstimatedState()));
+			break;
+		case SLAM:
+			estimatedState = simpleRobotMovementEstimator.moveRobot(lastRobot.getEstimatedState(), sample);
+			estimatedState.setOdometer(calculateOdometer(measuredState, lastRobot.getMeasuredState()));
+			Robot newRobot = new Robot(measuredState, estimatedState);
+			if (landmarkManager.addData(sample, newRobot)) {
+				estimatedState = slam.update(estimatedState, landmarkManager.getLandmarks());
+			}			
 			break;
 		default:
 			estimatedState = measuredState;

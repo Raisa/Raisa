@@ -24,7 +24,11 @@ public class SpikeLandmark extends Landmark {
 		SpikeLandmark mergedLandmark = (SpikeLandmark)landmark;
 		this.x = (this.x * life + mergedLandmark.x * mergedLandmark.life) / (life + mergedLandmark.life);
 		this.y = (this.y * life + mergedLandmark.y* mergedLandmark.life) / (life + mergedLandmark.life);
-		life = life + mergedLandmark.life;
+	}
+
+	@Override
+	public boolean isTrusted() {
+		return life > 2;
 	}
 	
 }

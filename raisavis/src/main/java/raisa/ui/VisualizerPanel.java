@@ -193,8 +193,8 @@ public class VisualizerPanel extends JPanel implements SampleListener, Visualize
 			} 
 		}
 		for (Landmark landmark : landmarks) {
-			if (landmark instanceof SpikeLandmark && landmark.getLife() > 3) {
-				Color c = Color.red;
+			if (landmark instanceof SpikeLandmark && landmark.getLife() > 2) {
+				Color c = Color.green;
 				for (int i=0; i<landmark.getLife(); i++) {
 					c = c.brighter();
 				}

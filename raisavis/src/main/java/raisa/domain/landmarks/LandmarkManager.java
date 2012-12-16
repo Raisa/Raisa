@@ -15,7 +15,9 @@ public class LandmarkManager {
 
 	private static final int RANSAC_SAMPLES = 200;
 	private static final int SPIKE_SAMPLES = 50;
-
+	
+	private static final int RECALCULATE_INTERVAL = 50;
+	
 	private static final float ASSOCIATION_THRESHOLD = 60.0f;
 	
 	private List<Landmark> landmarks = new ArrayList<Landmark>();
@@ -43,32 +45,37 @@ public class LandmarkManager {
 		return this.landmarks;
 	}
 	
-	public void addData(Sample sample, Robot state) {
+	public boolean addData(Sample sample, Robot state) {
+		boolean ret = false;
 		if (sample == null || state == null) {
-			return;
+			return ret;
 		}
 		boolean executeRansac = config.getActivatedAlgorithms().contains(AlgorithmTypeEnum.RANSAC_LANDMARK_EXTRACTION);
 		boolean executeSpikes = config.getActivatedAlgorithms().contains(AlgorithmTypeEnum.SPIKES_LANDMARK_EXTRACTION);
 		if (!executeRansac && !executeSpikes) {
-			return;
+			return ret;
 		}
 		sampleCounter++;
 		dataPoints.addAll(extractPoints(sample, state));
 		samples.add(sample);
 		states.add(state);
-		if (sampleCounter % (RANSAC_SAMPLES / 4) == 0 && executeRansac) {
-			landmarks.addAll(
-					associateLandmarks(
-							ransacExtractor.extractLandmarks(
-									CollectionUtil.takeLast(dataPoints, 4 * RANSAC_SAMPLES))));
-		} 
-		if (sampleCounter % (SPIKE_SAMPLES / 2) == 0 && executeSpikes) {
-			landmarks.addAll(
-					associateLandmarks(
-							spikeExtractor.extractLandmarks(
-									CollectionUtil.takeLast(samples, SPIKE_SAMPLES),
-									CollectionUtil.takeLast(states, SPIKE_SAMPLES))));			
+		if (sampleCounter % RECALCULATE_INTERVAL == 0) {
+			if (executeRansac) {
+				landmarks.addAll(
+						associateLandmarks(
+								ransacExtractor.extractLandmarks(
+										CollectionUtil.takeLast(dataPoints, 4 * RANSAC_SAMPLES))));
+			} 
+			if (executeSpikes) {
+				landmarks.addAll(
+						associateLandmarks(
+								spikeExtractor.extractLandmarks(
+										CollectionUtil.takeLast(samples, SPIKE_SAMPLES),
+										CollectionUtil.takeLast(states, SPIKE_SAMPLES))));			
+			}
+			ret = executeRansac || executeSpikes;
 		}
+		return ret;
 	}
 	
 	private List<Landmark> associateLandmarks(List<Landmark> landmarkProspects) {
@@ -118,7 +125,8 @@ public class LandmarkManager {
 			if (bestAssociation == null) {
 				newLandmarks.add(prospect);
 			} else {
-				bestAssociation.merge(prospect);
+				bestAssociation.setDetectedLandmark(prospect);
+				bestAssociation.incLife();
 			}
 		}
 		return newLandmarks;

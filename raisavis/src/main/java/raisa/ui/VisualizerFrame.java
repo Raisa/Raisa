@@ -77,7 +77,7 @@ public class VisualizerFrame extends JFrame {
 		addIcon();
 		this.worldModel = worldModel;
 		this.particleFilter = new ParticleFilter(worldModel, nparticles);
-		this.robotStateAggregator = new RobotStateAggregator(worldModel, particleFilter);
+		this.robotStateAggregator = new RobotStateAggregator(worldModel, particleFilter, worldModel.getLandmarkManager());
 		worldModel.addSampleListener(robotStateAggregator);
 		
 		robotSimulator = RobotSimulator.createRaisaInstance(new Vector2D(-50, 0), 0, worldModel);
