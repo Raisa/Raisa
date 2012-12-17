@@ -15,7 +15,7 @@ import raisa.util.Vector2D;
 public class SlamManager {
 
 	private RobotState previousState;
-	private RealMatrix A, Q, P, H, K, R, Jxr, Jz, Pl;
+	private RealMatrix A, Q, P, H, R, Jxr, Jz;
 	private RealVector X, W;
 	private double CONST_C = 0.02;
 	private int slamIdSeq = 0;
@@ -23,14 +23,15 @@ public class SlamManager {
 	public SlamManager() {
 		X = new ArrayRealVector(new double[] { 0.0d, 0.0d, 0.0d });
 		A = new Array2DRowRealMatrix(new double[][] { { 1.0d, 0.0d, 0.0d }, { 0.0d, 1.0d, 0.0d }, { 0.0d, 0.0d, 1.0d } });
-		P = new Array2DRowRealMatrix(3, 3);
+		P = new Array2DRowRealMatrix(new double[][] { { 1.0d, 0.0d, 0.0d }, { 0.0d, 1.0d, 0.0d }, { 0.0d, 0.0d, 1.0d } });
 		R = new Array2DRowRealMatrix(new double[][] { { 1.0d, 0.0d }, { 0.0d, 1.0d } });
+		previousState = new RobotState();
 	}
 	
-	public RobotState update(
+	public synchronized RobotState update(
 			RobotState estimatedState,
 			List<Landmark> landmarks) {
-		int slamLandmarks = 0;		
+		int slamLandmarksCount = 0;		
 		
 		Vector2D previousPosition = previousState.getPosition();
 		Vector2D estimatedPosition = estimatedState.getPosition();
@@ -52,29 +53,29 @@ public class SlamManager {
 		W = new ArrayRealVector(new double[] { deltaX, deltaY, deltaT });
 		Q = W.outerProduct(W).scalarMultiply(CONST_C);
 		
-		RealMatrix Prr = P.getSubMatrix(0, 0, 2, 2);
+		RealMatrix Prr = P.getSubMatrix(0, 2, 0, 2);
 		Prr = A.multiply(Prr).multiply(A).add(Q);
 		P.setSubMatrix(Prr.getData(), 0, 0);
 		
 		for (Landmark landmark : landmarks) {
 			Integer slamId = landmark.getSlamId();
 			if (slamId != null) {
-				RealMatrix Pri = P.getSubMatrix(0, 3 * (slamId + 1) , 0, 3 * (slamId + 1) + 2);
+				RealMatrix Pri = P.getSubMatrix(0, 2, 2 * (slamId) + 3, 2 * (slamId) + 4);
 				Pri = A.multiply(Pri);
-				P.setSubMatrix(Pri.getData(), 0, 3 * (slamId + 1));
-				slamLandmarks++;
+				P.setSubMatrix(Pri.getData(), 0, 2 * (slamId) + 3);
+				slamLandmarksCount++;
 			}
 		}
 		
 		// Step 2: Update state from re-observed landmarks
 		
-		H = new Array2DRowRealMatrix(2, 2 * slamLandmarks + 3);  // creates zero matrix?
 		for (Landmark landmark : landmarks) {
 			Integer slamId = landmark.getSlamId();
 			if (slamId != null && landmark.getDetectedLandmark() != null) {
+				H = new Array2DRowRealMatrix(2, 2 * slamLandmarksCount + 3);  // creates zero matrix?
 				double lambdaX = landmark.getPosition().x;
 				double lambdaY = landmark.getPosition().y;
-				double r = Math.sqrt(Math.pow(lambdaX - estimatedPosition.x, 2) + Math.pow(lambdaY, estimatedPosition.y));
+				double r = Math.sqrt(Math.pow(lambdaX - estimatedPosition.x, 2.0d) + Math.pow(lambdaY - estimatedPosition.y, 2.0d));
 				double r2 = r * r;
 				double a = (estimatedPosition.x - lambdaX) / r;
 				double b = (estimatedPosition.y - lambdaY) / r;
@@ -90,23 +91,23 @@ public class SlamManager {
 				H.setEntry(1, 1, e);
 				H.setEntry(1, 2, f);
 
-				H.setEntry(0, 3 * slamId, -a);
-				H.setEntry(0, 3 * slamId + 1, -b);
-				H.setEntry(1, 3 * slamId, -d);
-				H.setEntry(1, 3 * slamId + 1, -e);
+				H.setEntry(0, 2 * slamId + 3, -a);
+				H.setEntry(0, 2 * slamId + 3, -b);
+				H.setEntry(1, 2 * slamId + 4, -d);
+				H.setEntry(1, 2 * slamId + 4, -e);
 				
 				// K=P*HT *(H*P*HT +V*R*VT)-1
-				RealMatrix K = H.transpose().multiply(P).multiply(H).add(R);
+				RealMatrix K = H.multiply(P).multiply(H.transpose()).add(R);
 				K = new LUDecomposition(K).getSolver().getInverse();
-				K = K.multiply(H.transpose()).multiply(P);
+				K = P.multiply(H.transpose()).multiply(K);
 				
 				double estimatedRangeToLandmark = r;
-				double estimatedDirectionToLandmark = Math.toDegrees(Math.atan((lambdaY - estimatedPosition.y) / (lambdaX - estimatedPosition.x))) - this.previousState.getHeading();
+				double estimatedDirectionToLandmark = Math.atan((lambdaY - estimatedPosition.y) / (lambdaX - estimatedPosition.x)) - this.previousState.getHeading();
 				RealVector h = new ArrayRealVector(new double[] { estimatedRangeToLandmark, estimatedDirectionToLandmark });
 				
 				Vector2D detectedPosition = landmark.getDetectedLandmark().getPosition();
-				estimatedRangeToLandmark = Math.sqrt(Math.pow(detectedPosition.x - estimatedPosition.x, 2) + Math.pow(detectedPosition.y, estimatedPosition.y));
-				estimatedDirectionToLandmark = Math.toDegrees(Math.atan((detectedPosition.y - estimatedPosition.y) / (detectedPosition.x - estimatedPosition.x))) - this.previousState.getHeading();
+				estimatedRangeToLandmark = Math.sqrt(Math.pow(detectedPosition.x - estimatedPosition.x, 2.0d) + Math.pow(detectedPosition.y - estimatedPosition.y, 2.0d));
+				estimatedDirectionToLandmark = Math.atan((detectedPosition.y - estimatedPosition.y) / (detectedPosition.x - estimatedPosition.x)) - this.previousState.getHeading();
 				RealVector z = new ArrayRealVector(new double[] { estimatedRangeToLandmark, estimatedDirectionToLandmark });
 
 				X = X.add(K.operate(z.subtract(h)));
@@ -126,28 +127,28 @@ public class SlamManager {
 			if (landmark.getSlamId() == null && landmark.isTrusted()) {
 				landmark.setSlamId(slamIdSeq++);
 				RealVector X_tmp = new ArrayRealVector(new double[] { landmarkPosition.x, landmarkPosition.y }); 
-				X.append(X_tmp);
+				X = X.append(X_tmp);
 				
 				// set landmark covariance
 				RealMatrix Ppos = new Array2DRowRealMatrix(new double[][] 
 						{ { X.getEntry(0), 0.0d, 0.0d }, 
 						{ 0.0d, X.getEntry(1), 0.0d }, 
 						{ 0.0d, 0.0d, X.getEntry(2) } });
-				RealMatrix Pn1 = Jxr.transpose().multiply(Ppos).multiply(Jxr);
-				RealMatrix Pn2 = Jz.transpose().multiply(R).multiply(Jz);
+				RealMatrix Pn1 = Jxr.multiply(Ppos).multiply(Jxr.transpose());
+				RealMatrix Pn2 = Jz.multiply(R).multiply(Jz.transpose());
 				RealMatrix Pnew = P.createMatrix(P.getRowDimension() + 2, P.getColumnDimension() + 2);
 				Pnew.setSubMatrix(P.getData(), 0, 0);
 				P = Pnew;
 				P.setSubMatrix(Pn1.add(Pn2).getData(), P.getRowDimension() - 3, P.getColumnDimension() - 3);
 				
 				// set robot-landmark and landmark-robot covariances
-				RealMatrix PrN1 = Jxr.transpose().multiply(Prr);
-				P.setSubMatrix(PrN1.getData(), 3, P.getColumnDimension() - 3);
-				P.setSubMatrix(PrN1.transpose().getData(), P.getRowDimension() - 3, 3);
+				RealMatrix PrN1 = Prr.multiply(Jxr.transpose());
+				P.setSubMatrix(PrN1.getData(), 0, P.getColumnDimension() - 3);
+				P.setSubMatrix(PrN1.transpose().getData(), P.getRowDimension() - 3, 0);
 				
 				// landmark-landmark covariances
 				for (int i = 3; i < P.getColumnDimension(); i = i + 2) {
-					RealMatrix tmp = P.getSubMatrix(0, 2, i, i+1).transpose().multiply(Jxr);
+					RealMatrix tmp = Jxr.multiply(P.getSubMatrix(0, 2, i, i+1));
 					P.setSubMatrix(tmp.getData(), P.getRowDimension() - 3, i);
 					P.setSubMatrix(tmp.transpose().getData(), i, P.getColumnDimension() - 3);
 				}

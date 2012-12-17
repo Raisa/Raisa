@@ -79,9 +79,6 @@ public class WorldModel implements Serializable, SensorListener {
 		synchronized(states) {
 			states.add(state);
 			Sample latestSample = getLatestSample();
-			if (latestSample!=null) {
-				landmarkManager.addData(latestSample, state);
-			}
 		}
 	}
 	

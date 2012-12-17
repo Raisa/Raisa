@@ -60,11 +60,11 @@ public class RobotStateAggregator implements SampleListener {
 			break;
 		case SLAM:
 			estimatedState = simpleRobotMovementEstimator.moveRobot(lastRobot.getEstimatedState(), sample);
-			estimatedState.setOdometer(calculateOdometer(measuredState, lastRobot.getMeasuredState()));
 			Robot newRobot = new Robot(measuredState, estimatedState);
 			if (landmarkManager.addData(sample, newRobot)) {
 				estimatedState = slam.update(estimatedState, landmarkManager.getLandmarks());
 			}			
+			estimatedState.setOdometer(calculateOdometer(measuredState, lastRobot.getMeasuredState()));
 			break;
 		default:
 			estimatedState = measuredState;

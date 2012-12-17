@@ -35,7 +35,7 @@ public class AlgorithmSelectionPanel extends ControlSubPanel implements Visualiz
 	
 	private void createLocalizationModeControl() {
 		final JLabel label = new JLabel("Localization:");
-		final String[] targets = { "None", "Particle filter" };
+		final String[] targets = { "None", "Particle filter", "SLAM" };
 		localizationModeBox = new JComboBox(targets);
 		localizationModeBox.setAlignmentX(Component.LEFT_ALIGNMENT);
 		final VisualizerConfig config = VisualizerConfig.getInstance();
@@ -48,9 +48,12 @@ public class AlgorithmSelectionPanel extends ControlSubPanel implements Visualiz
 				case 0:
 					config.setLocalizationMode(LocalizationModeEnum.NONE);
 					break;
-				default:
+				case 1:
 					config.setLocalizationMode(LocalizationModeEnum.PARTICLE_FILTER);
-					break;	
+					break;
+				default:
+					config.setLocalizationMode(LocalizationModeEnum.SLAM);
+					break;
 				}
 				config.notifyVisualizerConfigListeners();
 			}			
