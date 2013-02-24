@@ -46,7 +46,7 @@ public class DifferentialDrive implements DriveSystem {
 
 		roverState.setHeading((float)Math.toDegrees(theta));
 		roverState.getPosition().setLocation(newX, newY);
-		log.debug("L: {} R:{}, H:{}, P:{}", new Object[]{leftSpeed, rightSpeed, roverState.getHeading(), roverState.getPosition()});	
+		log.trace("L: {} R:{}, H:{}, P:{}", new Object[]{leftSpeed, rightSpeed, roverState.getHeading(), roverState.getPosition()});	
 	}
 
 	/**

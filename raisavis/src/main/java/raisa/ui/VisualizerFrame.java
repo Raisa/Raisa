@@ -80,7 +80,7 @@ public class VisualizerFrame extends JFrame {
 		this.robotStateAggregator = new RobotStateAggregator(worldModel, particleFilter, worldModel.getLandmarkManager());
 		worldModel.addSampleListener(robotStateAggregator);
 		
-		robotSimulator = RobotSimulator.createRaisaInstance(new Vector2D(-50, 0), 0, worldModel);
+		robotSimulator = RobotSimulator.createRaisaInstance(new Vector2D(0, 0), 0, worldModel);
 		
 		visualizerPanel = new VisualizerPanel(this, worldModel, robotSimulator);
 		VisualizerConfig.getInstance().addVisualizerConfigListener(visualizerPanel);
@@ -341,31 +341,23 @@ public class VisualizerFrame extends JFrame {
 			}
 		});
 		reset.setMnemonic('r');
-		JMenuItem loadSimulation = new JMenuItem("Load simulation...");
-		loadSimulation.setMnemonic('s');
-		loadSimulation.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				loadSimulation(null);
-			}
-		});
-		JMenuItem loadData = new JMenuItem("Load data...");
+		JMenuItem loadData = new JMenuItem("Load sample file...");
 		loadData.setMnemonic('d');
 		loadData.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				loadData(null);
+				loadSamples(null);
 			}
 		});
-		JMenuItem loadReplay = new JMenuItem("Load replay...");
+		JMenuItem loadReplay = new JMenuItem("Load control file...");
 		loadReplay.setMnemonic('p');
 		loadReplay.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				loadReplay();
+				loadReplay(null);
 			}
 		});
-		JMenuItem saveAs = new JMenuItem("Save as...");
+		JMenuItem saveAs = new JMenuItem("Save samples as...");
 		saveAs.setMnemonic('a');
 		saveAs.addActionListener(new ActionListener() {
 			@Override
@@ -408,7 +400,6 @@ public class VisualizerFrame extends JFrame {
 		});
 		mainMenu.add(reset);
 		mainMenu.addSeparator();
-		mainMenu.add(loadSimulation);
 		mainMenu.add(loadData);
 		mainMenu.add(loadReplay);
 		mainMenu.add(saveAs);
@@ -510,8 +501,8 @@ public class VisualizerFrame extends JFrame {
 		}
 	}
 
-	public void loadSimulation(String fileName) {
-		if (fileName == null) {
+	public void loadSamples(String filename) {
+		if (filename == null) {
 			final JFileChooser chooser = new JFileChooser(defaultDirectory);
 			chooser.addActionListener(new ActionListener() {
 				@Override
@@ -528,23 +519,27 @@ public class VisualizerFrame extends JFrame {
 			chooser.showOpenDialog(this);
 		} else {
 			try {
-				internalLoad(fileName, true);
+				internalLoad(filename, false);
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
 		}
 	}
 
-	public void loadData(String fileName) {
-		if (fileName == null) {
+	public void loadReplay(String filename) {
+		if (filename == null) {
 			final JFileChooser chooser = new JFileChooser(defaultDirectory);
 			chooser.addActionListener(new ActionListener() {
 				@Override
 				public void actionPerformed(ActionEvent arg0) {
+					if (chooser.getSelectedFile() == null) {
+						log.debug("Canceled replay file selection");
+						return;
+					}
 					String fileName = chooser.getSelectedFile().getAbsolutePath();
 					try {
 						saveDefaultDirectory(fileName);
-						internalLoad(fileName, false);
+						internalLoadReplay(fileName);
 					} catch (Exception e) {
 						e.printStackTrace();
 					}
@@ -553,32 +548,11 @@ public class VisualizerFrame extends JFrame {
 			chooser.showOpenDialog(this);
 		} else {
 			try {
-				internalLoad(fileName, false);
+				internalLoadReplay(filename);
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
 		}
-	}
-
-	public void loadReplay() {
-		final JFileChooser chooser = new JFileChooser(defaultDirectory);
-		chooser.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent arg0) {
-				if (chooser.getSelectedFile() == null) {
-					log.debug("Canceled replay file selection");
-					return;
-				}
-				String fileName = chooser.getSelectedFile().getAbsolutePath();
-				try {
-					saveDefaultDirectory(fileName);
-					internalLoadReplay(fileName);
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-			}
-		});
-		chooser.showOpenDialog(this);
 	}
 
 	private void internalLoadReplay(String fileName) throws FileNotFoundException, IOException {
@@ -595,7 +569,7 @@ public class VisualizerFrame extends JFrame {
 			line = fr.readLine();
 		}
 		log.info("Replaying {} control messages", controlMessages.size());
-		ReplayController replayController = new ReplayController(communicator, controlMessages);
+		ReplayController replayController = new ReplayController(controlMessages, communicator, robotSimulator);
 		controller.copyListenersTo(replayController);
 		replayController.start();
 	}

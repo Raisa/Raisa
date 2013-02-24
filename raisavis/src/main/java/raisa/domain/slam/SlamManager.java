@@ -1,12 +1,19 @@
 package raisa.domain.slam;
 
+import java.text.DecimalFormat;
 import java.util.List;
 
+import org.apache.commons.math3.distribution.NormalDistribution;
 import org.apache.commons.math3.linear.Array2DRowRealMatrix;
 import org.apache.commons.math3.linear.ArrayRealVector;
+import org.apache.commons.math3.linear.CholeskyDecomposition;
+import org.apache.commons.math3.linear.DecompositionSolver;
 import org.apache.commons.math3.linear.LUDecomposition;
+import org.apache.commons.math3.linear.MatrixUtils;
+import org.apache.commons.math3.linear.QRDecomposition;
 import org.apache.commons.math3.linear.RealMatrix;
 import org.apache.commons.math3.linear.RealVector;
+import org.apache.commons.math3.linear.SingularValueDecomposition;
 
 import raisa.domain.landmarks.Landmark;
 import raisa.domain.robot.RobotState;
@@ -15,148 +22,202 @@ import raisa.util.Vector2D;
 public class SlamManager {
 
 	private RobotState previousState;
-	private RealMatrix A, Q, P, H, R, Jxr, Jz;
-	private RealVector X, W;
-	private double CONST_C = 0.02;
+	private RealMatrix I2, I3, sigma;
+	private NormalDistribution odometryNoise, headingNoise, sensorRangeNoise, sensorDirectionNoise;
+	private RealVector X;
 	private int slamIdSeq = 0;
 	
 	public SlamManager() {
-		X = new ArrayRealVector(new double[] { 0.0d, 0.0d, 0.0d });
-		A = new Array2DRowRealMatrix(new double[][] { { 1.0d, 0.0d, 0.0d }, { 0.0d, 1.0d, 0.0d }, { 0.0d, 0.0d, 1.0d } });
-		P = new Array2DRowRealMatrix(new double[][] { { 1.0d, 0.0d, 0.0d }, { 0.0d, 1.0d, 0.0d }, { 0.0d, 0.0d, 1.0d } });
-		R = new Array2DRowRealMatrix(new double[][] { { 1.0d, 0.0d }, { 0.0d, 1.0d } });
+		X = new ArrayRealVector(new double[] { 0.0d, 0.0d, -Math.PI / 2.0d });
+		I2 = new Array2DRowRealMatrix(new double[][] { { 1.0d, 0.0d }, { 0.0d, 1.0d }});		
+		I3 = new Array2DRowRealMatrix(new double[][] { { 1.0d, 0.0d, 0.0d }, { 0.0d, 1.0d, 0.0d }, { 0.0d, 0.0d, 1.0d } });		
+		sigma = new Array2DRowRealMatrix(new double[][] { { 1.0d, 0.0d, 0.0d }, { 0.0d, 1.0d, 0.0d }, { 0.0d, 1.0d, 0.0d } });		
+		odometryNoise = new NormalDistribution(0.0d, 1.0d);
+		headingNoise = new NormalDistribution(0.0d, 0.2d);
+		sensorRangeNoise = new NormalDistribution(0.0d, 1.0d);
+		sensorDirectionNoise = new NormalDistribution(0.0d, 0.3d);
+		
 		previousState = new RobotState();
 	}
 	
 	public synchronized RobotState update(
 			RobotState estimatedState,
 			List<Landmark> landmarks) {
-		int slamLandmarksCount = 0;		
 		
-		Vector2D previousPosition = previousState.getPosition();
-		Vector2D estimatedPosition = estimatedState.getPosition();
+		Vector2D previousPosition = previousState.getPosition();    // previous SLAM estimate
+		Vector2D estimatedPosition = estimatedState.getPosition();  // current odometry estimate
 		
 		// phase 1. update current state using the odometry data
+
+		RealMatrix Fx = new Array2DRowRealMatrix(3, 3 + 2 * slamIdSeq);
+		Fx.setSubMatrix(I3.getData(), 0, 0);
 		
 		double deltaX = estimatedPosition.x - previousPosition.x;
 		double deltaY = estimatedPosition.y - previousPosition.y;
-		double deltaT = estimatedState.getHeading() - previousState.getHeading();
-		double deltaD = Math.sqrt(Math.pow(deltaX, 2.0d) + Math.sqrt(Math.pow(deltaY, 2.0d)));
+		double deltaT = calculateDifferenceBetweenAngles(previousState.getHeading(), estimatedState.getHeading());
 
-		X.addToEntry(0, deltaX);
-		X.addToEntry(1, deltaY);
-		X.addToEntry(2, deltaT);
+		RealVector uBar = X.copy();
+		uBar.addToEntry(0, deltaX);
+		uBar.addToEntry(1, deltaY);
+		uBar.addToEntry(2, deltaT);
 		
-		A.setEntry(0, 2, -deltaY);
-		A.setEntry(1, 2, deltaX);
-
-		W = new ArrayRealVector(new double[] { deltaX, deltaY, deltaT });
-		Q = W.outerProduct(W).scalarMultiply(CONST_C);
+		RealMatrix A = new Array2DRowRealMatrix(
+				new double[][] 
+						{ { 0.0d, 0.0d, -deltaY }, 
+						{ 0.0d, 0.0d, deltaX }, 
+						{ 0.0d, 0.0d, 0.0d } });
+		RealMatrix Gt = MatrixUtils.createRealIdentityMatrix(Fx.getColumnDimension()).add((Fx.transpose()).multiply(A).multiply(Fx));
 		
-		RealMatrix Prr = P.getSubMatrix(0, 2, 0, 2);
-		Prr = A.multiply(Prr).multiply(A).add(Q);
-		P.setSubMatrix(Prr.getData(), 0, 0);
+		RealVector W = new ArrayRealVector(new double[] { deltaX, deltaY, deltaT });
+		RealMatrix Rx = W.outerProduct(W);
+		Rx.multiplyEntry(0, 0, odometryNoise.sample());
+		Rx.multiplyEntry(1, 1, odometryNoise.sample());
+		Rx.multiplyEntry(2, 2, headingNoise.sample());
 		
-		for (Landmark landmark : landmarks) {
-			Integer slamId = landmark.getSlamId();
-			if (slamId != null) {
-				RealMatrix Pri = P.getSubMatrix(0, 2, 2 * (slamId) + 3, 2 * (slamId) + 4);
-				Pri = A.multiply(Pri);
-				P.setSubMatrix(Pri.getData(), 0, 2 * (slamId) + 3);
-				slamLandmarksCount++;
-			}
-		}
+		RealMatrix sigmaBar = Gt.multiply(sigma).multiply(Gt.transpose());
+		sigmaBar = sigmaBar.add((Fx.transpose()).multiply(Rx.multiply(Fx)));
 		
+		RealMatrix Qt = new Array2DRowRealMatrix(
+				new double[][] { 
+						{ 16.0d, // Math.pow(sensorRangeNoise.sample(), 2.0d), 
+							0.0d }, 
+						{ 0.0d, 
+							0.1d }}); //Math.pow(sensorDirectionNoise.sample(), 2.0d) }}); 	
+				
 		// Step 2: Update state from re-observed landmarks
 		
 		for (Landmark landmark : landmarks) {
 			Integer slamId = landmark.getSlamId();
-			if (slamId != null && landmark.getDetectedLandmark() != null) {
-				H = new Array2DRowRealMatrix(2, 2 * slamLandmarksCount + 3);  // creates zero matrix?
-				double lambdaX = landmark.getPosition().x;
-				double lambdaY = landmark.getPosition().y;
-				double r = Math.sqrt(Math.pow(lambdaX - estimatedPosition.x, 2.0d) + Math.pow(lambdaY - estimatedPosition.y, 2.0d));
-				double r2 = r * r;
-				double a = (estimatedPosition.x - lambdaX) / r;
-				double b = (estimatedPosition.y - lambdaY) / r;
-				double c = 0.0d;
-				double d = (lambdaY - estimatedPosition.y) / r2;
-				double e = (lambdaX - estimatedPosition.x) / r2;
-				double f = -1.0d;
-				
-				H.setEntry(0, 0, a);
-				H.setEntry(0, 1, b);
-				H.setEntry(0, 2, c);
-				H.setEntry(1, 0, d);
-				H.setEntry(1, 1, e);
-				H.setEntry(1, 2, f);
-
-				H.setEntry(0, 2 * slamId + 3, -a);
-				H.setEntry(0, 2 * slamId + 3, -b);
-				H.setEntry(1, 2 * slamId + 4, -d);
-				H.setEntry(1, 2 * slamId + 4, -e);
-				
-				// K=P*HT *(H*P*HT +V*R*VT)-1
-				RealMatrix K = H.multiply(P).multiply(H.transpose()).add(R);
-				K = new LUDecomposition(K).getSolver().getInverse();
-				K = P.multiply(H.transpose()).multiply(K);
-				
-				double estimatedRangeToLandmark = r;
-				double estimatedDirectionToLandmark = Math.atan((lambdaY - estimatedPosition.y) / (lambdaX - estimatedPosition.x)) - this.previousState.getHeading();
-				RealVector h = new ArrayRealVector(new double[] { estimatedRangeToLandmark, estimatedDirectionToLandmark });
-				
-				Vector2D detectedPosition = landmark.getDetectedLandmark().getPosition();
-				estimatedRangeToLandmark = Math.sqrt(Math.pow(detectedPosition.x - estimatedPosition.x, 2.0d) + Math.pow(detectedPosition.y - estimatedPosition.y, 2.0d));
-				estimatedDirectionToLandmark = Math.atan((detectedPosition.y - estimatedPosition.y) / (detectedPosition.x - estimatedPosition.x)) - this.previousState.getHeading();
-				RealVector z = new ArrayRealVector(new double[] { estimatedRangeToLandmark, estimatedDirectionToLandmark });
-
-				X = X.add(K.operate(z.subtract(h)));
-				
-				landmark.setDetectedLandmark(null);
-			}
-		}
-		
-		// Step 3: Add new landmarks to the current state
-		
-		Jxr = new Array2DRowRealMatrix(new double[][] { { 1.0d, 0.0d, -deltaY }, { 0.0d, 1.0d, deltaX } });
-		Jz = new Array2DRowRealMatrix(new double[][] { 
-				{ Math.cos(previousState.getHeading() + deltaT), - deltaD * Math.sin(previousState.getHeading() + deltaT) },
-				{ Math.sin(previousState.getHeading() + deltaT), deltaD * Math.cos(previousState.getHeading() + deltaT) } });
-		for (Landmark landmark : landmarks) {
 			Vector2D landmarkPosition = landmark.getPosition();
-			if (landmark.getSlamId() == null && landmark.isTrusted()) {
-				landmark.setSlamId(slamIdSeq++);
-				RealVector X_tmp = new ArrayRealVector(new double[] { landmarkPosition.x, landmarkPosition.y }); 
-				X = X.append(X_tmp);
-				
-				// set landmark covariance
-				RealMatrix Ppos = new Array2DRowRealMatrix(new double[][] 
-						{ { X.getEntry(0), 0.0d, 0.0d }, 
-						{ 0.0d, X.getEntry(1), 0.0d }, 
-						{ 0.0d, 0.0d, X.getEntry(2) } });
-				RealMatrix Pn1 = Jxr.multiply(Ppos).multiply(Jxr.transpose());
-				RealMatrix Pn2 = Jz.multiply(R).multiply(Jz.transpose());
-				RealMatrix Pnew = P.createMatrix(P.getRowDimension() + 2, P.getColumnDimension() + 2);
-				Pnew.setSubMatrix(P.getData(), 0, 0);
-				P = Pnew;
-				P.setSubMatrix(Pn1.add(Pn2).getData(), P.getRowDimension() - 3, P.getColumnDimension() - 3);
-				
-				// set robot-landmark and landmark-robot covariances
-				RealMatrix PrN1 = Prr.multiply(Jxr.transpose());
-				P.setSubMatrix(PrN1.getData(), 0, P.getColumnDimension() - 3);
-				P.setSubMatrix(PrN1.transpose().getData(), P.getRowDimension() - 3, 0);
-				
-				// landmark-landmark covariances
-				for (int i = 3; i < P.getColumnDimension(); i = i + 2) {
-					RealMatrix tmp = Jxr.multiply(P.getSubMatrix(0, 2, i, i+1));
-					P.setSubMatrix(tmp.getData(), P.getRowDimension() - 3, i);
-					P.setSubMatrix(tmp.transpose().getData(), i, P.getColumnDimension() - 3);
-				}
-			}
-		}
 			
-		previousState = new RobotState(new Vector2D((float)X.getEntry(0), (float)X.getEntry(1)), (float)X.getEntry(2));	
+			if (!landmark.isTrusted()) {
+				continue;
+			}
+			
+			if (slamId == null) {
+				RealVector landmarkPositionVector = new ArrayRealVector(
+						new double[] { landmarkPosition.getX(), landmarkPosition.getY() });
+				uBar = uBar.append(landmarkPositionVector);
+				landmark.setSlamId(slamIdSeq++);
+
+				RealMatrix sigmaTmp = sigmaBar.createMatrix(sigmaBar.getRowDimension() + 2, sigmaBar.getColumnDimension() + 2);
+				sigmaTmp.setSubMatrix(sigmaBar.getData(), 0, 0);
+				sigmaTmp.setSubMatrix(I2.scalarMultiply(1.0d).getData(), sigmaBar.getRowDimension() - 2, sigmaBar.getColumnDimension() - 2);
+				sigmaBar = sigmaTmp;
+			}
+			
+			// range and direction to recorded landmark
+			RealVector d1 = new ArrayRealVector(
+					new double[] { 
+							uBar.getEntry(3 + 2 * landmark.getSlamId()) - uBar.getEntry(0), 
+							uBar.getEntry(3 + 2 * landmark.getSlamId() + 1) - uBar.getEntry(1)
+					});
+			double q1 = d1.dotProduct(d1);
+			RealVector zHat = new ArrayRealVector(
+					new double[] { 
+							Math.sqrt(q1),
+							Math.atan2(d1.getEntry(1), d1.getEntry(0)) - uBar.getEntry(2)
+					});
+			
+			// range and direction to observed landmark
+			Vector2D detectedPosition;
+			if (landmark.getDetectedLandmark()==null) {
+				detectedPosition = landmark.getPosition();
+			} else {
+				detectedPosition = landmark.getDetectedLandmark().getPosition();
+			}
+			RealVector d2 = new ArrayRealVector(
+					new double[] { 
+							detectedPosition.getX() - uBar.getEntry(0), 
+							detectedPosition.getY() - uBar.getEntry(1)
+					});
+			double q2 = d2.dotProduct(d2);
+			RealVector z = new ArrayRealVector(
+					new double[] { 
+							Math.sqrt(q2),
+							Math.atan2(d2.getEntry(1), d2.getEntry(0)) - uBar.getEntry(2)
+					});
+						
+			RealMatrix Fxj = new Array2DRowRealMatrix(5, sigmaBar.getColumnDimension());
+			Fxj.setSubMatrix(I3.getData(), 0, 0);
+			Fxj.setSubMatrix(I2.getData(), 3, 3 + 2 * landmark.getSlamId());
+			
+			RealMatrix Hit = new Array2DRowRealMatrix(
+					new double[][] {
+							{ -Math.sqrt(q1) * d1.getEntry(0), -Math.sqrt(q1) * d1.getEntry(1), 0, +Math.sqrt(q1) * d1.getEntry(0), +Math.sqrt(q1) * d1.getEntry(1) },
+							{ d1.getEntry(1), -d1.getEntry(0), -q1, -d1.getEntry(1), d1.getEntry(0) }
+					});
+			Hit = (Hit.scalarMultiply(1/q1)).multiply(Fxj);
+			printMatrix(Hit, "Hit");
+						
+			RealMatrix tmp = Hit.multiply(sigmaBar).multiply(Hit.transpose());
+			tmp = tmp.add(Qt);
+			DecompositionSolver solver = new LUDecomposition(tmp).getSolver();
+			RealMatrix Inno = solver.getInverse();
+
+			RealMatrix Kit = sigmaBar.multiply(Hit.transpose()).multiply(Inno);
+			printMatrix(Kit, "Kit");
+			uBar = uBar.add(Kit.operate(z.subtract(zHat)));
+			sigmaBar = (MatrixUtils.createRealIdentityMatrix(sigmaBar.getColumnDimension()).subtract((Kit.multiply(Hit)))).multiply(sigmaBar);
+		}
+		printMatrix(sigmaBar, "sigma");
+		System.out.println("uBar:"+uBar);
+		
+		X = uBar;
+		sigma = sigmaBar;
+		
+		previousState = new RobotState(new Vector2D((float)X.getEntry(0), (float)X.getEntry(1)), (float)this.polarAngleToHeading(X.getEntry(2)));	
+
 		return previousState;
+	}
+	
+	private void printMatrix(RealMatrix matrix, String name) {
+		DecimalFormat f = new DecimalFormat("###.###");
+		System.out.println(name);
+		double[][] P_data = matrix.getData();
+		for (int i = 0; i<P_data.length; i++) {
+			for (int j = 0; j<P_data[i].length; j++) {
+				System.out.print(f.format(P_data[i][j]) + ",");
+			}
+			System.out.println();
+		}
+	}
+	
+	private double calculateDifferenceBetweenAngles(double firstAngle, double secondAngle) {
+		double difference = secondAngle - firstAngle;
+		if (difference < -Math.PI) 
+			return 2 * Math.PI + difference;
+		if (difference > Math.PI) 
+	        return - 2 * Math.PI + difference;
+		return difference;
+	 }
+
+	private double headingToPolarAngle(double heading) {
+		if (heading < 3 * Math.PI / 2.0d) {
+			return heading - Math.PI / 2.0d;
+		} else {
+			return -Math.PI / 2.0 + (-2 * Math.PI + heading);
+		}
+	}
+	
+	private double polarAngleToHeading(double angle) {
+		double tmp = angle % (2 * Math.PI);
+		if (tmp < 0.0d) {
+			tmp = 2 * Math.PI + angle;
+		}
+		return (Math.PI / 2.0d + tmp) % (2 * Math.PI);
+	}	
+	
+	public static void main(String[] arg) {
+		SlamManager test = new SlamManager();
+		System.out.println(test.calculateDifferenceBetweenAngles(0.1d, 2.0d));
+		System.out.println(test.calculateDifferenceBetweenAngles(0.1d, 5.0d));
+		System.out.println(test.calculateDifferenceBetweenAngles(0.1d, 3.0d));
+		System.out.println(test.calculateDifferenceBetweenAngles(5.0d, 0.1d));
+		System.out.println(test.polarAngleToHeading(0.1d));
+		System.out.println(test.polarAngleToHeading(5.0d));
+		System.out.println(test.polarAngleToHeading(2.0d));
+		
 	}
 	
 }

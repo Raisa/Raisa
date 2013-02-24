@@ -16,7 +16,7 @@ public class LandmarkManager {
 	private static final int RANSAC_SAMPLES = 200;
 	private static final int SPIKE_SAMPLES = 50;
 	
-	private static final int RECALCULATE_INTERVAL = 50;
+	private static final int RECALCULATE_INTERVAL = 200;
 	
 	private static final float ASSOCIATION_THRESHOLD = 60.0f;
 	
@@ -60,6 +60,9 @@ public class LandmarkManager {
 		samples.add(sample);
 		states.add(state);
 		if (sampleCounter % RECALCULATE_INTERVAL == 0) {
+			for (Landmark landmark : landmarks) {
+				landmark.setDetectedLandmark(null);
+			}
 			if (executeRansac) {
 				landmarks.addAll(
 						associateLandmarks(
@@ -81,7 +84,7 @@ public class LandmarkManager {
 	private List<Landmark> associateLandmarks(List<Landmark> landmarkProspects) {
 		List<Landmark> mergedProspects = new ArrayList<Landmark>(landmarkProspects);
 		List<Landmark> newLandmarks = new ArrayList<Landmark>();
-		
+				
 		// merge landmark prospects with each other
 		boolean foundMerge = true;
 		while (foundMerge) {
@@ -118,12 +121,15 @@ public class LandmarkManager {
 					(prospect instanceof SpikeLandmark && existingLandmark instanceof SpikeLandmark)) {
 					if (distanceToBestAssociation > prospect.getPosition().distance(existingLandmark.getPosition())) {
 						bestAssociation = existingLandmark;
-						distanceToBestAssociation = (float) prospect.distance(existingLandmark);
+						distanceToBestAssociation = (float) prospect.getPosition().distance(existingLandmark);
 					}
 				}
 			}
 			if (bestAssociation == null) {
 				newLandmarks.add(prospect);
+			} else if (!bestAssociation.isTrusted()) {
+				bestAssociation.merge(prospect);
+				bestAssociation.incLife();
 			} else {
 				bestAssociation.setDetectedLandmark(prospect);
 				bestAssociation.incLife();

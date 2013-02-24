@@ -2,11 +2,13 @@ package raisa.domain.robot;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import raisa.config.VisualizerConfig;
+import raisa.domain.AlgorithmTypeEnum;
 import raisa.domain.WorldModel;
 import raisa.domain.landmarks.LandmarkManager;
 import raisa.domain.particlefilter.Particle;
@@ -45,6 +47,16 @@ public class RobotStateAggregator implements SampleListener {
 		Robot lastRobot = world.getLatestState();
 		measuredState = simpleRobotMovementEstimator.moveRobot(lastRobot.getMeasuredState(), sample);
 		measuredState.setOdometer(calculateOdometer(measuredState, lastRobot.getMeasuredState()));
+		estimatedState = simpleRobotMovementEstimator.moveRobot(lastRobot.getEstimatedState(), sample);
+		
+		// compute landmarks 
+		Set<AlgorithmTypeEnum> activatedAlgorithms = VisualizerConfig.getInstance().getActivatedAlgorithms();
+		boolean executeSlam = false;
+		if (activatedAlgorithms.contains(AlgorithmTypeEnum.RANSAC_LANDMARK_EXTRACTION) ||
+				activatedAlgorithms.contains(AlgorithmTypeEnum.SPIKES_LANDMARK_EXTRACTION)) {
+			Robot newRobot = new Robot(measuredState, estimatedState);			
+			executeSlam = landmarkManager.addData(sample, newRobot);
+		}
 		
 		// calculate new robot state using particle filter
 		switch (VisualizerConfig.getInstance().getLocalizationMode()) {
@@ -56,20 +68,17 @@ public class RobotStateAggregator implements SampleListener {
 				states.add(robot);
 			}
 			estimatedState = clusteringRobotStateEstimator.estimateState(states);
-			estimatedState.setOdometer(calculateOdometer(estimatedState, lastRobot.getEstimatedState()));
 			break;
 		case SLAM:
-			estimatedState = simpleRobotMovementEstimator.moveRobot(lastRobot.getEstimatedState(), sample);
-			Robot newRobot = new Robot(measuredState, estimatedState);
-			if (landmarkManager.addData(sample, newRobot)) {
+			if (executeSlam) {
 				estimatedState = slam.update(estimatedState, landmarkManager.getLandmarks());
 			}			
-			estimatedState.setOdometer(calculateOdometer(measuredState, lastRobot.getMeasuredState()));
 			break;
 		default:
 			estimatedState = measuredState;
 		}
-		
+		estimatedState.setOdometer(calculateOdometer(estimatedState, lastRobot.getEstimatedState()));
+	
 		// aggregate robot states and misc state calculations
 		Robot newRobot = new Robot(measuredState, estimatedState);
 		newRobot.setTimestampMillis(sample.getTimestampMillis());

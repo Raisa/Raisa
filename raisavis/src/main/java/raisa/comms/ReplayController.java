@@ -1,5 +1,7 @@
 package raisa.comms;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import javax.swing.SwingWorker;
@@ -9,13 +11,12 @@ import org.slf4j.LoggerFactory;
 
 public class ReplayController extends Controller {
 	private static final Logger log = LoggerFactory.getLogger(ReplayController.class);
-	private Communicator communicator;
+	private List<Communicator> communicators = new ArrayList<Communicator>();
 	private final List<ControlMessage> controlMessages;
 	private ControlMessage currentControlMessage;
 
-	public ReplayController(Communicator communicator,
-			final List<ControlMessage> controlMessages) {
-		this.communicator = communicator;
+	public ReplayController(final List<ControlMessage> controlMessages, Communicator ... communicators) {
+		this.communicators = Arrays.asList(communicators);
 		this.controlMessages = controlMessages;
 		if (!controlMessages.isEmpty()) {
 			currentControlMessage = controlMessages.get(0);
@@ -66,7 +67,9 @@ public class ReplayController extends Controller {
 	protected void sendMessage(ControlMessage controlMessage) {
 		setCurrentControlMessage(controlMessage);
 		notifyControlListeners();
-		communicator.sendPackage(controlMessage);
+		for (Communicator communicator : communicators) {
+			communicator.sendPackage(controlMessage);
+		}
 	}
 
 	@Override

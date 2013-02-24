@@ -36,10 +36,10 @@ import raisa.domain.samples.Sample;
 	@Override
 	public void update(Sample sample) {
 		DecimalFormat format = new DecimalFormat("000");
-		headingMeasuredField.setText(format.format(Math.toDegrees((sample.getCompassDirection() % 360))) + " (compass)");
+		headingMeasuredField.setText(format.format(Math.toDegrees(sample.getCompassDirection()) % 360) + " (compass)");
 		
 		RobotState estimatedState = worldModel.getLatestState().getEstimatedState();
-		int estimatedHeading = (int)Math.toDegrees((estimatedState.getHeading() % 360));
+		int estimatedHeading = (int)Math.toDegrees(estimatedState.getHeading()) % 360;
 		if (estimatedHeading < 0) {
 			estimatedHeading += 360;
 		}

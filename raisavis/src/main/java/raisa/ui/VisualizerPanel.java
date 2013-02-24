@@ -179,7 +179,7 @@ public class VisualizerPanel extends JPanel implements SampleListener, Visualize
 			g2.drawRect((int)s.x, (int)s.y, 1, 1);
 		}
 		for (Landmark landmark : landmarks) {
-			if (landmark instanceof LineLandmark && landmark.getLife() > 1) {
+			if (landmark instanceof LineLandmark && landmark.isTrusted()) {
 				Color c = Color.magenta;
 				for (int i=0; i<landmark.getLife(); i++) {
 					c = c.brighter();
@@ -190,10 +190,20 @@ public class VisualizerPanel extends JPanel implements SampleListener, Visualize
 				Vector2D startPoint = toScreen(segment.x1, segment.y1);
 				Vector2D endPoint = toScreen(segment.x2, segment.y2);
 				g2.drawLine((int)startPoint.x, (int)startPoint.y, (int)endPoint.x, (int)endPoint.y);
+				
+				g2.setStroke(new BasicStroke(8.0f));
+				Vector2D s = toScreen(landmark.getPosition());
+				g2.drawRect((int)s.x, (int)s.y, 1, 1);
+				
+				if (landmark.getDetectedLandmark()!=null) {
+					g2.setColor(Color.blue);
+					s = toScreen(landmark.getDetectedLandmark().getPosition());
+					g2.drawRect((int)s.x, (int)s.y, 1, 1);
+				}
 			} 
 		}
 		for (Landmark landmark : landmarks) {
-			if (landmark instanceof SpikeLandmark && landmark.getLife() > 2) {
+			if (landmark instanceof SpikeLandmark && landmark.isTrusted()) {
 				Color c = Color.green;
 				for (int i=0; i<landmark.getLife(); i++) {
 					c = c.brighter();

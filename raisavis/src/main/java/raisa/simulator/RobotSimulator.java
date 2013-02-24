@@ -6,12 +6,14 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
+import org.apache.commons.math3.distribution.NormalDistribution;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import raisa.comms.Communicator;
 import raisa.comms.ControlMessage;
 import raisa.comms.SensorListener;
+import raisa.config.InputOutputTargetEnum;
 import raisa.config.VisualizerConfig;
 import raisa.config.VisualizerConfigListener;
 import raisa.domain.WorldModel;
@@ -41,16 +43,22 @@ public class RobotSimulator implements SimulatorState, ServoScanListener, Commun
 	private List<SensorListener> sensorListeners = new ArrayList<SensorListener>();
 	private final long startTime = System.currentTimeMillis();
 	private int messageNumber = 1;
-	
+
+	private NormalDistribution sensorDirectionNoise = new NormalDistribution(0.0d, 2.0d);
+	private NormalDistribution headingNoise = new NormalDistribution(0.0d, 2.0d);
+	private NormalDistribution odometerNoise = new NormalDistribution(0.0d, 1.0d);
+
 	private Thread simulatorThread;
 	private boolean simulatorActive = false;
 	
 	public RobotSimulator(Vector2D position, float heading, DriveSystem driveSystem, WorldModel worldModel) {
+		VisualizerConfig config = VisualizerConfig.getInstance();
+		
 		this.position = position;
 		this.heading = heading;
 		this.driveSystem = driveSystem;
 		this.worldModel = worldModel;
-		VisualizerConfig.getInstance().addVisualizerConfigListener(this);
+		config.addVisualizerConfigListener(this);
 	}
 
 	public static RobotSimulator createRaisaInstance(Vector2D position, float heading, WorldModel worldModel) {
@@ -110,24 +118,25 @@ public class RobotSimulator implements SimulatorState, ServoScanListener, Commun
 		float sonarDistance1 = sonarScanner1.scanDistance(worldModel, this, servoHeading);
 		float irDistance2 = irScanner2.scanDistance(worldModel, this, servoHeading + 180);
 		float sonarDistance2 = sonarScanner2.scanDistance(worldModel, this, servoHeading + 180);
+		int directionNoiseSample = (int)sensorDirectionNoise.sample();
 		if(irDistance1 > 0 ) {
 			reading.setIrDistance1(round(irDistance1));
-			reading.setIrDirection1(round(servoHeading) + 90);
+			reading.setIrDirection1(round(servoHeading) + 90 + directionNoiseSample);
 		}
 		if(sonarDistance1 > 0 ) {
 			reading.setSonarDistance1(round(sonarDistance1));
-			reading.setSonarDirection1(round(servoHeading) + 90);
+			reading.setSonarDirection1(round(servoHeading) + 90 + directionNoiseSample);
 		}
 		if(irDistance2 > 0 ) {
 			reading.setIrDistance2(round(irDistance2));
-			reading.setIrDirection2(round(servoHeading) + 90 + 180);
+			reading.setIrDirection2(round(servoHeading) + 90 + 180 + directionNoiseSample);
 		}
 		if(sonarDistance2 > 0 ) {
 			reading.setSonarDistance2(round(sonarDistance2));
-			reading.setSonarDirection2(round(servoHeading) + 90 + 180);
+			reading.setSonarDirection2(round(servoHeading) + 90 + 180 + directionNoiseSample);
 		}
 		
-		reading.setCompassHeading(360-round(heading));
+		reading.setCompassHeading(360-round(heading - (int)headingNoise.sample()));
 		reading.setTimestamp(System.currentTimeMillis() - startTime).setMessageNumber(messageNumber++);
 		
 		Random random = new Random();
@@ -143,8 +152,8 @@ public class RobotSimulator implements SimulatorState, ServoScanListener, Commun
 		acceleration.setY((float)(-9.81 + random.nextGaussian()));
 		acceleration.setZ((float) random.nextGaussian());
 		
-		reading.setRightEncoder(driveSystem.readRightWheelEncoderTicks());
-		reading.setLeftEncoder(driveSystem.readLeftWheelEncoderTicks());
+		reading.setRightEncoder(driveSystem.readRightWheelEncoderTicks() + (int)odometerNoise.sample());
+		reading.setLeftEncoder(driveSystem.readLeftWheelEncoderTicks() + (int)odometerNoise.sample());
 
 		sendSendorReading(reading);
 	}
@@ -174,7 +183,7 @@ public class RobotSimulator implements SimulatorState, ServoScanListener, Commun
 	
 	
 	public void reset() {
-		this.position = new Vector2D(-100,0);
+		this.position = new Vector2D(0,0);
 		this.heading = 0;
 		this.driveSystem.setLeftWheelSpeed(0);
 		this.driveSystem.setRightWheelSpeed(0);

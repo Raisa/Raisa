@@ -16,8 +16,8 @@ public class VisualizerConfig {
 	private List<VisualizerConfigItemEnum> changedConfigs = new ArrayList<VisualizerConfigItemEnum>();
 	
 	// IO-source and state for activated algorithms
-	private InputOutputTargetEnum inputOutputTarget = InputOutputTargetEnum.FILE_SIMULATION;
-	private LocalizationModeEnum localizationMode = LocalizationModeEnum.NONE;	
+	private InputOutputTargetEnum inputOutputTarget = InputOutputTargetEnum.REALTIME_SIMULATOR;
+	private LocalizationModeEnum localizationMode = LocalizationModeEnum.SLAM;	
 	
 	private Set<AlgorithmTypeEnum> activatedAlgorithms = new HashSet<AlgorithmTypeEnum>();
 
