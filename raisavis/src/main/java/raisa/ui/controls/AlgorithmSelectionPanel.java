@@ -21,6 +21,8 @@ public class AlgorithmSelectionPanel extends ControlSubPanel implements Visualiz
 	private static final long serialVersionUID = 1L;
 	
 	private JComboBox localizationModeBox;
+	private AlgorithmSelectionCheckBox ransacBox;
+	private AlgorithmSelectionCheckBox spikesBox;
 	
 	public AlgorithmSelectionPanel() {
 		setBorder(new TitledBorder("Algorithms"));
@@ -28,8 +30,10 @@ public class AlgorithmSelectionPanel extends ControlSubPanel implements Visualiz
 		setAlignmentX(Component.CENTER_ALIGNMENT);
 		
 		createLocalizationModeControl();
-		this.add(new AlgorithmSelectionCheckBox("RANSAC", AlgorithmTypeEnum.RANSAC_LANDMARK_EXTRACTION));
-		this.add(new AlgorithmSelectionCheckBox("Spikes", AlgorithmTypeEnum.SPIKES_LANDMARK_EXTRACTION));
+		ransacBox = new AlgorithmSelectionCheckBox("RANSAC", AlgorithmTypeEnum.RANSAC_LANDMARK_EXTRACTION);
+		spikesBox = new AlgorithmSelectionCheckBox("Spikes", AlgorithmTypeEnum.SPIKES_LANDMARK_EXTRACTION);
+		add(ransacBox);
+		add(spikesBox);
 		VisualizerConfig.getInstance().addVisualizerConfigListener(this);
 	}
 	
@@ -93,6 +97,10 @@ public class AlgorithmSelectionPanel extends ControlSubPanel implements Visualiz
 	public void visualizerConfigChanged(VisualizerConfig config) {
 		if (config.isChanged(VisualizerConfigItemEnum.LOCALIZATION_MODE)) {
 			localizationModeBox.setSelectedIndex(config.getLocalizationMode().getIndex());
+		}
+		if (config.isChanged(VisualizerConfigItemEnum.ACTIVATED_ALGORITHMS)) {
+			ransacBox.setSelected(config.getActivatedAlgorithms().contains(AlgorithmTypeEnum.RANSAC_LANDMARK_EXTRACTION));
+			spikesBox.setSelected(config.getActivatedAlgorithms().contains(AlgorithmTypeEnum.SPIKES_LANDMARK_EXTRACTION));
 		}
 	}
 	

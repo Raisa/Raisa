@@ -15,16 +15,12 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 import raisa.config.VisualizerConfig;
+import raisa.ui.MapAreaElementEnum;
+import raisa.ui.controls.ControlTypeEnum;
 
 class MapAreaOptions extends JPanel {		
 	private static final long serialVersionUID = 1L;		
-	
-	private JCheckBox particles;
-	private JCheckBox trail;
-	private JCheckBox map;
-	private JCheckBox robot;
-	private JCheckBox irScan;
-	private JCheckBox sonarScan;
+
 	private JSlider particleMinAge;
 
 	public MapAreaOptions() {
@@ -33,72 +29,13 @@ class MapAreaOptions extends JPanel {
 		setAlignmentX(Component.CENTER_ALIGNMENT);
 		setAlignmentY(Component.TOP_ALIGNMENT);
 
-		particles = new JCheckBox("Particles");
-		particles.setSelected(true);
-		particles.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				VisualizerConfig.getInstance().setDisplayParticles(particles.isSelected());
-				VisualizerConfig.getInstance().notifyVisualizerConfigListeners();
-			}
-		});
-
-		add(particles);
-		
-		trail = new JCheckBox("Trail");
-		trail.setSelected(true);
-		trail.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				VisualizerConfig.getInstance().setDisplayTrail(trail.isSelected());
-				VisualizerConfig.getInstance().notifyVisualizerConfigListeners();
-			}
-		});
-		add(trail);
-
-		robot = new JCheckBox("Robot");
-		robot.setSelected(true);
-		robot.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				VisualizerConfig.getInstance().setDisplayRobot(robot.isSelected());
-				VisualizerConfig.getInstance().notifyVisualizerConfigListeners();
-			}
-		});
-		add(robot);
-
-		irScan = new JCheckBox("Infra red scanner");
-		irScan.setSelected(true);
-		irScan.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				VisualizerConfig.getInstance().setDisplayIrScan(irScan.isSelected());
-				VisualizerConfig.getInstance().notifyVisualizerConfigListeners();
-			}
-		});
-		add(irScan);
-		
-		sonarScan = new JCheckBox("Ultra sound scanner");
-		sonarScan.setSelected(true);
-		sonarScan.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				VisualizerConfig.getInstance().setDisplaySonarScan(sonarScan.isSelected());
-				VisualizerConfig.getInstance().notifyVisualizerConfigListeners();
-			}
-		});
-		add(sonarScan);
-
-		map = new JCheckBox("Map");
-		map.setSelected(true);
-		map.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				VisualizerConfig.getInstance().setDisplayMap(map.isSelected());
-				VisualizerConfig.getInstance().notifyVisualizerConfigListeners();
-			}
-		});
-		add(map);
+		this.add(new MapAreaElementCheckBox("Particles", MapAreaElementEnum.PARTICLES));
+		this.add(new MapAreaElementCheckBox("Trail", MapAreaElementEnum.ROBOT_TRAIL));
+		this.add(new MapAreaElementCheckBox("Robot", MapAreaElementEnum.ROBOT));
+		this.add(new MapAreaElementCheckBox("Infrared scanner", MapAreaElementEnum.INFRARED_SCANNER));
+		this.add(new MapAreaElementCheckBox("Ultrasonic scanner", MapAreaElementEnum.ULTRASONIC_SCANNER));
+		this.add(new MapAreaElementCheckBox("Map", MapAreaElementEnum.MAP));
+		this.add(new MapAreaElementCheckBox("Landmarks", MapAreaElementEnum.LANDMARKS));		
 		
 		JLabel particleAgeLabel = new JLabel("Min particle age"); 
 		particleAgeLabel.setToolTipText("Minimum age (in generations) for particles to display");
@@ -123,4 +60,30 @@ class MapAreaOptions extends JPanel {
 		add(particleMinAge);
 	}
 	
+	private class MapAreaElementCheckBox extends JCheckBox implements ActionListener {
+		private static final long serialVersionUID = 1L;
+		
+		private MapAreaElementEnum mapAreaElement;
+		
+		public MapAreaElementCheckBox(String text, MapAreaElementEnum mapAreaElement) {
+			super(text);
+			this.mapAreaElement = mapAreaElement;
+			VisualizerConfig config = VisualizerConfig.getInstance();
+			this.setSelected(config.getDisplayedMapAreaElements().contains(mapAreaElement));
+			this.addActionListener(this);
+		}
+		
+		@Override
+		public void actionPerformed(ActionEvent arg0) {
+			VisualizerConfig config = VisualizerConfig.getInstance();
+			if (this.isSelected()) {
+				config.addDisplayedMapAreaElement(mapAreaElement);
+			} else {
+				config.removeDisplayedMapAreaElement(mapAreaElement);
+			}
+			config.notifyVisualizerConfigListeners();
+		}
+		
+	}
+
 }

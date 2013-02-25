@@ -19,6 +19,7 @@ import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
@@ -134,28 +135,29 @@ public class VisualizerPanel extends JPanel implements SampleListener, Visualize
 	public void paintComponent(Graphics g) {
 		Graphics2D g2 = (Graphics2D) g;
 		clearScreen(g);
-		if(VisualizerConfig.getInstance().isDisplayMap()) {
+		Set<MapAreaElementEnum> mapAreaElements = VisualizerConfig.getInstance().getDisplayedMapAreaElements();
+		if(mapAreaElements.contains(MapAreaElementEnum.MAP)) {
 			drawGrid(g2);
 		}
 		if (VisualizerConfig.getInstance().getLocalizationMode() == LocalizationModeEnum.PARTICLE_FILTER
-				&& VisualizerConfig.getInstance().isDisplayParticles()) {
+				&& mapAreaElements.contains(MapAreaElementEnum.PARTICLES)) {
 			drawParticles(g2);
 		}
-		if(VisualizerConfig.getInstance().isDisplayTrail()) {
+		if(mapAreaElements.contains(MapAreaElementEnum.ROBOT_TRAIL)) {
 			drawRobotTrail(g2, worldModel.getStates());
 		}
 		drawOriginArrows(g2);
 		if(VisualizerConfig.getInstance().getInputOutputTarget().equals(InputOutputTargetEnum.REALTIME_SIMULATOR)) {
 			drawRobotSimulator(g2);
 		}
-		if(VisualizerConfig.getInstance().isDisplayRobot()) {
+		if(mapAreaElements.contains(MapAreaElementEnum.ROBOT)) {
 			drawRobot(g2);
 			drawRobotDirectionArrow(g2);
 		}
-		if(VisualizerConfig.getInstance().isDisplaySonarScan()) {
+		if(mapAreaElements.contains(MapAreaElementEnum.ULTRASONIC_SCANNER)) {
 			drawUltrasoundResults(g);
 		}
-		if(VisualizerConfig.getInstance().isDisplayIrScan()) {
+		if(mapAreaElements.contains(MapAreaElementEnum.INFRARED_SCANNER)) {
 			drawIrResults(g2);
 		}
 		Vector2D worldMouse = toWorld(mouse);
@@ -166,7 +168,9 @@ public class VisualizerPanel extends JPanel implements SampleListener, Visualize
 			drawAngle(g2, worldMouseDown, worldMouse);
 		}
 		drawCoordinates(g2, worldMouse);
-		drawLandmarks(g2);
+		if (mapAreaElements.contains(MapAreaElementEnum.LANDMARKS)) {
+			drawLandmarks(g2);
+		}
 		drawCurrentImage(g2);
 	}
 
@@ -198,6 +202,11 @@ public class VisualizerPanel extends JPanel implements SampleListener, Visualize
 				if (landmark.getDetectedLandmark()!=null) {
 					g2.setColor(Color.blue);
 					s = toScreen(landmark.getDetectedLandmark().getPosition());
+					g2.drawRect((int)s.x, (int)s.y, 1, 1);
+				}
+				if (landmark.getAdjustedPosition()!=null) {
+					g2.setColor(Color.yellow);
+					s = toScreen(landmark.getAdjustedPosition());
 					g2.drawRect((int)s.x, (int)s.y, 1, 1);
 				}
 			} 

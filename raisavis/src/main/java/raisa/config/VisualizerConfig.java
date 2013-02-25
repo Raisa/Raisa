@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Set;
 
 import raisa.domain.AlgorithmTypeEnum;
+import raisa.ui.MapAreaElementEnum;
 import raisa.ui.controls.ControlTypeEnum;
 import raisa.ui.measurements.MeasurementTypeEnum;
 
@@ -22,12 +23,7 @@ public class VisualizerConfig {
 	private Set<AlgorithmTypeEnum> activatedAlgorithms = new HashSet<AlgorithmTypeEnum>();
 
 	// map area visualization options
-	private boolean displayMap = true;
-	private boolean displayTrail = true;
-	private boolean displayRobot = true;
-	private boolean displayParticles = true;
-	private boolean displaySonarScan = true;
-	private boolean displayIrScan = true;
+	private Set<MapAreaElementEnum> displayedMapAreaElements = new HashSet<MapAreaElementEnum>();
 	private int displayMinAgeForParticles = 0;
 	
 	// measurements panel visualization options
@@ -38,6 +34,13 @@ public class VisualizerConfig {
 	
 	private VisualizerConfig() {
 		// TODO: default initialization can be moved to an init file some day
+		this.displayedMapAreaElements.add(MapAreaElementEnum.MAP);
+		this.displayedMapAreaElements.add(MapAreaElementEnum.ROBOT_TRAIL);
+		this.displayedMapAreaElements.add(MapAreaElementEnum.ROBOT);
+		this.displayedMapAreaElements.add(MapAreaElementEnum.PARTICLES);
+		this.displayedMapAreaElements.add(MapAreaElementEnum.ULTRASONIC_SCANNER);
+		this.displayedMapAreaElements.add(MapAreaElementEnum.INFRARED_SCANNER);
+		
 		this.displayedMeasurements.add(MeasurementTypeEnum.HEADING);
 		this.displayedMeasurements.add(MeasurementTypeEnum.SPEED);
 		this.displayedMeasurements.add(MeasurementTypeEnum.ODOMETER);
@@ -48,9 +51,6 @@ public class VisualizerConfig {
 		this.displayedControls.add(ControlTypeEnum.MOVEMENT);
 		this.displayedControls.add(ControlTypeEnum.OTHER);
 		this.displayedControls.add(ControlTypeEnum.ALGORITHM_SELECTION);
-
-		this.activatedAlgorithms.add(AlgorithmTypeEnum.RANSAC_LANDMARK_EXTRACTION);
-		this.activatedAlgorithms.add(AlgorithmTypeEnum.SPIKES_LANDMARK_EXTRACTION);
 	}
 	
 	public static VisualizerConfig getInstance() {
@@ -74,6 +74,10 @@ public class VisualizerConfig {
 	public void setLocalizationMode(LocalizationModeEnum localizationMode) {
 		if (this.localizationMode != localizationMode) {
 			this.localizationMode = localizationMode;
+			if (LocalizationModeEnum.SLAM.equals(localizationMode)) {
+				addActivatedAlgorithm(AlgorithmTypeEnum.RANSAC_LANDMARK_EXTRACTION);
+				addActivatedAlgorithm(AlgorithmTypeEnum.SPIKES_LANDMARK_EXTRACTION);
+			}
 			this.changedConfigs.add(VisualizerConfigItemEnum.LOCALIZATION_MODE);
 		}
 	}
@@ -104,72 +108,6 @@ public class VisualizerConfig {
 			listener.visualizerConfigChanged(this);
 		}
 		this.changedConfigs.clear();
-	}
-
-	public boolean isDisplayMap() {
-		return displayMap;
-	}
-
-	public void setDisplayMap(boolean displayMap) {
-		if(this.displayMap != displayMap) {
-			this.displayMap = displayMap;
-			this.changedConfigs.add(VisualizerConfigItemEnum.DISPLAY_MAP);
-		}
-	}
-
-	public boolean isDisplayTrail() {
-		return displayTrail;
-	}
-
-	public void setDisplayTrail(boolean displayTrail) {
-		if(this.displayTrail != displayTrail) {
-			this.displayTrail = displayTrail;
-			this.changedConfigs.add(VisualizerConfigItemEnum.DISPLAY_TRAIL);
-		}
-	}
-
-	public boolean isDisplayRobot() {
-		return displayRobot;
-	}
-
-	public void setDisplayRobot(boolean displayRobot) {
-		if(this.displayRobot != displayRobot) {
-			this.displayRobot = displayRobot;
-			this.changedConfigs.add(VisualizerConfigItemEnum.DISPLAY_ROBOT);
-		}
-	}
-
-	public boolean isDisplayParticles() {
-		return displayParticles;
-	}
-
-	public void setDisplayParticles(boolean displayParticles) {
-		if(this.displayParticles != displayParticles) {
-			this.displayParticles = displayParticles;
-			this.changedConfigs.add(VisualizerConfigItemEnum.DISPLAY_PARTICLES);
-		}
-	}
-
-	public boolean isDisplaySonarScan() {
-		return displaySonarScan;
-	}
-
-	public void setDisplaySonarScan(boolean displaySonarScan) {
-		if(this.displaySonarScan != displaySonarScan) {
-			this.displaySonarScan = displaySonarScan;
-			this.changedConfigs.add(VisualizerConfigItemEnum.DISPLAY_SONAR_SCAN);
-		}
-	}
-
-	public boolean isDisplayIrScan() {
-		return displayIrScan;
-	}
-
-	public void setDisplayIrScan(boolean displayIrScan) {
-		if(this.displayIrScan != displayIrScan) {
-			this.displayIrScan = displayIrScan;
-			this.changedConfigs.add(VisualizerConfigItemEnum.DISPLAY_IR_SCAN);
-		}
 	}
 
 	public int getDisplayMinAgeForParticles() {
@@ -221,5 +159,19 @@ public class VisualizerConfig {
 	public Set<AlgorithmTypeEnum> getActivatedAlgorithms() {
 		return this.activatedAlgorithms;
 	}	
-		
+
+	public void addDisplayedMapAreaElement(MapAreaElementEnum mapAreaElement) {
+		this.displayedMapAreaElements.add(mapAreaElement);
+		this.setChanged(VisualizerConfigItemEnum.DISPLAYED_MAP_AREA_ELEMENTS);
+	}
+	
+	public void removeDisplayedMapAreaElement(MapAreaElementEnum mapAreaElement) {
+		this.displayedMapAreaElements.remove(mapAreaElement);
+		this.setChanged(VisualizerConfigItemEnum.DISPLAYED_MAP_AREA_ELEMENTS);		
+	}
+
+	public Set<MapAreaElementEnum> getDisplayedMapAreaElements() {
+		return this.displayedMapAreaElements;
+	}		
+	
 }

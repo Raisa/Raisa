@@ -6,7 +6,7 @@ import raisa.domain.WorldModel;
 
 public class IRDistanceScanner implements DistanceScanner {
 
-	private NormalDistribution noise = new NormalDistribution(0.0d, 1.0d);
+	private NormalDistribution noise = new NormalDistribution(0.0d, 5.0d);
 	
 	@Override
 	public float scanDistance(WorldModel worldModel, SimulatorState roverState, float heading) {

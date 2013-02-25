@@ -1,0 +1,7 @@
+package raisa.ui;
+
+public enum MapAreaElementEnum {
+
+	PARTICLES, ROBOT_TRAIL, ROBOT, INFRARED_SCANNER, ULTRASONIC_SCANNER, MAP, LANDMARKS;
+	
+}

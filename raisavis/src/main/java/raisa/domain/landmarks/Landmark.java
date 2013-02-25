@@ -8,6 +8,15 @@ public abstract class Landmark extends Vector2D {
     protected int life = 1;  
     protected Integer slamId;   
     private Landmark detectedLandmark;
+    private Vector2D adjustedPosition;
+    
+    public void setAdjustedPosition(Vector2D adjustedPosition) {
+    	this.adjustedPosition = adjustedPosition;
+    }
+    
+    public Vector2D getAdjustedPosition() {
+    	return this.adjustedPosition;
+    }
     
     public int getLife() {
     	return life;
