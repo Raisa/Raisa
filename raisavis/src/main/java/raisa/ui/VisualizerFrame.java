@@ -510,7 +510,7 @@ public class VisualizerFrame extends JFrame {
 					String fileName = chooser.getSelectedFile().getAbsolutePath();
 					try {
 						saveDefaultDirectory(fileName);
-						internalLoad(fileName, true);
+						internalLoad(fileName, false);
 					} catch (Exception e) {
 						e.printStackTrace();
 					}
