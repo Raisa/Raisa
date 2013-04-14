@@ -399,10 +399,13 @@ void handleTakeAndSendPicture() {
   analogWrite(motorLeftSpeedPin, 0);
   analogWrite(motorRightSpeedPin, 0);
   
-  //sendCameraResetCmd();
-  //delay(4000); 
+  // clear stuff that may be waiting in the line
+  if (cameraSerial.available()>0) {
+    cameraSerial.read();
+  }
+  
   sendCameraTakePhotoCmd();
-  delay(500);
+  //delay(500);
   readAndSendCameraPicture();
   
   analogWrite(motorLeftSpeedPin, motorLeftSpeed);
@@ -412,15 +415,11 @@ void handleTakeAndSendPicture() {
 }
 
 void readAndSendCameraPicture() {
-  int j = 0, k = 0, count = 0;
+  int j = 0, k = 0, count = 0, waitCounter = 0;
   byte incomingByte;
   boolean cameraReadEndFlag = false;
   byte a[32];
   long timeMillisBefore = millis();
-    
-  while(cameraSerial.available() > 0) {
-    incomingByte = cameraSerial.read();
-  }   
   
   Serial.print("CA");
   while(!cameraReadEndFlag) {  
@@ -429,18 +428,30 @@ void readAndSendCameraPicture() {
     count = 0;
     sendCameraReadDataCmd();
     
-    delay(75);
-    while(cameraSerial.available() > 0) {
-      incomingByte = cameraSerial.read();
-      k++;
-      if((k>5)&&(j<32)&&(!cameraReadEndFlag)) {
-        a[j] = incomingByte;
-        //Check if the picture is over
-        if((a[j-1]==0xFF)&&(a[j]==0xD9)) { 
-          cameraReadEndFlag = true;     
-        }          
-        j++;
-	count++;
+    // wait for camera response
+    waitCounter = 0;
+    while(waitCounter<100 && !cameraSerial.available()) {
+      delay(1);
+      waitCounter++;
+    }
+    
+    waitCounter = 0;
+    while(!cameraReadEndFlag && waitCounter<100 && k<42) {
+      if(cameraSerial.available()>0) {
+        incomingByte = cameraSerial.read();
+        k++;
+        if((k>5)&&(j<32)&&(!cameraReadEndFlag)) {
+          a[j] = incomingByte;
+          //Check if the picture is over
+          if((a[j-1]==0xFF)&&(a[j]==0xD9)) { 
+            cameraReadEndFlag = true;     
+          }          
+          j++;
+	  count++;
+        }
+      } else {
+        delay(1);
+        waitCounter++;
       }
     }
      
@@ -459,7 +470,7 @@ void readAndSendCameraPicture() {
   }
   Serial.print(";");  
   sendCameraStopTakePhotoCmd();
-  sendCameraResetCmd();
+  //sendCameraResetCmd();
   cameraCurrentReadAddress = 0x0000;
 }
 
@@ -498,7 +509,22 @@ void sendCameraTakePhotoCmd() {
   cameraSerial.write((byte)0x00);
   cameraSerial.write((byte)0x36);
   cameraSerial.write((byte)0x01);
-  cameraSerial.write((byte)0x00);  
+  cameraSerial.write((byte)0x00); 
+  cameraSerial.flush();
+  
+  // read response "76 00 36 00 00" from the camera
+  int loopCounter = 0;
+  int byteCounter = 0;
+  while(loopCounter < 1000 && byteCounter < 5) {
+    while (cameraSerial.available()>0) {
+      cameraSerial.read();
+      byteCounter++;
+    }
+    if (byteCounter < 5) {
+      delay(1);
+    }
+    loopCounter++;   
+  }   
 }
 
 void sendCameraStopTakePhotoCmd() {
