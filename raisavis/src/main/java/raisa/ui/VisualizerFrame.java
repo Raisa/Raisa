@@ -88,9 +88,9 @@ public class VisualizerFrame extends JFrame {
 		
 		MeasurementsPanel measurementsPanel = new MeasurementsPanel(worldModel);
 		JMenuBar menuBar = new JMenuBar();
-		JMenu mainMenu = createMainMenu(worldModel, menuBar);
+		createMainMenu(worldModel, menuBar);
 		
-		createViewMenu(menuBar, mainMenu);
+		createViewMenu(menuBar);
 
 		sessionWriter = new SessionWriter(sessionDirectory, "data");
 
@@ -291,9 +291,9 @@ public class VisualizerFrame extends JFrame {
 		});
 	}
 
-	private void createViewMenu(JMenuBar menuBar, JMenu mainMenu) {
+	private void createViewMenu(JMenuBar menuBar) {
 		JMenu viewMenu = new JMenu("View");
-		mainMenu.setMnemonic('m');
+		viewMenu.setMnemonic('v');
 		JMenuItem zoomIn = new JMenuItem("Zoom in");
 		zoomIn.addActionListener(new ActionListener() {
 			@Override
