@@ -14,13 +14,15 @@ const int servoPin = 2;
 int minAngle = 0;
 int maxAngle = 180;
 int maxDelay = 120;
-int angleStep = 20;
+int angleStep = 10;
 int scanOffset = 0;
 Servo myservo;
 
 // pan & tilt system
 const int panServoPin = 4;
 const int tiltServoPin = 3;
+int currentPanServoAngle = 0;
+int currentTiltServoAngle = 0;
 Servo panServo;
 Servo tiltServo;
 
@@ -108,13 +110,11 @@ void setup()
   Serial.begin(serialSpeed);
   cameraSerial.begin(cameraSerialSpeed);
   
-  sendCameraResetCmd();
-  
   Wire.begin();  
   if (servosOn) {
     myservo.attach(servoPin);  
-    panServo.attach(panServoPin);
-    tiltServo.attach(tiltServoPin);
+    //panServo.attach(panServoPin);
+    //tiltServo.attach(tiltServoPin);
   } 
   
   pinMode(motorLeftSpeedPin, OUTPUT);
@@ -131,7 +131,9 @@ void setup()
   readSoundEvent = t.every(20, readSoundIntensity);
   
   pinMode(blueLedPin, OUTPUT);
-  blink(6);
+  blink(1);
+  delay(2000);
+  sendCameraResetCmd();
 } 
 
 void blink(int times) {
@@ -152,6 +154,14 @@ void readSoundIntensity() {
   soundMeasurement1Sum = analogRead(soundPin1);
   soundMeasurement2Sum = analogRead(soundPin2);
   soundMeasurementCount++;
+}
+
+void doTurnOffPanServo() {
+  panServo.detach();
+}
+
+void doTurnOffTiltServo() {
+  tiltServo.detach();
 }
 
 void doEncoderRead() {
@@ -196,11 +206,17 @@ void handleMessage(int leftSpeed, int leftDirection,
   
   // prevent camera from breaking mechanically by constraining servo angles
   if (servosOn) {
-    if (panServoAngle >= 40 && panServoAngle <= 140) {
+    if (currentPanServoAngle != panServoAngle && panServoAngle >= 40 && panServoAngle <= 140) {
+      panServo.attach(panServoPin);
       panServo.write(panServoAngle);
+      currentPanServoAngle = panServoAngle;
+      t.after(1000, doTurnOffPanServo);
     }
-    if (tiltServoAngle >= 0 && tiltServoAngle <= 120) {
+    if (currentTiltServoAngle != tiltServoAngle && tiltServoAngle >= 0 && tiltServoAngle <= 120) {
+      tiltServo.attach(tiltServoPin);
       tiltServo.write(tiltServoAngle);
+      currentTiltServoAngle = tiltServoAngle;
+      t.after(1000, doTurnOffTiltServo);
     }
   }
   
@@ -267,7 +283,7 @@ void receiveMessage() {
 long measureDistanceUltraSonic(int pin) {
   //Used to read in the analog voltage output that is being sent by the MaxSonar device.
   //Scale factor is (Vcc/512) per inch. A 5V supply yields ~9.8mV/in
-  //Arduino analog pin goes from 0 to 1024, so the value has to be divided by 2 to get the actual inches
+  //Arduino analog pin goes from 0 to se24, so the value has to be divided by 2 to get the actual inches
   //return ( analogRead(pingPin)/2 ) * 2.54;
   return analogRead(pin);
 }
@@ -396,6 +412,7 @@ void scan(int angle, int scanDelay) {
 
 void handleTakeAndSendPicture() {
   blink(3);
+
   analogWrite(motorLeftSpeedPin, 0);
   analogWrite(motorRightSpeedPin, 0);
   
@@ -535,17 +552,18 @@ void sendCameraStopTakePhotoCmd() {
   cameraSerial.write((byte)0x03);  
 }
 
+
 void loop() { 
   scanOffset ++;
   if(scanOffset > angleStep) {
     scanOffset = 0;
   }
   for(int angle = minAngle + scanOffset; angle + scanOffset < maxAngle; angle += angleStep)
-  {                                   
+  { 
     scan(angle, maxDelay);
   } 
   for(int angle = maxAngle - scanOffset; angle - scanOffset > minAngle; angle-=angleStep) 
-  {                                
+  {    
     scan(angle, maxDelay);
   } 
 } 
