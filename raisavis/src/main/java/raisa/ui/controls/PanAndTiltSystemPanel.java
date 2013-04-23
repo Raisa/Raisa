@@ -10,9 +10,9 @@ import javax.swing.JLabel;
 import javax.swing.JSeparator;
 import javax.swing.border.TitledBorder;
 
-import raisa.comms.BasicController;
-import raisa.comms.Controller;
 import raisa.comms.ControllerListener;
+import raisa.comms.controller.BasicController;
+import raisa.comms.controller.Controller;
 
 public class PanAndTiltSystemPanel extends ControlSubPanel {
 

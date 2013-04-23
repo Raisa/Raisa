@@ -28,14 +28,14 @@ import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import raisa.comms.BasicController;
 import raisa.comms.Communicator;
 import raisa.comms.ConsoleCommunicator;
 import raisa.comms.ControlMessage;
 import raisa.comms.FailoverCommunicator;
-import raisa.comms.ReplayController;
 import raisa.comms.SampleParser;
 import raisa.comms.SerialCommunicator;
+import raisa.comms.controller.BasicController;
+import raisa.comms.controller.ReplayController;
 import raisa.config.VisualizerConfig;
 import raisa.domain.WorldModel;
 import raisa.domain.particlefilter.ParticleFilter;

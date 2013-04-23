@@ -641,6 +641,7 @@ public class VisualizerPanel extends JPanel implements SampleListener, Visualize
 		private static final long serialVersionUID = 1L;
 		JMenuItem placeRobot = new JMenuItem("Place robot here");
 		JMenuItem placeSimulator = new JMenuItem("Place simulator here");
+		JMenuItem moveRobot = new JMenuItem("Move robot here");
 		
 		public PopupMenu() {
 			placeRobot.addActionListener(new ActionListener() {

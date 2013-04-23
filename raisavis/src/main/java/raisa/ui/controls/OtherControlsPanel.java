@@ -16,9 +16,9 @@ import javax.swing.border.TitledBorder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import raisa.comms.BasicController;
-import raisa.comms.Controller;
 import raisa.comms.ControllerListener;
+import raisa.comms.controller.BasicController;
+import raisa.comms.controller.Controller;
 import raisa.config.InputOutputTargetEnum;
 import raisa.config.VisualizerConfig;
 import raisa.session.SessionWriter;
@@ -33,6 +33,7 @@ public class OtherControlsPanel extends ControlSubPanel {
 		setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
 		setAlignmentX(Component.CENTER_ALIGNMENT);
 		createLightsControl(controller);
+		createServosControl(controller);
 		createTakePictureControl(controller);
 		createDataCaptureControl(sessionWriter);
 		createInputOutputTargetControl();
@@ -90,6 +91,7 @@ public class OtherControlsPanel extends ControlSubPanel {
 	
 	private void createLightsControl(final BasicController controller) {
 		final JToggleButton lightsButton = new JToggleButton("Lights");
+		lightsButton.setSelected(controller.getLights());
 		lightsButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
@@ -105,6 +107,25 @@ public class OtherControlsPanel extends ControlSubPanel {
 			}
 		});
 	}
+
+	private void createServosControl(final BasicController controller) {
+		final JToggleButton servosButton = new JToggleButton("Servos");
+		servosButton.setSelected(controller.getServos());
+		servosButton.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				controller.sendServos();
+			}
+		});
+
+		add(servosButton);
+		controller.addContolListener(new ControllerListener() {
+			@Override
+			public void controlsChanged(Controller controller) {
+				servosButton.setSelected(controller.getServos());
+			}
+		});
+	}	
 	
 	private void createTakePictureControl(final BasicController controller) {
 		final JToggleButton takePictureButton = new JToggleButton("Take picture");

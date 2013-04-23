@@ -38,7 +38,7 @@ public class WorldModel implements Serializable, SensorListener {
 	
 	public WorldModel() {
 		addState(new Robot());
-		sampleFixers.add(new AveragingSampleFixer(5, 10.0f));
+		sampleFixers.add(new AveragingSampleFixer(5, 40.0f));
 	}
 	
 	public List<Sample> getSamples() {

@@ -1,7 +1,9 @@
-package raisa.comms;
+package raisa.comms.controller;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import raisa.comms.ControllerListener;
 
 public abstract class Controller {
 	protected final List<ControllerListener> controlListeners = new ArrayList<ControllerListener>();
@@ -16,6 +18,8 @@ public abstract class Controller {
 		controlListeners.add(controlListener);
 	}
 
+	public abstract boolean getServos();	
+	
 	public abstract boolean getLights();
 
 	public abstract int getLeftSpeed();

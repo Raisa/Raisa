@@ -7,7 +7,7 @@ import com.google.gson.Gson;
 
 public class ControlMessage {
 	private static final byte[] speedPowerMap = new byte[] { (byte) 0,
-			(byte) 160, (byte) 175, (byte) 195, (byte) 220, (byte) 255 };
+			(byte) 100, (byte) 115, (byte) 135, (byte) 160, (byte) 195 };
 
 	public static final int SPEED_STEPS = speedPowerMap.length;
 	
@@ -20,12 +20,13 @@ public class ControlMessage {
 	private final int tiltServoAngle;
 	private final boolean lights;
 	private final boolean takePicture;
+	private final boolean servos;
 
 	private long timestamp;
 
 	public ControlMessage(int leftSpeed, int rightSpeed,
 			boolean lights, int panServoAngle, int tiltServoAngle,
-			boolean takePicture) {
+			boolean takePicture, boolean servos) {
 		this.id = getNextId();
 		this.leftSpeed = leftSpeed;
 		this.rightSpeed = rightSpeed;
@@ -33,6 +34,7 @@ public class ControlMessage {
 		this.panServoAngle = panServoAngle;
 		this.tiltServoAngle = tiltServoAngle;
 		this.takePicture = takePicture;
+		this.servos = servos;
 	}
 	
 	private synchronized static int getNextId() {
@@ -51,7 +53,7 @@ public class ControlMessage {
 				(byte) (rightSpeed >= 0 ? 'F' : 'B'), 
 				(byte) (panServoAngle & 0xFF),
 				(byte) (tiltServoAngle & 0xFF),
-				(byte) ((lights ? 2 : 1) | (takePicture ? 4 : 0)),
+				(byte) ((lights ? 2 : 1) | (takePicture ? 4 : 0) | (servos ? 0 : 8)),
 				(byte) (id % 10),
 				'i', 's', };
 		return bytes;
@@ -63,8 +65,8 @@ public class ControlMessage {
 
 	@Override
 	public String toString() {
-		return String.format("id:%s,time:%s,left:%s,right:%s,lights:%s,panangle:%s,tiltangle:%s,picture:%s",
-				id, getTimestamp(), leftSpeed, rightSpeed, lights, panServoAngle, tiltServoAngle, takePicture);
+		return String.format("id:%s,time:%s,left:%s,right:%s,lights:%s,panangle:%s,tiltangle:%s,picture:%s,servos:%s",
+				id, getTimestamp(), leftSpeed, rightSpeed, lights, panServoAngle, tiltServoAngle, takePicture, servos);
 	}
 
 	public String toJson() {
@@ -75,6 +77,10 @@ public class ControlMessage {
 		return id;
 	}
 
+	public boolean isServos() {
+		return servos;
+	}
+	
 	public boolean isLights() {
 		return lights;
 	}

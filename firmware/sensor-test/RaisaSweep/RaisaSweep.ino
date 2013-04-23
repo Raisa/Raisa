@@ -126,9 +126,9 @@ void setup()
   configureGyro();
   
   encoderEvent = t.every(20, doEncoderRead);
-  readIncomingDataEvent = t.every(20, readIncomingData);
-  imuReadEvent = t.every(10, measureCompassAndAccelerometer);
-  readSoundEvent = t.every(20, readSoundIntensity);
+  readIncomingDataEvent = t.every(20, receiveMessage);
+  //imuReadEvent = t.every(10, measureCompassAndAccelerometer);
+  //readSoundEvent = t.every(20, readSoundIntensity);
   
   pinMode(blueLedPin, OUTPUT);
   blink(1);
@@ -241,6 +241,23 @@ void handleMessage(int leftSpeed, int leftDirection,
       break;
     default: ;
   }
+  
+  int servoBit = (control & 8);
+  switch(servoBit) {
+    case 8:
+      if (servosOn) {
+        servosOn = false;
+        myservo.detach();
+      }
+      break;
+    case 0:
+      if (!servosOn) {
+        servosOn = true;
+        myservo.attach(servoPin);
+      }
+      break;
+    default: ; 
+  }
 
   Serial.print("ACK");
   Serial.println(seqNo);
@@ -255,9 +272,15 @@ const int bufferSize = 13;
 char receiveBuffer[bufferSize];
 char receiveIndex = 0;
 char receiveValue = -1;
+int controlWaitCount = 0;
 
 void receiveMessage() {
-  while(Serial.available() > 0) {
+  while(Serial.available() > 0 || (receiveIndex != 0 && controlWaitCount < 100)) {
+    if (Serial.available() == 0) {
+      delay(1);
+      controlWaitCount++;
+      continue;
+    }
     receiveValue = Serial.read();
     receiveBuffer[receiveIndex] = receiveValue;
     if((receiveIndex == 0 && receiveValue == 'R')
@@ -277,7 +300,8 @@ void receiveMessage() {
       // out of sync or message ended
       receiveIndex = 0; 
     }
-  }  
+  }
+  controlWaitCount = 0;
 }
 
 long measureDistanceUltraSonic(int pin) {
@@ -310,10 +334,6 @@ void measureCompassAndAccelerometer() {
 // results are available in gyro.g.x, gyro.g.y, gyro.g.z
 void measureGyro() {
   gyro.read();
-}
-
-void readIncomingData() {
-  receiveMessage();  
 }
 
 void sendFieldToServer(char * field, long value) {
@@ -370,17 +390,20 @@ void scan(int angle, int scanDelay) {
     t.update();
   }
 
-  long soundValue1 = soundMeasurement1Sum / soundMeasurementCount;
-  long soundValue2 = soundMeasurement2Sum / soundMeasurementCount;
-  soundMeasurement1Sum = 0;
-  soundMeasurement2Sum = 0;
-  soundMeasurementCount = 0;
+  //long soundValue1 = soundMeasurement1Sum / soundMeasurementCount;
+  //long soundValue2 = soundMeasurement2Sum / soundMeasurementCount;
+  //soundMeasurement1Sum = 0;
+  //soundMeasurement2Sum = 0;
+  //soundMeasurementCount = 0;
 
   int tmpEncoderLeftCount = encoderLeftCount;
   encoderLeftCount = 0;
   int tmpEncoderRightCount = encoderRightCount;
   encoderRightCount = 0;
   
+  // direction used to be averaged over multiple measuments, but this causes
+  // instability in direction when getting values between 350 and 10 degrees
+  measureCompassAndAccelerometer();
   long compassDirection = compassMeasurementSum / imuMeasurementCount;
   long tmpAccMeasurementX = accMeasurementSumX / imuMeasurementCount;
   long tmpAccMeasurementY = accMeasurementSumY / imuMeasurementCount;
@@ -558,14 +581,21 @@ void loop() {
   if(scanOffset > angleStep) {
     scanOffset = 0;
   }
-  for(int angle = minAngle + scanOffset; angle + scanOffset < maxAngle; angle += angleStep)
-  { 
+  for(int angle = minAngle + scanOffset; angle + scanOffset < maxAngle; angle += angleStep) { 
+    if (!servosOn) {
+      break;
+    }
     scan(angle, maxDelay);
   } 
-  for(int angle = maxAngle - scanOffset; angle - scanOffset > minAngle; angle-=angleStep) 
-  {    
-    scan(angle, maxDelay);
+  for(int angle = maxAngle - scanOffset; angle - scanOffset > minAngle; angle-=angleStep) {    
+    if (!servosOn) {
+      break;
+    }
+    scan(angle, maxDelay);    
   } 
+  while(!servosOn) {
+    scan((minAngle + maxAngle)/2, maxDelay);
+  }
 } 
 
 

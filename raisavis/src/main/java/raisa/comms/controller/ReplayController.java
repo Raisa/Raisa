@@ -1,4 +1,4 @@
-package raisa.comms;
+package raisa.comms.controller;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -8,6 +8,9 @@ import javax.swing.SwingWorker;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import raisa.comms.Communicator;
+import raisa.comms.ControlMessage;
 
 public class ReplayController extends Controller {
 	private static final Logger log = LoggerFactory.getLogger(ReplayController.class);
@@ -77,6 +80,11 @@ public class ReplayController extends Controller {
 		return getCurrentControlMessage().isLights();
 	}
 
+	@Override
+	public boolean getServos() {
+		return getCurrentControlMessage().isServos();
+	}	
+	
 	@Override
 	public int getLeftSpeed() {
 		return getCurrentControlMessage().getLeftSpeed();

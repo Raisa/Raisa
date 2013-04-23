@@ -8,8 +8,8 @@ import java.util.Set;
 import javax.swing.BoxLayout;
 import javax.swing.JPanel;
 
-import raisa.comms.BasicController;
 import raisa.comms.Communicator;
+import raisa.comms.controller.BasicController;
 import raisa.config.VisualizerConfig;
 import raisa.config.VisualizerConfigItemEnum;
 import raisa.config.VisualizerConfigListener;

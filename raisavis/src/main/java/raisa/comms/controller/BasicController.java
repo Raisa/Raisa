@@ -1,10 +1,14 @@
-package raisa.comms;
+package raisa.comms.controller;
 
 import static raisa.comms.ControlMessage.SPEED_STEPS;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+
+import raisa.comms.Communicator;
+import raisa.comms.ControlMessage;
+import raisa.comms.ControllerListener;
 
 public class BasicController extends Controller {
 	private List<Communicator> communicators = new ArrayList<Communicator>();
@@ -15,6 +19,7 @@ public class BasicController extends Controller {
 	private int panServoAngle = 90;
 	private int tiltServoAngle = 120;
 	private boolean takePicture = false;
+	private boolean servos = true;
 	private long sessionStartTimestamp = -1;
 	
 	public BasicController(Communicator ... communicators) {
@@ -39,7 +44,7 @@ public class BasicController extends Controller {
 		if(sessionStartTimestamp  < 0) {
 			resetSession();
 		}
-		return new ControlMessage(leftSpeed, rightSpeed, lights, panServoAngle, tiltServoAngle, takePicture);
+		return new ControlMessage(leftSpeed, rightSpeed, lights, panServoAngle, tiltServoAngle, takePicture, servos);
 	}
 
 	public void sendForward() {
@@ -123,6 +128,12 @@ public class BasicController extends Controller {
 		sendPackage();
 		notifyControlListeners();
 	}
+
+	public void sendServos() {
+		servos = !servos;
+		sendPackage();
+		notifyControlListeners();
+	}	
 	
 	public void sendTakePicture() {
 		takePicture = true;
@@ -150,6 +161,11 @@ public class BasicController extends Controller {
 	@Override
 	public boolean getLights() {
 		return lights;
+	}
+	
+	@Override
+	public boolean getServos() {
+		return servos;
 	}
 	
 	@Override

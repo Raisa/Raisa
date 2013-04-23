@@ -102,6 +102,11 @@
 				<artifactId>junit-dep</artifactId>
 				<version>4.10</version>
 			</dependency>
+			<dependency>
+				<groupId>org.jfree</groupId>
+				<artifactId>jfreechart</artifactId>
+				<version>1.0.14</version>
+			</dependency>
 		</dependencies>		            
 	</dependencyManagement>
 
@@ -146,6 +151,10 @@
 			<groupId>junit</groupId>
 			<artifactId>junit-dep</artifactId>
 			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.jfree</groupId>
+			<artifactId>jfreechart</artifactId>
 		</dependency>
 	</dependencies>
 </project>
