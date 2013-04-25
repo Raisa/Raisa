@@ -18,8 +18,12 @@ public class ToolPanel extends ControlSubPanel {
 	private static final long serialVersionUID = 1L;
 
 	public ToolPanel(final VisualizerFrame frame) {
-		setBorder(new TitledBorder("Tools"));
+		setBorder(new TitledBorder("Map tools"));
 		setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
+				
+		JPanel actionSelectPanel = new JPanel();
+		actionSelectPanel.setLayout(new BoxLayout(actionSelectPanel, BoxLayout.X_AXIS));
+
 		JToggleButton measure = new JToggleButton("Measure");
 		measure.setAlignmentX(Component.CENTER_ALIGNMENT);
 		measure.addActionListener(new ActionListener() {
@@ -30,7 +34,7 @@ public class ToolPanel extends ControlSubPanel {
 		});
 		measure.setSelected(true);
 		frame.selectedMeasureTool();
-		add(measure);
+		actionSelectPanel.add(measure);
 		JToggleButton draw = new JToggleButton("Draw");
 		draw.setAlignmentX(Component.CENTER_ALIGNMENT);
 		draw.addActionListener(new ActionListener() {
@@ -39,10 +43,11 @@ public class ToolPanel extends ControlSubPanel {
 				frame.selectedDrawTool();
 			}
 		});
-		add(draw);
+		actionSelectPanel.add(draw);
 		ButtonGroup toolGroup = new ButtonGroup();
 		toolGroup.add(measure);
 		toolGroup.add(draw);
+		add(actionSelectPanel);
 		
 		JPanel undoRedo = new JPanel();
 		undoRedo.setLayout(new BoxLayout(undoRedo, BoxLayout.X_AXIS));

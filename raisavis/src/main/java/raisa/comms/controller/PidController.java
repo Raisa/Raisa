@@ -5,11 +5,11 @@ import raisa.domain.WorldModel;
 import raisa.domain.samples.Sample;
 import raisa.domain.samples.SampleListener;
 
-public class CalibrationController extends Controller implements SampleListener {
+public class PidController extends Controller implements SampleListener {
 
 	private WorldModel world;
 	
-	public CalibrationController(WorldModel world, Communicator ... communicators) {
+	public PidController(WorldModel world, Communicator ... communicators) {
 		this.world = world;
 	}
 	

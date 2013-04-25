@@ -10,6 +10,7 @@ import javax.swing.JPanel;
 
 import raisa.comms.Communicator;
 import raisa.comms.controller.BasicController;
+import raisa.comms.controller.PidController;
 import raisa.config.VisualizerConfig;
 import raisa.config.VisualizerConfigItemEnum;
 import raisa.config.VisualizerConfigListener;
@@ -26,7 +27,8 @@ public class ControlPanel extends JPanel implements VisualizerConfigListener {
 	public ControlPanel(
 			VisualizerFrame frame, 
 			VisualizerPanel visualizer, 
-			BasicController controller, 
+			BasicController basicController, 
+			PidController pidController,
 			Communicator communicator, 
 			SessionWriter sessionWriter, 
 			RobotSimulator robotSimulator) {
@@ -35,9 +37,9 @@ public class ControlPanel extends JPanel implements VisualizerConfigListener {
 		toolPanel.setAlignmentX(Component.CENTER_ALIGNMENT);
 		subpanels.add(toolPanel);
 		subpanels.add(new CommunicatorPanel(communicator));
-		subpanels.add(new MovementPanel(controller));
-		subpanels.add(new PanAndTiltSystemPanel(controller));
-		subpanels.add(new OtherControlsPanel(controller, sessionWriter, robotSimulator));	
+		subpanels.add(new MovementPanel(basicController, pidController));
+		subpanels.add(new PanAndTiltSystemPanel(basicController));
+		subpanels.add(new OtherControlsPanel(basicController, sessionWriter, robotSimulator));	
 		subpanels.add(new AlgorithmSelectionPanel());
 		this.setDisplayedPanels(VisualizerConfig.getInstance());
 		VisualizerConfig.getInstance().addVisualizerConfigListener(this);

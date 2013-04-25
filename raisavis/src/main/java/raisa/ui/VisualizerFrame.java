@@ -35,6 +35,7 @@ import raisa.comms.FailoverCommunicator;
 import raisa.comms.SampleParser;
 import raisa.comms.SerialCommunicator;
 import raisa.comms.controller.BasicController;
+import raisa.comms.controller.PidController;
 import raisa.comms.controller.ReplayController;
 import raisa.config.VisualizerConfig;
 import raisa.domain.WorldModel;
@@ -65,7 +66,8 @@ public class VisualizerFrame extends JFrame {
 	private MeasureTool measureTool = new MeasureTool(this);
 	private List<UserEditUndoListener> userEditUndoListeners = new ArrayList<UserEditUndoListener>();
 	private final Communicator communicator;
-	private final BasicController controller;
+	private final BasicController basicController;
+	private final PidController pidController;
 	private RobotStateAggregator robotStateAggregator;	
 	private ParticleFilter particleFilter;
 	private SessionWriter sessionWriter;
@@ -100,11 +102,12 @@ public class VisualizerFrame extends JFrame {
 		fileBasedSimulation = new FileBasedSimulation(worldModel);
 		
 		robotSimulator.addSensorListener(sessionWriter, worldModel);
-		controller = new BasicController(communicator, sessionWriter, robotSimulator);
+		basicController = new BasicController(communicator, sessionWriter, robotSimulator);
+		pidController = new PidController(worldModel, communicator);
 
 		setCurrentTool(drawTool);
 		communicator.addSensorListener(sessionWriter);
-		ControlPanel controlPanel = new ControlPanel(this, visualizerPanel, controller, communicator, sessionWriter, robotSimulator);
+		ControlPanel controlPanel = new ControlPanel(this, visualizerPanel, basicController, pidController, communicator, sessionWriter, robotSimulator);
 		Runtime.getRuntime().addShutdownHook(new Thread() {
 			@Override
 			public void run() {
@@ -183,7 +186,7 @@ public class VisualizerFrame extends JFrame {
 
 			@Override
 			public void actionPerformed(ActionEvent event) {
-				controller.sendLeft();
+				basicController.sendLeft();
 			}
 		});
 		visualizerPanel.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_RIGHT, 0),
@@ -193,7 +196,7 @@ public class VisualizerFrame extends JFrame {
 
 			@Override
 			public void actionPerformed(ActionEvent event) {
-				controller.sendRight();
+				basicController.sendRight();
 			}
 		});
 		visualizerPanel.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_SPACE, 0),
@@ -203,7 +206,7 @@ public class VisualizerFrame extends JFrame {
 
 			@Override
 			public void actionPerformed(ActionEvent event) {
-				controller.sendStop();
+				basicController.sendStop();
 			}
 		});
 
@@ -214,7 +217,7 @@ public class VisualizerFrame extends JFrame {
 
 			@Override
 			public void actionPerformed(ActionEvent event) {
-				controller.sendForward();
+				basicController.sendForward();
 			}
 		});
 
@@ -225,7 +228,7 @@ public class VisualizerFrame extends JFrame {
 
 			@Override
 			public void actionPerformed(ActionEvent event) {
-				controller.sendBack();
+				basicController.sendBack();
 			}
 		});
 
@@ -235,7 +238,7 @@ public class VisualizerFrame extends JFrame {
 
 			@Override
 			public void actionPerformed(ActionEvent event) {
-				controller.sendLights();
+				basicController.sendLights();
 			}
 		});
 
@@ -570,7 +573,7 @@ public class VisualizerFrame extends JFrame {
 		}
 		log.info("Replaying {} control messages", controlMessages.size());
 		ReplayController replayController = new ReplayController(controlMessages, communicator, robotSimulator);
-		controller.copyListenersTo(replayController);
+		basicController.copyListenersTo(replayController);
 		replayController.start();
 	}
 

@@ -14,6 +14,7 @@ import raisa.comms.SampleParser;
 import raisa.comms.SensorListener;
 import raisa.domain.landmarks.Landmark;
 import raisa.domain.landmarks.LandmarkManager;
+import raisa.domain.plan.MotionPlan;
 import raisa.domain.robot.Robot;
 import raisa.domain.samples.AveragingSampleFixer;
 import raisa.domain.samples.Sample;
@@ -35,6 +36,8 @@ public class WorldModel implements Serializable, SensorListener {
 		
 	private List<SampleListener> sampleListeners = new ArrayList<SampleListener>();
 	private String latestMapFilename;
+	
+	private MotionPlan motionPlan = new MotionPlan();
 	
 	public WorldModel() {
 		addState(new Robot());

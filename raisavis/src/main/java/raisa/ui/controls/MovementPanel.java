@@ -1,24 +1,80 @@
 package raisa.ui.controls;
 
+import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 
+import javax.swing.BoxLayout;
 import javax.swing.JButton;
+import javax.swing.JComboBox;
 import javax.swing.JLabel;
+import javax.swing.JPanel;
 import javax.swing.JSeparator;
+import javax.swing.JToggleButton;
 import javax.swing.border.TitledBorder;
 
 import raisa.comms.ControllerListener;
 import raisa.comms.controller.BasicController;
 import raisa.comms.controller.Controller;
+import raisa.comms.controller.PidController;
 
 public class MovementPanel extends ControlSubPanel {
 	private static final long serialVersionUID = 1L;
 
-	public MovementPanel(final BasicController controller) {
+	private JPanel controllerOptions = new JPanel();
+	private JPanel manualControl = new JPanel();
+	private JPanel pidControl = new JPanel();
+
+	public MovementPanel(final BasicController basicController, final PidController pidController) {
 		setBorder(new TitledBorder("Movement"));
+		setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
+
+		createManualControlPanel(basicController);
+		createPidControlPanel(pidController);
+
+		final JComboBox controllerSelection = new JComboBox();
+		controllerSelection.addItem("Manual control");
+		controllerSelection.addItem("Pid control");
+		controllerSelection.addItemListener(new ItemListener() {
+			@Override
+			public void itemStateChanged(ItemEvent event) {
+				switch (controllerSelection.getSelectedIndex()) {
+				case 0:
+					controllerOptions.removeAll();
+					controllerOptions.add(manualControl);
+					break;
+				default:
+					controllerOptions.removeAll();
+					controllerOptions.add(pidControl);
+				}
+				controllerOptions.validate();
+				controllerOptions.repaint();
+			}
+		});
+		add(controllerSelection);
+		controllerOptions.add(manualControl);
+		add(controllerOptions);
+	}
+	
+	private void createPidControlPanel(final PidController controller) {
+		pidControl.setLayout(new BoxLayout(pidControl, BoxLayout.Y_AXIS));
+		JToggleButton addWaypoint = new JToggleButton("Add waypoint");
+		addWaypoint.setAlignmentX(Component.CENTER_ALIGNMENT);
+		addWaypoint.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent event) {
+				//
+			}
+		});
+		addWaypoint.setSelected(true);
+		pidControl.add(addWaypoint);
+	}
+
+	private void createManualControlPanel(final BasicController controller) {
 		JButton forwardButton = new JButton("F");
 		forwardButton.addActionListener(new ActionListener() {
 			@Override
@@ -55,30 +111,30 @@ public class MovementPanel extends ControlSubPanel {
 			}			
 		});
 		
-		setLayout(new GridLayout(3, 3));
+		manualControl.setLayout(new GridLayout(3, 3));
 		final JLabel leftSpeedLabel = new JLabel("0", JLabel.CENTER);
 		final JLabel rightSpeedLabel = new JLabel("0", JLabel.CENTER);
-		add(leftSpeedLabel);
-		add(forwardButton);
-		add(rightSpeedLabel);
-		add(leftButton);
-		add(stopButton);
-		add(rightButton);
-		add(new JSeparator());
-		add(backButton);
-		add(new JSeparator());
+		manualControl.add(leftSpeedLabel);
+		manualControl.add(forwardButton);
+		manualControl.add(rightSpeedLabel);
+		manualControl.add(leftButton);
+		manualControl.add(stopButton);
+		manualControl.add(rightButton);
+		manualControl.add(new JSeparator());
+		manualControl.add(backButton);
+		manualControl.add(new JSeparator());
 		
-		setPreferredSize(new Dimension(150, 150));
-		setMaximumSize(new Dimension(150, 150));
-		
-		controller.addContolListener(new ControllerListener() {
+		manualControl.setPreferredSize(new Dimension(100, 100));
+		manualControl.setMaximumSize(new Dimension(100, 100));
+		setPreferredSize(new Dimension(160, 150));
+		setMaximumSize(new Dimension(160, 150));
 
+		controller.addContolListener(new ControllerListener() {
 			@Override
 			public void controlsChanged(Controller controller) {
 				leftSpeedLabel.setText(""+controller.getLeftSpeed());
 				rightSpeedLabel.setText(""+controller.getRightSpeed());
 			}
-			
 		});
 	}
 	

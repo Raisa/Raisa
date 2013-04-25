@@ -23,7 +23,7 @@ public class ControlPanelOptions extends JPanel {
 		setAlignmentY(Component.TOP_ALIGNMENT);
 		
 		this.add(new ControlTypeCheckBox("Communicator", ControlTypeEnum.COMMUNICATOR));
-		this.add(new ControlTypeCheckBox("Drawing tool", ControlTypeEnum.DRAWING_TOOL));
+		this.add(new ControlTypeCheckBox("Map tool", ControlTypeEnum.DRAWING_TOOL));
 		this.add(new ControlTypeCheckBox("Movement", ControlTypeEnum.MOVEMENT));
 		this.add(new ControlTypeCheckBox("Pan & tilt", ControlTypeEnum.PAN_AND_TILT));
 		this.add(new ControlTypeCheckBox("Other", ControlTypeEnum.OTHER));
