@@ -1,12 +1,14 @@
 package raisa.ui.controls;
 
 import java.awt.Component;
+import java.awt.Dimension;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
 import javax.swing.BoxLayout;
 import javax.swing.JPanel;
+import javax.swing.border.TitledBorder;
 
 import raisa.comms.Communicator;
 import raisa.comms.controller.BasicController;
@@ -33,6 +35,9 @@ public class ControlPanel extends JPanel implements VisualizerConfigListener {
 			SessionWriter sessionWriter, 
 			RobotSimulator robotSimulator) {
 		setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
+		TitledBorder border = new TitledBorder("Controls");
+		this.setPreferredSize(new Dimension(200, 300));
+		setBorder(border);
 		ToolPanel toolPanel = new ToolPanel(frame);
 		toolPanel.setAlignmentX(Component.CENTER_ALIGNMENT);
 		subpanels.add(toolPanel);

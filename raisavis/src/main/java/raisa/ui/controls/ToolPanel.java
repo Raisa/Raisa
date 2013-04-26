@@ -1,6 +1,8 @@
 package raisa.ui.controls;
 
 import java.awt.Component;
+import java.awt.Dimension;
+import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
@@ -20,9 +22,13 @@ public class ToolPanel extends ControlSubPanel {
 	public ToolPanel(final VisualizerFrame frame) {
 		setBorder(new TitledBorder("Map tools"));
 		setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
-				
-		JPanel actionSelectPanel = new JPanel();
-		actionSelectPanel.setLayout(new BoxLayout(actionSelectPanel, BoxLayout.X_AXIS));
+		setPreferredSize(new Dimension(190, 85));
+		setMaximumSize(getPreferredSize());
+
+		JPanel buttonPanel = new JPanel();
+		buttonPanel.setLayout(new GridLayout(2, 2));
+		buttonPanel.setPreferredSize(new Dimension(180, 70));
+		buttonPanel.setMaximumSize(buttonPanel.getPreferredSize());
 
 		JToggleButton measure = new JToggleButton("Measure");
 		measure.setAlignmentX(Component.CENTER_ALIGNMENT);
@@ -34,7 +40,7 @@ public class ToolPanel extends ControlSubPanel {
 		});
 		measure.setSelected(true);
 		frame.selectedMeasureTool();
-		actionSelectPanel.add(measure);
+		buttonPanel.add(measure);
 		JToggleButton draw = new JToggleButton("Draw");
 		draw.setAlignmentX(Component.CENTER_ALIGNMENT);
 		draw.addActionListener(new ActionListener() {
@@ -43,14 +49,11 @@ public class ToolPanel extends ControlSubPanel {
 				frame.selectedDrawTool();
 			}
 		});
-		actionSelectPanel.add(draw);
+		buttonPanel.add(draw);
 		ButtonGroup toolGroup = new ButtonGroup();
 		toolGroup.add(measure);
 		toolGroup.add(draw);
-		add(actionSelectPanel);
 		
-		JPanel undoRedo = new JPanel();
-		undoRedo.setLayout(new BoxLayout(undoRedo, BoxLayout.X_AXIS));
 		final JButton undo = new JButton("Undo");
 		undo.setEnabled(false);
 		undo.addActionListener(new ActionListener() {
@@ -60,7 +63,7 @@ public class ToolPanel extends ControlSubPanel {
 				frame.repaint();
 			}			
 		});
-		undoRedo.add(undo);
+		buttonPanel.add(undo);
 		final JButton redo = new JButton("Redo");
 		redo.setEnabled(false);
 		redo.addActionListener(new ActionListener() {
@@ -70,14 +73,14 @@ public class ToolPanel extends ControlSubPanel {
 				frame.repaint();
 			}			
 		});
-		undoRedo.add(redo);
-		add(undoRedo);
+		buttonPanel.add(redo);
 		frame.addUserEditUndoListener(new UserEditUndoListener() {
 			@Override
 			public void usedEditUndoAction() {
 				updateUndoRedo(frame, undo, redo);
 			}
 		});
+		add(buttonPanel);
 		updateUndoRedo(frame, undo, redo);
 	}
 

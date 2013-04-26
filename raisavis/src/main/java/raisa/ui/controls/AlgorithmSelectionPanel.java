@@ -28,7 +28,9 @@ public class AlgorithmSelectionPanel extends ControlSubPanel implements Visualiz
 		setBorder(new TitledBorder("Algorithms"));
 		setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
 		setAlignmentX(Component.CENTER_ALIGNMENT);
-		
+		setPreferredSize(new Dimension(190, 130));
+		setMaximumSize(getPreferredSize());
+
 		createLocalizationModeControl();
 		ransacBox = new AlgorithmSelectionCheckBox("RANSAC", AlgorithmTypeEnum.RANSAC_LANDMARK_EXTRACTION);
 		spikesBox = new AlgorithmSelectionCheckBox("Spikes", AlgorithmTypeEnum.SPIKES_LANDMARK_EXTRACTION);

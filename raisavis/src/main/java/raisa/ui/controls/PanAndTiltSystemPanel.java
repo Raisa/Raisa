@@ -7,6 +7,7 @@ import java.awt.event.ActionListener;
 
 import javax.swing.JButton;
 import javax.swing.JLabel;
+import javax.swing.JPanel;
 import javax.swing.JSeparator;
 import javax.swing.border.TitledBorder;
 
@@ -20,6 +21,8 @@ public class PanAndTiltSystemPanel extends ControlSubPanel {
 
 	public PanAndTiltSystemPanel(final BasicController controller) {
 		setBorder(new TitledBorder("Pan & tilt system"));
+		setPreferredSize(new Dimension(190, 130));
+		setMaximumSize(getPreferredSize());
 		JButton tiltUpButton = new JButton("U");
 		tiltUpButton.addActionListener(new ActionListener() {
 			@Override
@@ -56,23 +59,24 @@ public class PanAndTiltSystemPanel extends ControlSubPanel {
 			}			
 		});
 		
-		setLayout(new GridLayout(3, 3));
 		final JLabel panAngleLabel = new JLabel(String.valueOf(controller.getPanServoAngle()), JLabel.CENTER);
 		final JLabel tiltAngleLabel = new JLabel(String.valueOf(controller.getTiltServoAngle()), JLabel.CENTER);
 
-		add(panAngleLabel);
-		add(tiltUpButton);
-		add(tiltAngleLabel);
-		add(panLeftButton);
-		add(centerButton);
-		add(panRightButton);
-		add(new JSeparator());
-		add(tiltDownButton);
-		add(new JSeparator());
+		JPanel manualControl = new JPanel();
+		manualControl.setLayout(new GridLayout(3, 3));
+		manualControl.add(panAngleLabel);
+		manualControl.add(tiltUpButton);
+		manualControl.add(tiltAngleLabel);
+		manualControl.add(panLeftButton);
+		manualControl.add(centerButton);
+		manualControl.add(panRightButton);
+		manualControl.add(new JSeparator());
+		manualControl.add(tiltDownButton);
+		manualControl.add(new JSeparator());
+		manualControl.setPreferredSize(new Dimension(100, 90));
+		manualControl.setMaximumSize(manualControl.getPreferredSize());
+		add(manualControl);
 		
-		setPreferredSize(new Dimension(150, 150));
-		setMaximumSize(new Dimension(150, 150));
-
 		controller.addContolListener(new ControllerListener() {
 			@Override
 			public void controlsChanged(Controller controller) {

@@ -63,7 +63,7 @@ public class MovementPanel extends ControlSubPanel {
 	private void createPidControlPanel(final PidController controller) {
 		pidControl.setLayout(new BoxLayout(pidControl, BoxLayout.Y_AXIS));
 		JToggleButton addWaypoint = new JToggleButton("Add waypoint");
-		addWaypoint.setAlignmentX(Component.CENTER_ALIGNMENT);
+		addWaypoint.setAlignmentX(Component.LEFT_ALIGNMENT);
 		addWaypoint.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent event) {
@@ -71,6 +71,9 @@ public class MovementPanel extends ControlSubPanel {
 			}
 		});
 		addWaypoint.setSelected(true);
+		JButton clearWaypoints = new JButton("Clear waypoints");
+		clearWaypoints.setAlignmentX(Component.LEFT_ALIGNMENT);
+		pidControl.add(clearWaypoints);		
 		pidControl.add(addWaypoint);
 	}
 
@@ -124,10 +127,10 @@ public class MovementPanel extends ControlSubPanel {
 		manualControl.add(backButton);
 		manualControl.add(new JSeparator());
 		
-		manualControl.setPreferredSize(new Dimension(100, 100));
-		manualControl.setMaximumSize(new Dimension(100, 100));
-		setPreferredSize(new Dimension(160, 150));
-		setMaximumSize(new Dimension(160, 150));
+		manualControl.setPreferredSize(new Dimension(100, 90));
+		manualControl.setMaximumSize(new Dimension(100, 90));
+		setPreferredSize(new Dimension(190, 150));
+		setMaximumSize(new Dimension(190, 150));
 
 		controller.addContolListener(new ControllerListener() {
 			@Override

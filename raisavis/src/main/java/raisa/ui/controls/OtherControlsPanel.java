@@ -2,6 +2,7 @@ package raisa.ui.controls;
 
 import java.awt.Component;
 import java.awt.Dimension;
+import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
@@ -10,6 +11,7 @@ import javax.swing.BoxLayout;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
+import javax.swing.JPanel;
 import javax.swing.JToggleButton;
 import javax.swing.border.TitledBorder;
 
@@ -28,20 +30,38 @@ public class OtherControlsPanel extends ControlSubPanel {
 	private static final long serialVersionUID = 1L;
 	private static final Logger log = LoggerFactory.getLogger(OtherControlsPanel.class);
 	
+	final JToggleButton lightsButton = new JToggleButton("Lights");
+	final JToggleButton takePictureButton = new JToggleButton("Take pic");
+	final JToggleButton servosButton = new JToggleButton("Servos");
+	final JToggleButton dataCaptureButton = new JToggleButton("Capture");
+
 	public OtherControlsPanel(final BasicController controller, SessionWriter sessionWriter, RobotSimulator robotSimulator) {
 		setBorder(new TitledBorder("Other"));
 		setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
 		setAlignmentX(Component.CENTER_ALIGNMENT);
+		setPreferredSize(new Dimension(190, 150));
+		setMaximumSize(getPreferredSize());
+		
 		createLightsControl(controller);
 		createServosControl(controller);
 		createTakePictureControl(controller);
 		createDataCaptureControl(sessionWriter);
+		
+		JPanel buttonPanel = new JPanel();
+		buttonPanel.setPreferredSize(new Dimension(180, 60));
+		buttonPanel.setMaximumSize(buttonPanel.getPreferredSize());
+		buttonPanel.setLayout(new GridLayout(2, 2));
+		buttonPanel.add(lightsButton);
+		buttonPanel.add(servosButton);
+		buttonPanel.add(takePictureButton);
+		buttonPanel.add(dataCaptureButton);
+		add(buttonPanel);
+		
 		createInputOutputTargetControl();
 	}
 	
 	private void createDataCaptureControl(final SessionWriter sessionWriter) {
-		final JToggleButton button = new JToggleButton("Data capture");
-		button.addActionListener(new ActionListener() {
+		dataCaptureButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				//controller.sendLights();
@@ -56,8 +76,6 @@ public class OtherControlsPanel extends ControlSubPanel {
 				}
 			}			
 		});
-
-		add(button);
 	}
 
 	private void createInputOutputTargetControl() {
@@ -90,7 +108,6 @@ public class OtherControlsPanel extends ControlSubPanel {
 	}
 	
 	private void createLightsControl(final BasicController controller) {
-		final JToggleButton lightsButton = new JToggleButton("Lights");
 		lightsButton.setSelected(controller.getLights());
 		lightsButton.addActionListener(new ActionListener() {
 			@Override
@@ -98,8 +115,6 @@ public class OtherControlsPanel extends ControlSubPanel {
 				controller.sendLights();
 			}
 		});
-
-		add(lightsButton);
 		controller.addContolListener(new ControllerListener() {
 			@Override
 			public void controlsChanged(Controller controller) {
@@ -109,7 +124,6 @@ public class OtherControlsPanel extends ControlSubPanel {
 	}
 
 	private void createServosControl(final BasicController controller) {
-		final JToggleButton servosButton = new JToggleButton("Servos");
 		servosButton.setSelected(controller.getServos());
 		servosButton.addActionListener(new ActionListener() {
 			@Override
@@ -117,8 +131,6 @@ public class OtherControlsPanel extends ControlSubPanel {
 				controller.sendServos();
 			}
 		});
-
-		add(servosButton);
 		controller.addContolListener(new ControllerListener() {
 			@Override
 			public void controlsChanged(Controller controller) {
@@ -128,7 +140,6 @@ public class OtherControlsPanel extends ControlSubPanel {
 	}	
 	
 	private void createTakePictureControl(final BasicController controller) {
-		final JToggleButton takePictureButton = new JToggleButton("Take picture");
 		takePictureButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
@@ -136,7 +147,7 @@ public class OtherControlsPanel extends ControlSubPanel {
 				takePictureButton.setSelected(false);
 			}
 		});
-		add(takePictureButton);
+		takePictureButton.setPreferredSize(new Dimension(10,10));
 	}	
 	
 	protected void add(JComponent component) {

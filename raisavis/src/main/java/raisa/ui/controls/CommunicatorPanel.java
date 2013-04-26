@@ -1,5 +1,6 @@
 package raisa.ui.controls;
 
+import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
@@ -16,7 +17,9 @@ public class CommunicatorPanel extends ControlSubPanel {
 	
 	public CommunicatorPanel(Communicator communicator) {
 		this.communicator = communicator;
-		
+		setPreferredSize(new Dimension(190, 60));
+		setMaximumSize(getPreferredSize());
+
 		setBorder(new TitledBorder("Communications"));
 		setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
 		JButton reconnect = new JButton("Reconnect");
