@@ -27,5 +27,9 @@ public class Route {
 	public List<Waypoint> getWaypoints() {
 		return this.waypoints;
 	}
+
+	public void moveToNextWaypoint() {
+		currentWaypointIndex++;
+	}
 	
 }

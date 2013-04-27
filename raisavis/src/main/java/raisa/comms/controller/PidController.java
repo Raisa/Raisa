@@ -26,9 +26,9 @@ public class PidController extends Controller implements RobotStateListener {
 	private int leftSpeed;
 	private int rightSpeed;
 	
-	private static final float Kp = 1;
-	private static final float Ki = 1;
-	private static final float Kd = 0.1f;
+	private static final float Kp = 1.0f;
+	private static final float Ki = 0.1f;
+	private static final float Kd = 1.0f;
 	
 	private float prevError = 0.0f;
 	private float accError = 0.0f;
@@ -101,17 +101,32 @@ public class PidController extends Controller implements RobotStateListener {
 		if (stateCounter++ % 10 != 0) {
 			return;
 		}
+		RobotState robotState = newRobot.getMeasuredState();
+		Vector2D waypointPosition = null;
+
 		MotionPlan motionPlan = world.getMotionPlan();
 		Route route = motionPlan.getSelectedRoute();
-		Waypoint nextWaypoint = route.getNextWaypoint();
-		if (nextWaypoint == null) {
-			this.leftSpeed = 0;
-			this.rightSpeed = 0;
+		boolean foundNextWaypoint = false;
+		while (!foundNextWaypoint) {		
+			Waypoint nextWaypoint = route.getNextWaypoint();
+			if (nextWaypoint == null) {
+				break;
+			}
+			waypointPosition = nextWaypoint.getPosition();
+			if (waypointPosition.distance(robotState.getPosition()) < 10.0f) {
+				route.moveToNextWaypoint();
+				nextWaypoint.setReached(true);
+			} else {
+				foundNextWaypoint = true;
+			}
+		}
+		if (!foundNextWaypoint) {
+			leftSpeed = 0;
+			rightSpeed = 0;
+			sendPackage();
 			return;
 		}
 		
-		RobotState robotState = newRobot.getMeasuredState();
-		Vector2D waypointPosition = nextWaypoint.getPosition();
 		float robotHeading = GeometryUtil.headingToAtan2Angle(robotState.getHeading());
 		float waypointHeading = (float)Math.atan2(
 				(float)(waypointPosition.y - robotState.getPosition().y),
@@ -138,6 +153,5 @@ public class PidController extends Controller implements RobotStateListener {
 		
 		sendPackage();
 	}
-
 
 }

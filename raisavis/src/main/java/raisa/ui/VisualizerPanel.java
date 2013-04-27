@@ -182,6 +182,9 @@ public class VisualizerPanel extends JPanel implements SampleListener, Visualize
 		MotionPlan motionPlan = worldModel.getMotionPlan();
 		Route route = motionPlan.getSelectedRoute();			
 		Color defaultColor = g2.getColor();
+		Stroke defaultStroke = g2.getStroke();
+		Stroke reachedLineStroke = new BasicStroke(2.0f, BasicStroke.CAP_BUTT, BasicStroke.JOIN_MITER, 1.0f, new float[] { 10.0f }, 0.0f);
+		Stroke unreachedLineStroke = new BasicStroke(2.0f);
 		g2.setColor(Color.GREEN);
 		Vector2D prevPosition = null;
 		int linePointOffset = 3;
@@ -189,6 +192,11 @@ public class VisualizerPanel extends JPanel implements SampleListener, Visualize
 			Vector2D position = this.toScreen(waypoint.getPosition());
 			g2.drawString("x", (int)position.getX(), (int)position.getY());
 			if (prevPosition != null) {
+				if (waypoint.isReached()) {
+					g2.setStroke(reachedLineStroke);
+				} else {
+					g2.setStroke(unreachedLineStroke);
+				}
 				g2.drawLine(
 					(int)prevPosition.x + linePointOffset, 
 					(int)prevPosition.y - linePointOffset, 
@@ -198,6 +206,7 @@ public class VisualizerPanel extends JPanel implements SampleListener, Visualize
 			prevPosition = position;
 		}
 		g2.setColor(defaultColor);
+		g2.setStroke(defaultStroke);
 	}
 
 	private void drawLandmarks(Graphics2D g2) {
