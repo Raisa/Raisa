@@ -16,6 +16,7 @@ import raisa.domain.landmarks.Landmark;
 import raisa.domain.landmarks.LandmarkManager;
 import raisa.domain.plan.MotionPlan;
 import raisa.domain.robot.Robot;
+import raisa.domain.robot.RobotStateListener;
 import raisa.domain.samples.AveragingSampleFixer;
 import raisa.domain.samples.Sample;
 import raisa.domain.samples.SampleFixer;
@@ -28,14 +29,15 @@ public class WorldModel implements Serializable, SensorListener {
 	private static final long serialVersionUID = 1L;
 	
 	private List<Sample> samples = new ArrayList<Sample>();
-	private List<Robot> states = new ArrayList<Robot>();
 	private List<SampleFixer> sampleFixers = new ArrayList<SampleFixer>();
+	private List<SampleListener> sampleListeners = new ArrayList<SampleListener>();
 
 	private Grid grid = new Grid();
 	private LandmarkManager landmarkManager = new LandmarkManager();
-		
-	private List<SampleListener> sampleListeners = new ArrayList<SampleListener>();
 	private String latestMapFilename;
+
+	private List<Robot> states = new ArrayList<Robot>();
+	private List<RobotStateListener> stateListeners = new ArrayList<RobotStateListener>();
 	
 	private MotionPlan motionPlan = new MotionPlan();
 	
@@ -81,11 +83,17 @@ public class WorldModel implements Serializable, SensorListener {
 		samples.add(sample);	
 		notifySampleListeners(sample);
 	}
+	
+	public void addRobotStateListener(RobotStateListener listener) {
+		stateListeners.add(listener);
+	}
 
 	public void addState(Robot state) {
 		synchronized(states) {
 			states.add(state);
-			Sample latestSample = getLatestSample();
+			for (RobotStateListener listener : stateListeners) {
+				listener.robotStateChanged(state);
+			}
 		}
 	}
 	

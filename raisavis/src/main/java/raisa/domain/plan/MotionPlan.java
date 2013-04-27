@@ -4,6 +4,10 @@ public class MotionPlan {
 
 	private Route selectedRoute = new Route();
 	
+	public void clearRoute() {
+		selectedRoute = new Route();
+	}
+	
 	public Route getSelectedRoute() {
 		return this.selectedRoute;
 	}

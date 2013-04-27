@@ -11,4 +11,22 @@ public class GeometryUtil {
 		newPosition.y += Math.sin(a) * distance;
 		return newPosition;
 	}
+	
+	public static float headingToAtan2Angle(float heading) {
+		if (heading < 3 * Math.PI / 2.0d) {
+			return (float)(heading - Math.PI / 2.0d);
+		} else {
+			return (float)(heading - 2.5 * Math.PI);
+		}
+	}
+	
+	public static float differenceBetweenAngles(float firstAngle, float secondAngle) {
+		float difference = secondAngle - firstAngle;
+		if (difference < -Math.PI) 
+			return (float)(2 * Math.PI + difference);
+		if (difference > Math.PI) 
+	        return (float)(- 2 * Math.PI + difference);
+		return difference;
+	 }
+
 }

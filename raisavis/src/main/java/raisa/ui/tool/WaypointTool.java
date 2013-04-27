@@ -24,6 +24,7 @@ public class WaypointTool extends BasicTool {
 		Route route = motionPlan.getSelectedRoute();
 		Vector2D worldPosition = getVisualizerFrame().toWorld(mouse);
 		route.addWaypoint(new Waypoint(worldPosition));
+		getVisualizerFrame().repaint();
 	}
 
 }

@@ -105,12 +105,12 @@ public class VisualizerFrame extends JFrame {
 		
 		robotSimulator.addSensorListener(sessionWriter, worldModel);
 		basicController = new BasicController(communicator, sessionWriter, robotSimulator);
-		pidController = new PidController(worldModel, communicator);
+		pidController = new PidController(worldModel, basicController, communicator, sessionWriter, robotSimulator);
 		waypointTool = new WaypointTool(this, worldModel);
 
 		setCurrentTool(drawTool);
 		communicator.addSensorListener(sessionWriter);
-		ControlPanel controlPanel = new ControlPanel(this, visualizerPanel, basicController, pidController, communicator, sessionWriter, robotSimulator);
+		ControlPanel controlPanel = new ControlPanel(this, visualizerPanel, worldModel, basicController, pidController, communicator, sessionWriter, robotSimulator);
 		Runtime.getRuntime().addShutdownHook(new Thread() {
 			@Override
 			public void run() {

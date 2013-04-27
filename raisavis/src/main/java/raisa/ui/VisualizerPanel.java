@@ -183,9 +183,19 @@ public class VisualizerPanel extends JPanel implements SampleListener, Visualize
 		Route route = motionPlan.getSelectedRoute();			
 		Color defaultColor = g2.getColor();
 		g2.setColor(Color.GREEN);
+		Vector2D prevPosition = null;
+		int linePointOffset = 3;
 		for (Waypoint waypoint : route.getWaypoints()) {
 			Vector2D position = this.toScreen(waypoint.getPosition());
-			g2.drawRect((int)position.getX()-1, (int)position.getY()-1, 3, 3);
+			g2.drawString("x", (int)position.getX(), (int)position.getY());
+			if (prevPosition != null) {
+				g2.drawLine(
+					(int)prevPosition.x + linePointOffset, 
+					(int)prevPosition.y - linePointOffset, 
+					(int)position.x + linePointOffset, 
+					(int)position.y - linePointOffset);
+			}
+			prevPosition = position;
 		}
 		g2.setColor(defaultColor);
 	}

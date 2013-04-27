@@ -1,22 +1,50 @@
 package raisa.comms.controller;
 
-import raisa.comms.Communicator;
-import raisa.domain.WorldModel;
-import raisa.domain.samples.Sample;
-import raisa.domain.samples.SampleListener;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
-public class PidController extends Controller implements SampleListener {
+import raisa.comms.Communicator;
+import raisa.comms.ControlMessage;
+import raisa.config.VisualizerConfig;
+import raisa.domain.WorldModel;
+import raisa.domain.plan.MotionPlan;
+import raisa.domain.plan.Route;
+import raisa.domain.plan.Waypoint;
+import raisa.domain.robot.Robot;
+import raisa.domain.robot.RobotState;
+import raisa.domain.robot.RobotStateListener;
+import raisa.util.GeometryUtil;
+import raisa.util.Vector2D;
+
+public class PidController extends Controller implements RobotStateListener {
 
 	private WorldModel world;
+	private BasicController basicController;
+	private List<Communicator> communicators = new ArrayList<Communicator>();
 	
-	public PidController(WorldModel world, Communicator ... communicators) {
+	private int leftSpeed;
+	private int rightSpeed;
+	
+	private static final float Kp = 1;
+	private static final float Ki = 1;
+	private static final float Kd = 0.1f;
+	
+	private float prevError = 0.0f;
+	private float accError = 0.0f;
+	
+	private int stateCounter = 0;
+	
+	public PidController(WorldModel world, BasicController basicController, Communicator ... communicators) {		
 		this.world = world;
+		this.basicController = basicController;
+		this.communicators.addAll(Arrays.asList(communicators));
+		world.addRobotStateListener(this);
 	}
 	
 	@Override
 	public boolean getLights() {
-		// TODO Auto-generated method stub
-		return false;
+		return basicController.getLights();
 	}
 
 	@Override
@@ -33,32 +61,82 @@ public class PidController extends Controller implements SampleListener {
 
 	@Override
 	public int getPanServoAngle() {
-		// TODO Auto-generated method stub
-		return 0;
+		return basicController.getPanServoAngle();
 	}
 
 	@Override
 	public int getTiltServoAngle() {
-		// TODO Auto-generated method stub
-		return 0;
+		return basicController.getTiltServoAngle();
 	}
 
-	@Override
-	public void sampleAdded(Sample sample) {
-		// TODO Auto-generated method stub
-		
+	
+	private void sendPackage() {
+		for(Communicator communicator : communicators) {
+			communicator.sendPackage(createPackage());
+		}
 	}
-//	
-//	private void sendPackage() {
-//		for(Communicator communicator : communicators) {
-//			communicator.sendPackage(createPackage());
-//		}
-//	}
 
+	private ControlMessage createPackage() {
+		return new ControlMessage(
+				leftSpeed, 
+				rightSpeed, 
+				basicController.getLights(), 
+				basicController.getPanServoAngle(), 
+				basicController.getTiltServoAngle(), 
+				false, 
+				basicController.getServos());
+	}
+
+	
 	@Override
 	public boolean getServos() {
-		// TODO Auto-generated method stub
-		return false;
+		return basicController.getServos();
+	}
+
+	@Override
+	public void robotStateChanged(Robot newRobot) {
+		if (ControllerTypeEnum.PID_CONTROLLER != VisualizerConfig.getInstance().getControllerType()) {
+			return;
+		}
+		if (stateCounter++ % 10 != 0) {
+			return;
+		}
+		MotionPlan motionPlan = world.getMotionPlan();
+		Route route = motionPlan.getSelectedRoute();
+		Waypoint nextWaypoint = route.getNextWaypoint();
+		if (nextWaypoint == null) {
+			this.leftSpeed = 0;
+			this.rightSpeed = 0;
+			return;
+		}
+		
+		RobotState robotState = newRobot.getMeasuredState();
+		Vector2D waypointPosition = nextWaypoint.getPosition();
+		float robotHeading = GeometryUtil.headingToAtan2Angle(robotState.getHeading());
+		float waypointHeading = (float)Math.atan2(
+				(float)(waypointPosition.y - robotState.getPosition().y),
+				(float)(waypointPosition.x - robotState.getPosition().x));
+		
+		float error = GeometryUtil.differenceBetweenAngles(robotHeading, waypointHeading);
+		float errorDot = error - prevError;
+		accError = accError + error;
+		
+		float control = Kp * error + Kd * errorDot + Ki * accError;
+		int gearChange;
+		if (control > 3 * Math.PI) {
+			gearChange = 3;
+		} else if (control < 3 * -Math.PI) {
+			gearChange = -3;
+		} else {
+			gearChange = (int)(control / Math.PI);
+		}
+		
+		leftSpeed = 2 + gearChange;
+		rightSpeed = 2 - gearChange;		
+		
+		System.out.println("control: " + control +  ", left: " + leftSpeed + ", right: " + rightSpeed);
+		
+		sendPackage();
 	}
 
 

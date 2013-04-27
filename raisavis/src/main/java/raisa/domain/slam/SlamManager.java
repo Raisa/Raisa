@@ -76,7 +76,7 @@ public class SlamManager {
 		RealMatrix Gt = MatrixUtils.createRealIdentityMatrix(Fx.getColumnDimension()).add((Fx.transpose()).multiply(A).multiply(Fx));
 		printMatrix(Gt, "Gt");
 		
-		RealVector W = new ArrayRealVector(new double[] { deltaX, deltaY, deltaT });
+		//RealVector W = new ArrayRealVector(new double[] { deltaX, deltaY, deltaT });
 		RealMatrix Rx = I3.copy(); // W.outerProduct(W);
 		Rx.multiplyEntry(0, 0, odometryNoise.sample());
 		Rx.multiplyEntry(1, 1, odometryNoise.sample());
@@ -242,14 +242,6 @@ public class SlamManager {
 	        return - 2 * Math.PI + difference;
 		return difference;
 	 }
-
-	private double headingToPolarAngle(double heading) {
-		if (heading < 3 * Math.PI / 2.0d) {
-			return heading - Math.PI / 2.0d;
-		} else {
-			return -Math.PI / 2.0 + (-2 * Math.PI + heading);
-		}
-	}
 	
 	private double polarAngleToHeading(double angle) {
 		double tmp = angle % (2 * Math.PI);
