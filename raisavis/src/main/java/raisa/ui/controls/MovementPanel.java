@@ -20,7 +20,9 @@ import javax.swing.border.TitledBorder;
 import raisa.comms.ControllerListener;
 import raisa.comms.controller.BasicController;
 import raisa.comms.controller.Controller;
+import raisa.comms.controller.ControllerTypeEnum;
 import raisa.comms.controller.PidController;
+import raisa.config.VisualizerConfig;
 
 public class MovementPanel extends ControlSubPanel {
 	private static final long serialVersionUID = 1L;
@@ -46,10 +48,12 @@ public class MovementPanel extends ControlSubPanel {
 				case 0:
 					controllerOptions.removeAll();
 					controllerOptions.add(manualControl);
+					VisualizerConfig.getInstance().setControllerType(ControllerTypeEnum.BASIC_CONTROLLER);
 					break;
 				default:
 					controllerOptions.removeAll();
 					controllerOptions.add(pidControl);
+					VisualizerConfig.getInstance().setControllerType(ControllerTypeEnum.PID_CONTROLLER);
 				}
 				controllerOptions.validate();
 				controllerOptions.repaint();
@@ -63,6 +67,7 @@ public class MovementPanel extends ControlSubPanel {
 	private void createPidControlPanel(final PidController controller) {
 		pidControl.setLayout(new BoxLayout(pidControl, BoxLayout.Y_AXIS));
 		JToggleButton addWaypoint = new JToggleButton("Add waypoint");
+		addToolButton(addWaypoint);
 		addWaypoint.setAlignmentX(Component.LEFT_ALIGNMENT);
 		addWaypoint.addActionListener(new ActionListener() {
 			@Override

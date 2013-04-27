@@ -5,6 +5,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import raisa.comms.controller.ControllerTypeEnum;
 import raisa.domain.AlgorithmTypeEnum;
 import raisa.ui.MapAreaElementEnum;
 import raisa.ui.controls.ControlTypeEnum;
@@ -19,9 +20,10 @@ public class VisualizerConfig {
 	// IO-source and state for activated algorithms
 	private InputOutputTargetEnum inputOutputTarget = InputOutputTargetEnum.REALTIME_SIMULATOR;
 	private LocalizationModeEnum localizationMode = LocalizationModeEnum.SLAM;	
-	
-	private Set<AlgorithmTypeEnum> activatedAlgorithms = new HashSet<AlgorithmTypeEnum>();
+	private ControllerTypeEnum controllerType = ControllerTypeEnum.BASIC_CONTROLLER;
 
+	private Set<AlgorithmTypeEnum> activatedAlgorithms = new HashSet<AlgorithmTypeEnum>();
+	
 	// map area visualization options
 	private Set<MapAreaElementEnum> displayedMapAreaElements = new HashSet<MapAreaElementEnum>();
 	private int displayMinAgeForParticles = 0;
@@ -31,7 +33,7 @@ public class VisualizerConfig {
 	
 	// displayed controls subpanels
 	private Set<ControlTypeEnum> displayedControls = new HashSet<ControlTypeEnum>();
-	
+		
 	private VisualizerConfig() {
 		// TODO: default initialization can be moved to an init file some day
 		this.displayedMapAreaElements.add(MapAreaElementEnum.MAP);
@@ -60,6 +62,17 @@ public class VisualizerConfig {
 		return instance;
 	}
 	
+	public ControllerTypeEnum getControllerType() {
+		return this.controllerType;
+	}
+
+	public void setControllerType(ControllerTypeEnum controllerType) {
+		if (this.controllerType != controllerType) {
+			this.controllerType = controllerType;
+			this.changedConfigs.add(VisualizerConfigItemEnum.ACTIVATED_CONTROLLER);
+		}
+	}	
+	
 	public InputOutputTargetEnum getInputOutputTarget() {
 		return this.inputOutputTarget;
 	}
@@ -69,7 +82,7 @@ public class VisualizerConfig {
 			this.inputOutputTarget = inputOutputTarget;
 			this.changedConfigs.add(VisualizerConfigItemEnum.INPUT_OUTPUT_TARGET);
 		}
-	}	
+	}
 	
 	public void setLocalizationMode(LocalizationModeEnum localizationMode) {
 		if (this.localizationMode != localizationMode) {

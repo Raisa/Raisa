@@ -50,9 +50,8 @@ public class ToolPanel extends ControlSubPanel {
 			}
 		});
 		buttonPanel.add(draw);
-		ButtonGroup toolGroup = new ButtonGroup();
-		toolGroup.add(measure);
-		toolGroup.add(draw);
+		addToolButton(measure);
+		addToolButton(draw);
 		
 		final JButton undo = new JButton("Undo");
 		undo.setEnabled(false);
