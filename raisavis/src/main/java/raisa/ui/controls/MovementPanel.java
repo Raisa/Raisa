@@ -23,15 +23,18 @@ import raisa.comms.controller.Controller;
 import raisa.comms.controller.ControllerTypeEnum;
 import raisa.comms.controller.PidController;
 import raisa.config.VisualizerConfig;
+import raisa.ui.VisualizerFrame;
 
 public class MovementPanel extends ControlSubPanel {
 	private static final long serialVersionUID = 1L;
 
+	private VisualizerFrame frame;
 	private JPanel controllerOptions = new JPanel();
 	private JPanel manualControl = new JPanel();
 	private JPanel pidControl = new JPanel();
 
-	public MovementPanel(final BasicController basicController, final PidController pidController) {
+	public MovementPanel(final VisualizerFrame frame, final BasicController basicController, final PidController pidController) {
+		this.frame = frame;
 		setBorder(new TitledBorder("Movement"));
 		setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
 
@@ -72,10 +75,9 @@ public class MovementPanel extends ControlSubPanel {
 		addWaypoint.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent event) {
-				//
+				frame.selectedWaypointTool();
 			}
 		});
-		addWaypoint.setSelected(true);
 		JButton clearWaypoints = new JButton("Clear waypoints");
 		clearWaypoints.setAlignmentX(Component.LEFT_ALIGNMENT);
 		pidControl.add(clearWaypoints);		

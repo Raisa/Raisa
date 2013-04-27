@@ -2,7 +2,7 @@ package raisa.domain.plan;
 
 public class MotionPlan {
 
-	private Route selectedRoute;
+	private Route selectedRoute = new Route();
 	
 	public Route getSelectedRoute() {
 		return this.selectedRoute;

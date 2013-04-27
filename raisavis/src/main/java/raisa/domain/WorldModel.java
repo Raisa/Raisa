@@ -56,6 +56,10 @@ public class WorldModel implements Serializable, SensorListener {
 		return copy;
 	}
 	
+	public MotionPlan getMotionPlan() {
+		return this.motionPlan;
+	}
+	
 	public List<Landmark> getLandmarks() {
 		return this.landmarkManager.getLandmarks();
 	}

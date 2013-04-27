@@ -42,7 +42,7 @@ public class ControlPanel extends JPanel implements VisualizerConfigListener {
 		toolPanel.setAlignmentX(Component.CENTER_ALIGNMENT);
 		subpanels.add(toolPanel);
 		subpanels.add(new CommunicatorPanel(communicator));
-		subpanels.add(new MovementPanel(basicController, pidController));
+		subpanels.add(new MovementPanel(frame, basicController, pidController));
 		subpanels.add(new PanAndTiltSystemPanel(basicController));
 		subpanels.add(new OtherControlsPanel(basicController, sessionWriter, robotSimulator));	
 		subpanels.add(new AlgorithmSelectionPanel());

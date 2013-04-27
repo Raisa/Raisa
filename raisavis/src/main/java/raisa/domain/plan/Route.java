@@ -24,4 +24,8 @@ public class Route {
 		waypoints.add(point);
 	}
 	
+	public List<Waypoint> getWaypoints() {
+		return this.waypoints;
+	}
+	
 }

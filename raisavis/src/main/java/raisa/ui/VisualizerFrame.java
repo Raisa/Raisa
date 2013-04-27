@@ -50,6 +50,7 @@ import raisa.ui.options.VisualizationOptionsDialog;
 import raisa.ui.tool.DrawTool;
 import raisa.ui.tool.MeasureTool;
 import raisa.ui.tool.Tool;
+import raisa.ui.tool.WaypointTool;
 import raisa.util.Vector2D;
 
 public class VisualizerFrame extends JFrame {
@@ -64,6 +65,7 @@ public class VisualizerFrame extends JFrame {
 	private Tool currentTool;
 	private DrawTool drawTool = new DrawTool(this);
 	private MeasureTool measureTool = new MeasureTool(this);
+	private WaypointTool waypointTool;
 	private List<UserEditUndoListener> userEditUndoListeners = new ArrayList<UserEditUndoListener>();
 	private final Communicator communicator;
 	private final BasicController basicController;
@@ -104,6 +106,7 @@ public class VisualizerFrame extends JFrame {
 		robotSimulator.addSensorListener(sessionWriter, worldModel);
 		basicController = new BasicController(communicator, sessionWriter, robotSimulator);
 		pidController = new PidController(worldModel, communicator);
+		waypointTool = new WaypointTool(this, worldModel);
 
 		setCurrentTool(drawTool);
 		communicator.addSensorListener(sessionWriter);
@@ -654,6 +657,10 @@ public class VisualizerFrame extends JFrame {
 		setTitle("Raisa Visualizer - " + Math.round(visualizerPanel.getScale() * 100.0f) + "%");
 	}
 
+	public void selectedWaypointTool() {
+		setCurrentTool(waypointTool);
+	}
+	
 	public void selectedMeasureTool() {
 		setCurrentTool(measureTool);
 	}

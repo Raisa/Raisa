@@ -39,6 +39,9 @@ import raisa.domain.landmarks.LineLandmark;
 import raisa.domain.landmarks.SpikeLandmark;
 import raisa.domain.landmarks.RansacExtractor;
 import raisa.domain.particlefilter.Particle;
+import raisa.domain.plan.MotionPlan;
+import raisa.domain.plan.Route;
+import raisa.domain.plan.Waypoint;
 import raisa.domain.robot.Robot;
 import raisa.domain.robot.RobotState;
 import raisa.domain.samples.Sample;
@@ -153,6 +156,7 @@ public class VisualizerPanel extends JPanel implements SampleListener, Visualize
 		if(mapAreaElements.contains(MapAreaElementEnum.ROBOT)) {
 			drawRobot(g2);
 			drawRobotDirectionArrow(g2);
+			drawRobotWaypoints(g2);
 		}
 		if(mapAreaElements.contains(MapAreaElementEnum.ULTRASONIC_SCANNER)) {
 			drawUltrasoundResults(g);
@@ -172,6 +176,18 @@ public class VisualizerPanel extends JPanel implements SampleListener, Visualize
 			drawLandmarks(g2);
 		}
 		drawCurrentImage(g2);
+	}
+
+	private void drawRobotWaypoints(Graphics2D g2) {
+		MotionPlan motionPlan = worldModel.getMotionPlan();
+		Route route = motionPlan.getSelectedRoute();			
+		Color defaultColor = g2.getColor();
+		g2.setColor(Color.GREEN);
+		for (Waypoint waypoint : route.getWaypoints()) {
+			Vector2D position = this.toScreen(waypoint.getPosition());
+			g2.drawRect((int)position.getX()-1, (int)position.getY()-1, 3, 3);
+		}
+		g2.setColor(defaultColor);
 	}
 
 	private void drawLandmarks(Graphics2D g2) {
@@ -641,7 +657,6 @@ public class VisualizerPanel extends JPanel implements SampleListener, Visualize
 		private static final long serialVersionUID = 1L;
 		JMenuItem placeRobot = new JMenuItem("Place robot here");
 		JMenuItem placeSimulator = new JMenuItem("Place simulator here");
-		JMenuItem moveRobot = new JMenuItem("Move robot here");
 		
 		public PopupMenu() {
 			placeRobot.addActionListener(new ActionListener() {
