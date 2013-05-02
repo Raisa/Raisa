@@ -34,32 +34,45 @@ public class OtherControlsPanel extends ControlSubPanel {
 	final JToggleButton takePictureButton = new JToggleButton("Take pic");
 	final JToggleButton servosButton = new JToggleButton("Servos");
 	final JToggleButton dataCaptureButton = new JToggleButton("Capture");
+	final JToggleButton compassButton = new JToggleButton("Compass");
 
 	public OtherControlsPanel(final BasicController controller, SessionWriter sessionWriter, RobotSimulator robotSimulator) {
 		setBorder(new TitledBorder("Other"));
 		setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
 		setAlignmentX(Component.CENTER_ALIGNMENT);
-		setPreferredSize(new Dimension(190, 150));
+		setPreferredSize(new Dimension(190, 170));
 		setMaximumSize(getPreferredSize());
 		
 		createLightsControl(controller);
 		createServosControl(controller);
 		createTakePictureControl(controller);
 		createDataCaptureControl(sessionWriter);
-		
+		createCompassControl();
+
 		JPanel buttonPanel = new JPanel();
-		buttonPanel.setPreferredSize(new Dimension(180, 60));
+		buttonPanel.setPreferredSize(new Dimension(180, 80));
 		buttonPanel.setMaximumSize(buttonPanel.getPreferredSize());
-		buttonPanel.setLayout(new GridLayout(2, 2));
+		buttonPanel.setLayout(new GridLayout(3, 2));
 		buttonPanel.add(lightsButton);
 		buttonPanel.add(servosButton);
 		buttonPanel.add(takePictureButton);
 		buttonPanel.add(dataCaptureButton);
+		buttonPanel.add(compassButton);
 		add(buttonPanel);
 		
 		createInputOutputTargetControl();
 	}
 	
+	private void createCompassControl() {
+		compassButton.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				VisualizerConfig config = VisualizerConfig.getInstance();
+				config.setUseCompass(!config.getUseCompass());
+			}
+		});
+	}
+
 	private void createDataCaptureControl(final SessionWriter sessionWriter) {
 		dataCaptureButton.addActionListener(new ActionListener() {
 			@Override

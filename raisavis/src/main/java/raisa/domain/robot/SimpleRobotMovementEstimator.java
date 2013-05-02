@@ -1,5 +1,6 @@
 package raisa.domain.robot;
 
+import raisa.config.VisualizerConfig;
 import raisa.domain.samples.Sample;
 import raisa.util.Vector2D;
 
@@ -20,18 +21,7 @@ public class SimpleRobotMovementEstimator implements RobotMovementEstimator {
 		float leftTrackTrip = (Robot.WHEEL_DIAMETER * sample.getLeftTrackTicks() * Robot.TICK_RADIANS) / 2.0f;
 		float rightTrackTrip = (Robot.WHEEL_DIAMETER * sample.getRightTrackTicks() * Robot.TICK_RADIANS) / 2.0f;
 
-		float h;
-		if (usingParticleFilter) {
-			float deltaHeading = 0.0f;
-			if (leftTrackTrip > rightTrackTrip) {
-				deltaHeading = (float)Math.toRadians(5.0);
-			} else if (rightTrackTrip > leftTrackTrip) {
-				deltaHeading = (float)Math.toRadians(-5.0);
-			}
-			h = state.getHeading() + deltaHeading;
-		} else {
-			h = sample.getCompassDirection();
-		}
+		float h = state.getHeading();
 		Vector2D positionLeftTrack = new Vector2D(state.getPositionLeftTrack().x + leftTrackTrip * (float) Math.sin(h),
 				state.getPositionLeftTrack().y - leftTrackTrip * (float) Math.cos(h));
 
@@ -41,6 +31,14 @@ public class SimpleRobotMovementEstimator implements RobotMovementEstimator {
 		robot.setDirectionLeftTrackForward(sample.getLeftTrackTicks() >= 0 ? true : false);
 		robot.setDirectionRightTrackForward(sample.getRightTrackTicks() >= 0 ? true : false);
 		
+		robot.setPositionLeftTrack(positionLeftTrack);
+		robot.setPositionRightTrack(positionRightTrack);
+		
+		if (VisualizerConfig.getInstance().getUseCompass()) {
+			h = sample.getCompassDirection();
+		} else {
+			h += (leftTrackTrip - rightTrackTrip) / Robot.ROBOT_WIDTH;
+		}
 		// add noise	
 		if (usingParticleFilter) {
 			float noiseMagnitude = 5.0f;
@@ -52,8 +50,6 @@ public class SimpleRobotMovementEstimator implements RobotMovementEstimator {
 			positionRightTrack.y += (float)Math.sin(a) * r;
 			h += (float)((Math.random() * 8.0f - 4.0f) / 180.0f * Math.PI);
 		}
-		robot.setPositionLeftTrack(positionLeftTrack);
-		robot.setPositionRightTrack(positionRightTrack);
 		robot.setHeading(h);
 
 		return robot;

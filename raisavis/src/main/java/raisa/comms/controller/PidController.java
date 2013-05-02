@@ -27,7 +27,7 @@ public class PidController extends Controller implements RobotStateListener {
 	private int rightSpeed;
 	
 	private static final float Kp = 1.0f;
-	private static final float Ki = 0.1f;
+	private static final float Ki = 0.2f;
 	private static final float Kd = 1.0f;
 	
 	private float prevError = 0.0f;
@@ -138,12 +138,12 @@ public class PidController extends Controller implements RobotStateListener {
 		
 		float control = Kp * error + Kd * errorDot + Ki * accError;
 		int gearChange;
-		if (control > 3 * Math.PI) {
+		if (control > Math.PI) {
 			gearChange = 3;
-		} else if (control < 3 * -Math.PI) {
+		} else if (control < -Math.PI) {
 			gearChange = -3;
 		} else {
-			gearChange = (int)(control / Math.PI);
+			gearChange = (int)(3 * control / Math.PI);
 		}
 		
 		leftSpeed = 2 + gearChange;

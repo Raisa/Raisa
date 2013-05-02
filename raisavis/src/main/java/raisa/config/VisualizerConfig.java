@@ -33,7 +33,9 @@ public class VisualizerConfig {
 	
 	// displayed controls subpanels
 	private Set<ControlTypeEnum> displayedControls = new HashSet<ControlTypeEnum>();
-		
+
+	private boolean useCompass = false;
+	
 	private VisualizerConfig() {
 		// TODO: default initialization can be moved to an init file some day
 		this.displayedMapAreaElements.add(MapAreaElementEnum.MAP);
@@ -186,5 +188,13 @@ public class VisualizerConfig {
 	public Set<MapAreaElementEnum> getDisplayedMapAreaElements() {
 		return this.displayedMapAreaElements;
 	}		
+	
+	public void setUseCompass(boolean useCompass) {
+		this.useCompass = useCompass;
+	}
+	
+	public boolean getUseCompass() {
+		return this.useCompass;
+	}
 	
 }

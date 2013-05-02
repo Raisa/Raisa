@@ -2,7 +2,7 @@ package raisa.domain.robot;
 
 
 public class Robot {
-	public final static float ROBOT_WIDTH = 10f;
+	public final static float ROBOT_WIDTH = 12f;
 	public final static float ROBOT_LENGTH = 20f;
 	public final static float WHEEL_DIAMETER = 3.6f;
 	public final static float TICK_RADIANS = (float) Math.PI / 8.0f;
