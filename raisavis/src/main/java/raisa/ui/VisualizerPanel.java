@@ -85,6 +85,7 @@ public class VisualizerPanel extends JPanel implements SampleListener, Visualize
 		scale = 1.0f;
 		latestIR = new ArrayList<Sample>();
 		latestSR = new ArrayList<Sample>();
+		currentImage = null;
 	}
 
 	@Override

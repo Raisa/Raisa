@@ -122,10 +122,9 @@ public class WorldModel implements Serializable, SensorListener {
 		for (SampleFixer fixer : sampleFixers) {
 			fixer.reset();
 		}
+		grid = new Grid();
 		if(latestMapFilename != null) {
 			loadMap(latestMapFilename);
-		} else {
-			grid = new Grid();
 		}
 		addState(new Robot());
 		landmarkManager.reset();
