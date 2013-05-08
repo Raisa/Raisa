@@ -30,8 +30,10 @@ public class Sample {
 	private long timestampMillis;
 	private int messageNumber;
 	private BufferedImage image;
+	private byte[] imageBytes;
 	
-	public Sample() {		
+	public Sample() {
+
 	}
 	
 	public Sample(Sample copy) {
@@ -250,6 +252,14 @@ public class Sample {
 	
 	public BufferedImage getImage() {
 		return image;
+	}
+	
+	public void setImageBytes(byte[] imageBytes) {
+		this.imageBytes = imageBytes;  
+	}
+	
+	public byte[] getImageBytes() {
+		return this.imageBytes;
 	}
 	
 	public String toString() {

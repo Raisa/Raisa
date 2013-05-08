@@ -161,8 +161,9 @@ public class SampleParser {
 					sample.setTimestampMillis(timestampMillis);										
 				} else if (part.startsWith("CA")) {
 					byte[] imageBytes = HexToBinaryUtil.hexStringToByteArray(value);
+					sample.setImageBytes(imageBytes);
 					try {
-						sample.setImage(ImageIO.read(new ByteArrayInputStream(imageBytes)));	
+						sample.setImage(ImageIO.read(new ByteArrayInputStream(imageBytes)));
 					} catch(IOException iex) {
 						log.error("Failed to parse image", iex);
 					}
@@ -191,5 +192,9 @@ public class SampleParser {
 
 	public boolean isValid(String sample) {
 		return sample.matches("STA;([A-Z][A-Za-z]+[-]?[0-9]*\\.?[0-9]+;)*(CA[A-F0-9]*;)*END;[\n\r]*");
+	}
+	
+	public boolean mayContainImage(String sample) {
+		return sample.contains(";CA");
 	}
 }

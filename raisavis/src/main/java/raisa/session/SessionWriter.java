@@ -17,7 +17,9 @@ import org.slf4j.LoggerFactory;
 
 import raisa.comms.Communicator;
 import raisa.comms.ControlMessage;
+import raisa.comms.SampleParser;
 import raisa.comms.SensorListener;
+import raisa.domain.samples.Sample;
 
 public class SessionWriter implements Communicator, SensorListener, Closeable, Flushable {
 	private static final Logger logger = LoggerFactory.getLogger(SessionWriter.class);
@@ -80,6 +82,27 @@ public class SessionWriter implements Communicator, SensorListener, Closeable, F
 		String timestampedSample = sample.replaceAll("TI\\d+", "TI" + getTimestamp());
 		sensorDataOutput.println(timestampedSample);
 		sensorDataOutput.flush();
+		writeImage(sample);
+	}
+	
+	private void writeImage(String sample) {
+		SampleParser sampleParser = new SampleParser();
+		// first make a fast check
+		if(!sampleParser.mayContainImage(sample)) {
+			return;
+		}
+		// TODO sample is also parsed in WorldModel.java
+		Sample parsedSample = sampleParser.parse(sample);
+		if(parsedSample.getImage() == null && parsedSample.getImageBytes() == null) {
+			return;
+		}
+		String timestamp = new SimpleDateFormat("yyyy-MM-dd_HHmmss").format(new Date());
+		File imageFile = new File(sessionDirectory, prefix + "-camera-" + timestamp + ".jpeg");
+		try {
+			FileUtils.writeByteArrayToFile(imageFile, parsedSample.getImageBytes());
+		} catch (IOException e) {
+			logger.error("Failed to store image capture file " + imageFile.getPath(), e);
+		}
 	}
 
 	@Override
