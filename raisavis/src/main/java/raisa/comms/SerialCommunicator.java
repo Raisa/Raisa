@@ -107,7 +107,6 @@ public class SerialCommunicator implements SerialPortEventListener, Communicator
 	 */
 	@Override
 	public synchronized void serialEvent(SerialPortEvent oEvent) {
-		log.debug("Serial event: {}", oEvent.getEventType());
 		if (!active) {
 			return;
 		}
@@ -115,7 +114,7 @@ public class SerialCommunicator implements SerialPortEventListener, Communicator
 			try {			
 				SampleParser parser = new SampleParser();
 				int tmp;
-				while ((tmp = input.read()) != -1) {
+				while ((tmp = input.read()) != -1 && active) {
 					unfinishedSample += String.valueOf((char)tmp);
 					if (!unfinishedSample.endsWith("\n")) {
 						continue;
