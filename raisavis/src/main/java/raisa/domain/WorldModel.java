@@ -10,6 +10,9 @@ import java.util.List;
 
 import javax.imageio.ImageIO;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import raisa.comms.SampleParser;
 import raisa.comms.SensorListener;
 import raisa.domain.landmarks.Landmark;
@@ -27,7 +30,7 @@ import raisa.util.Vector2D;
 
 public class WorldModel implements Serializable, SensorListener {
 	private static final long serialVersionUID = 1L;
-	
+	private static final Logger log = LoggerFactory.getLogger(WorldModel.class);
 	private List<Sample> samples = new ArrayList<Sample>();
 	private List<SampleFixer> sampleFixers = new ArrayList<SampleFixer>();
 	private List<SampleListener> sampleListeners = new ArrayList<SampleListener>();
@@ -182,7 +185,7 @@ public class WorldModel implements Serializable, SensorListener {
 		try {
 			ImageIO.write(grid.getUserImage(), "PNG", new File(fileName));
 		} catch (IOException e) {
-			e.printStackTrace();
+			log.error("Failed to save map", e);
 		}
 	}
 
@@ -193,7 +196,7 @@ public class WorldModel implements Serializable, SensorListener {
 			grid.setUserImage(mapImage);
 			latestMapFilename = fileName;
 		} catch (IOException e) {
-			e.printStackTrace();
+			log.error("Failed to load map", e);
 		}
 	}
 

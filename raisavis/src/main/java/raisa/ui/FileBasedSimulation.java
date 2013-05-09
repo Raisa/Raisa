@@ -57,7 +57,7 @@ public class FileBasedSimulation implements Runnable, VisualizerConfigListener {
 		try {
 			Thread.sleep(200);
 		} catch (InterruptedException e) {
-			e.printStackTrace();
+			log.error("interrupted", e);
 		}
 		samples = new ArrayList<String>();
 	}
@@ -71,7 +71,7 @@ public class FileBasedSimulation implements Runnable, VisualizerConfigListener {
 					try {
 						Thread.sleep(100);
 					} catch (InterruptedException e) {
-						e.printStackTrace();
+						log.error("interrupted", e);
 					}
 				}
 				stepSimulation = true;
