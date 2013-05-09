@@ -122,7 +122,7 @@ public class Visualizer {
 				if ("example".equals(val)) {
 					frame.spawnSampleSimulationThread(getExampleSamples(), true);
 				} else {
-					frame.loadSamples(val);
+					frame.loadSensorSamples(val);
 				}
 			} 
 

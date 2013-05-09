@@ -347,12 +347,12 @@ public class VisualizerFrame extends JFrame {
 			}
 		});
 		reset.setMnemonic('r');
-		JMenuItem loadData = new JMenuItem("Load sample file...");
+		JMenuItem loadData = new JMenuItem("Load sensor file...");
 		loadData.setMnemonic('d');
 		loadData.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				loadSamples(null);
+				loadSensorSamples(null);
 			}
 		});
 		JMenuItem loadReplay = new JMenuItem("Load control file...");
@@ -507,7 +507,7 @@ public class VisualizerFrame extends JFrame {
 		}
 	}
 
-	public void loadSamples(String filename) {
+	public void loadSensorSamples(String filename) {
 		if (filename == null) {
 			final JFileChooser chooser = new JFileChooser(defaultDirectory);
 			chooser.addActionListener(new ActionListener() {
