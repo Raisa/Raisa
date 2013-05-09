@@ -23,6 +23,7 @@ import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.KeyStroke;
+import javax.swing.filechooser.FileNameExtensionFilter;
 
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
@@ -76,6 +77,11 @@ public class VisualizerFrame extends JFrame {
 	private RobotSimulator robotSimulator;
 	private FileBasedSimulation fileBasedSimulation;
 	private VisualizationOptionsDialog visualizationOptionsDialog;
+	
+	
+	private FileNameExtensionFilter mapFileFilter = new FileNameExtensionFilter("Map file (png)", "png");
+	private FileNameExtensionFilter sensorFileFilter = new FileNameExtensionFilter("Sensor file", "sensor");
+	private FileNameExtensionFilter controlFileFilter = new FileNameExtensionFilter("Control file", "control");
 	
 	public VisualizerFrame(final WorldModel worldModel) {
 		addIcon();
@@ -363,12 +369,12 @@ public class VisualizerFrame extends JFrame {
 				loadReplay(null);
 			}
 		});
-		JMenuItem saveAs = new JMenuItem("Save samples as...");
+		JMenuItem saveAs = new JMenuItem("Save sensor samples as...");
 		saveAs.setMnemonic('a');
 		saveAs.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				save(null);
+				saveSensorSamples(null);
 			}
 		});
 		JMenuItem loadMap = new JMenuItem("Load map...");
@@ -430,6 +436,8 @@ public class VisualizerFrame extends JFrame {
 	public void loadMap(String fileName) {
 		if (fileName == null) {
 			final JFileChooser chooser = new JFileChooser(defaultDirectory);
+			chooser.setDialogTitle("Open map file");
+			chooser.setFileFilter(mapFileFilter);
 			chooser.addActionListener(new ActionListener() {
 				@Override
 				public void actionPerformed(ActionEvent arg0) {
@@ -439,7 +447,7 @@ public class VisualizerFrame extends JFrame {
 						worldModel.loadMap(fileName);
 						particleFilter.randomizeParticles(nparticles);
 					} catch (Exception e) {
-						e.printStackTrace();
+						log.error("Opening file failed", e);
 					}
 				}
 			});
@@ -448,7 +456,7 @@ public class VisualizerFrame extends JFrame {
 			try {
 				worldModel.loadMap(fileName);
 			} catch (Exception e) {
-				e.printStackTrace();
+				log.error("Loading map failed", e);
 			}
 		}
 	}
@@ -456,6 +464,8 @@ public class VisualizerFrame extends JFrame {
 	protected void saveMap(String fileName) {
 		if (fileName == null) {
 			final JFileChooser chooser = new JFileChooser(defaultDirectory);
+			chooser.setDialogTitle("Save map file");
+			chooser.setFileFilter(mapFileFilter);
 			chooser.addActionListener(new ActionListener() {
 				@Override
 				public void actionPerformed(ActionEvent arg0) {
@@ -464,7 +474,7 @@ public class VisualizerFrame extends JFrame {
 						saveDefaultDirectory(fileName);
 						worldModel.saveMap(fileName);
 					} catch (Exception e) {
-						e.printStackTrace();
+						log.error("Saving file failed", e);
 					}
 				}
 			});
@@ -473,7 +483,7 @@ public class VisualizerFrame extends JFrame {
 			try {
 				worldModel.saveMap(fileName);
 			} catch (Exception e) {
-				e.printStackTrace();
+				log.error("Saving map failed", e);
 			}
 		}
 	}
@@ -482,27 +492,29 @@ public class VisualizerFrame extends JFrame {
 		this.currentTool = tool;
 	}
 
-	public void save(String fileName) {
+	public void saveSensorSamples(String fileName) {
 		if (fileName == null) {
 			final JFileChooser chooser = new JFileChooser(defaultDirectory);
+			chooser.setDialogTitle("Save sensor file");
+			chooser.setFileFilter(sensorFileFilter);
 			chooser.addActionListener(new ActionListener() {
 				@Override
 				public void actionPerformed(ActionEvent arg0) {
 					String fileName = chooser.getSelectedFile().getAbsolutePath();
 					try {
 						saveDefaultDirectory(fileName);
-						internalSave(fileName);
+						internalSaveSensorSamples(fileName);
 					} catch (Exception e) {
-						e.printStackTrace();
+						log.error("Saving file failed", e);
 					}
 				}
 			});
 			chooser.showSaveDialog(this);
 		} else {
 			try {
-				internalSave(fileName);
+				internalSaveSensorSamples(fileName);
 			} catch (Exception e) {
-				e.printStackTrace();
+				log.error("Saving sensor samples failed", e);
 			}
 		}
 	}
@@ -510,24 +522,26 @@ public class VisualizerFrame extends JFrame {
 	public void loadSensorSamples(String filename) {
 		if (filename == null) {
 			final JFileChooser chooser = new JFileChooser(defaultDirectory);
+			chooser.setDialogTitle("Open sensor file");
+			chooser.setFileFilter(sensorFileFilter);
 			chooser.addActionListener(new ActionListener() {
 				@Override
 				public void actionPerformed(ActionEvent arg0) {
 					String fileName = chooser.getSelectedFile().getAbsolutePath();
 					try {
 						saveDefaultDirectory(fileName);
-						internalLoad(fileName, false);
+						internalLoadSensorSamples(fileName, false);
 					} catch (Exception e) {
-						e.printStackTrace();
+						log.error("Opening file failed", e);
 					}
 				}
 			});
 			chooser.showOpenDialog(this);
 		} else {
 			try {
-				internalLoad(filename, false);
+				internalLoadSensorSamples(filename, false);
 			} catch (Exception e) {
-				e.printStackTrace();
+				log.error("Loading sensor samples failed", e);
 			}
 		}
 	}
@@ -535,6 +549,8 @@ public class VisualizerFrame extends JFrame {
 	public void loadReplay(String filename) {
 		if (filename == null) {
 			final JFileChooser chooser = new JFileChooser(defaultDirectory);
+			chooser.setDialogTitle("Open control file");
+			chooser.setFileFilter(controlFileFilter);
 			chooser.addActionListener(new ActionListener() {
 				@Override
 				public void actionPerformed(ActionEvent arg0) {
@@ -547,7 +563,7 @@ public class VisualizerFrame extends JFrame {
 						saveDefaultDirectory(fileName);
 						internalLoadReplay(fileName);
 					} catch (Exception e) {
-						e.printStackTrace();
+						log.error("Opening file failed", e);
 					}
 				}
 			});
@@ -556,7 +572,7 @@ public class VisualizerFrame extends JFrame {
 			try {
 				internalLoadReplay(filename);
 			} catch (Exception e) {
-				e.printStackTrace();
+				log.error("Loading control failed");
 			}
 		}
 	}
@@ -574,13 +590,14 @@ public class VisualizerFrame extends JFrame {
 			}
 			line = fr.readLine();
 		}
+		fr.close();
 		log.info("Replaying {} control messages", controlMessages.size());
 		ReplayController replayController = new ReplayController(controlMessages, communicator, robotSimulator);
 		basicController.copyListenersTo(replayController);
 		replayController.start();
 	}
 
-	private void internalSave(String fileName) throws Exception {
+	private void internalSaveSensorSamples(String fileName) throws Exception {
 		BufferedWriter writer = new BufferedWriter(new FileWriter(fileName));
 		for (Sample sample : worldModel.getSamples()) {
 			writer.write(sample.getSampleString());
@@ -589,7 +606,7 @@ public class VisualizerFrame extends JFrame {
 		writer.close();
 	}
 
-	private void internalLoad(String fileName, boolean delayed) throws FileNotFoundException, IOException {
+	private void internalLoadSensorSamples(String fileName, boolean delayed) throws FileNotFoundException, IOException {
 		BufferedReader fr = new BufferedReader(new FileReader(fileName));
 		List<String> sampleStrings = new ArrayList<String>();
 		String line = fr.readLine();
