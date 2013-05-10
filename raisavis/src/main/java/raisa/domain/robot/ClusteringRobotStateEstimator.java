@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import raisa.util.RandomUtil;
 import raisa.util.Vector2D;
 
 public class ClusteringRobotStateEstimator implements RobotStateEstimator {
@@ -68,7 +69,7 @@ public class ClusteringRobotStateEstimator implements RobotStateEstimator {
 			List<List<RobotState>> clusters = new ArrayList<List<RobotState>>();
 			initClusterCenters(states, k);
 			for (RobotState state : states) {
-				clusterOfRobot.put(state, (int)(Math.random() * k));
+				clusterOfRobot.put(state, (int)(RandomUtil.random() * k));
 			}
 			while (iterate(k))
 				;
@@ -99,7 +100,7 @@ public class ClusteringRobotStateEstimator implements RobotStateEstimator {
 
 		private List<RobotState> shuffleStates(List<RobotState> states) {
 			List<RobotState> shuffledStates = new ArrayList<RobotState>(states);
-			Collections.shuffle(shuffledStates);
+			RandomUtil.shuffle(shuffledStates);
 			return shuffledStates;
 		}
 	}

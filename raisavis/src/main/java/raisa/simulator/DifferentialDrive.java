@@ -1,11 +1,10 @@
 package raisa.simulator;
 
-import java.util.Random;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import raisa.domain.robot.Robot;
+import raisa.util.RandomUtil;
 
 
 /**
@@ -88,7 +87,7 @@ public class DifferentialDrive implements DriveSystem {
 	}
 
 	private int getErrorTicks(int ticks) {
-		double rnd = Math.random();
+		double rnd = RandomUtil.random();
 		if (rnd < 0.01d * ticks) {
 			return -1;
 		} else if (rnd < 0.15d * ticks) {

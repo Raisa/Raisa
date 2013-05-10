@@ -2,6 +2,7 @@ package raisa.domain.robot;
 
 import raisa.config.VisualizerConfig;
 import raisa.domain.samples.Sample;
+import raisa.util.RandomUtil;
 import raisa.util.Vector2D;
 
 public class SimpleRobotMovementEstimator implements RobotMovementEstimator {
@@ -42,13 +43,13 @@ public class SimpleRobotMovementEstimator implements RobotMovementEstimator {
 		// add noise	
 		if (usingParticleFilter) {
 			float noiseMagnitude = 5.0f;
-			float a = (float)(Math.random() * Math.PI * 2.0f);
-			float r = (float)Math.random() * noiseMagnitude;
+			float a = (float)(RandomUtil.random() * Math.PI * 2.0f);
+			float r = (float)RandomUtil.random() * noiseMagnitude;
 			positionLeftTrack.x += (float)Math.cos(a) * r;
 			positionLeftTrack.y += (float)Math.sin(a) * r;
 			positionRightTrack.x += (float)Math.cos(a) * r;
 			positionRightTrack.y += (float)Math.sin(a) * r;
-			h += (float)((Math.random() * 8.0f - 4.0f) / 180.0f * Math.PI);
+			h += (float)((RandomUtil.random() * 8.0f - 4.0f) / 180.0f * Math.PI);
 		}
 		robot.setHeading(h);
 

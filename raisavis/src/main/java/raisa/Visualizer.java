@@ -88,6 +88,14 @@ public class Visualizer {
 				formatter.printHelp( "Visualizer", options );
 				System.exit(0);
 		    }
+
+			if (line.hasOption(OPTION_RANDOMSEED)) {
+				String val = line.getOptionValue(OPTION_RANDOMSEED);
+				long seed = Long.parseLong(val);
+				log.info("Setting random seed to {}", seed);
+				RandomUtil.setSeed(seed);
+			}
+			
 			VisualizerConfig config = VisualizerConfig.getInstance();
 			
 			if (line.hasOption(OPTION_LOCALIZATION)) {
@@ -141,13 +149,6 @@ public class Visualizer {
 				String val = line.getOptionValue(OPTION_MAP);
 				frame.loadMap(val);
 			} 
-
-			if (line.hasOption(OPTION_RANDOMSEED)) {
-				String val = line.getOptionValue(OPTION_RANDOMSEED);
-				long seed = Long.parseLong(val);
-				log.info("Setting random seed to {}", seed);
-				RandomUtil.setSeed(seed);
-			}
 
 			config.setChanged(VisualizerConfigItemEnum.ALL_CONFIG_ITEMS);
 			config.notifyVisualizerConfigListeners();			

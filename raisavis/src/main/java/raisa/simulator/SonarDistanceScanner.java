@@ -6,6 +6,7 @@ import java.util.List;
 import org.apache.commons.math3.distribution.NormalDistribution;
 
 import raisa.domain.WorldModel;
+import raisa.util.RandomUtil;
 
 /**
  * Makes scans to several directions around central heading and returns the
@@ -16,7 +17,7 @@ public class SonarDistanceScanner extends IRDistanceScanner {
 	// simulate wide beam by doing several scans and taking the minimum distance
 	private static final List<Float> beamHeadings = Arrays.asList(-5f, -2.5f, 0f, 2.5f, 5f); 
 	
-	private NormalDistribution noise = new NormalDistribution(0.0d, 1.0d);
+	private NormalDistribution noise = RandomUtil.normalDistribution(0.0d, 1.0d);
 
 	@Override
 	public float scanDistance(WorldModel worldModel, SimulatorState roverState, float heading) {

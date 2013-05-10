@@ -1,11 +1,11 @@
 package raisa.domain.landmarks;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import org.apache.commons.math3.stat.regression.SimpleRegression;
 
+import raisa.util.RandomUtil;
 import raisa.util.Segment2D;
 import raisa.util.Vector2D;
 
@@ -138,7 +138,7 @@ public class RansacExtractor {
 	private List<Vector2D> getRandomLinePoints(List<Vector2D> points) {
 		List<Vector2D> result = new ArrayList<Vector2D>();
 		for (int i=0; i<MAX_SAMPLE; i++) {
-			Collections.shuffle(points);
+			RandomUtil.shuffle(points);
 			result.add(points.get(0));
 		}
 		return result;
