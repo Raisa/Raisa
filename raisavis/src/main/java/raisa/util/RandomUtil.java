@@ -5,8 +5,6 @@ import java.util.List;
 import java.util.Random;
 
 import org.apache.commons.math3.distribution.NormalDistribution;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Utility that contains all random generators and distributions. 
@@ -27,22 +25,29 @@ public final class RandomUtil {
 		RandomUtil.random = new Random(randomSeeder.nextLong());
 	}
 	
+	/**
+	 * Get current seed.
+	 */
 	public static long getSeed() {
 		return seed;
 	}
 	
+	/** Range [0.0f, 1.0f[ */
 	public static float nextFloat() {
 		return random.nextFloat();
 	}
 
+	/** Range [0.0, 1.0[ */
 	public static double random() {
 		return nextDouble();
 	}
 	
+	/** Range [0.0, 1.0[ */
 	public static double nextDouble() {
 		return random.nextDouble();
 	}
 	
+	/** Gaussian: mean 0.0, stdev 1.0 */
 	public static double nextGaussian() {
 		return random.nextGaussian();
 	}
@@ -56,6 +61,9 @@ public final class RandomUtil {
 		return dist;
 	}
 	
+	/**
+	 * Shuffle list in-place.
+	 */
 	public static void shuffle(List<?> list) {
 		Collections.shuffle(list, random);
 	}
