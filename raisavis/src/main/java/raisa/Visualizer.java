@@ -9,6 +9,8 @@ import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.apache.commons.cli.PosixParser;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import raisa.comms.SampleParser;
 import raisa.config.InputOutputTargetEnum;
@@ -19,18 +21,21 @@ import raisa.domain.WorldModel;
 import raisa.domain.samples.Sample;
 import raisa.test.ExampleWorld1;
 import raisa.ui.VisualizerFrame;
+import raisa.util.RandomUtil;
 
 /**
  * See http://arduino.cc/playground/Interfacing/Java for RXTX library setup
  */
 public class Visualizer {
-	
+	private static Logger log = LoggerFactory.getLogger(Visualizer.class); 
+
 	private static final String OPTION_LOCALIZATION = "localization";
 	private static final String OPTION_HELP = "help";
 	private static final String OPTION_MAP = "map";
 	private static final String OPTION_IOMODE = "iomode";
 	private static final String OPTION_SAMPLEFILE = "samplefile";
 	private static final String OPTION_CONTROLFILE = "controlfile";
+	private static final String OPTION_RANDOMSEED = "randomseed";
 
 	private static List<Sample> getExampleSamples() {
 		ExampleWorld1 world = new ExampleWorld1();
@@ -67,6 +72,7 @@ public class Visualizer {
 		options.addOption(OPTION_LOCALIZATION, true, "'none' (default), 'slam' or 'particle_filter'");
 		options.addOption(OPTION_SAMPLEFILE, true, "'example' or simulation samples file for simfile iomode");
 		options.addOption(OPTION_CONTROLFILE, true, "control file for actual robot or simulator");
+		options.addOption(OPTION_RANDOMSEED, true, "set numeric seed for random generators");
 		return options;
 	}
 
@@ -136,11 +142,18 @@ public class Visualizer {
 				frame.loadMap(val);
 			} 
 
+			if (line.hasOption(OPTION_RANDOMSEED)) {
+				String val = line.getOptionValue(OPTION_RANDOMSEED);
+				long seed = Long.parseLong(val);
+				log.info("Setting random seed to {}", seed);
+				RandomUtil.setSeed(seed);
+			}
+
 			config.setChanged(VisualizerConfigItemEnum.ALL_CONFIG_ITEMS);
 			config.notifyVisualizerConfigListeners();			
 			
 			frame.open();
-	    } catch (ParseException pex) {
+	    } catch (Exception pex) {
 	        System.err.println( "Parsing failed.  Reason: " + pex.getMessage() );
 	    	HelpFormatter formatter = new HelpFormatter();
 			formatter.printHelp( "Visualizer", options );
