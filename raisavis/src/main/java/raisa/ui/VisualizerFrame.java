@@ -621,7 +621,7 @@ public class VisualizerFrame extends JFrame {
 			}
 			line = fr.readLine();
 		}
-
+		fr.close();
 		spawnSimulationThread(sampleStrings, delayed);
 	}
 
