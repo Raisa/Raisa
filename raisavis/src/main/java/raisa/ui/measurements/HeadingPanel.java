@@ -42,7 +42,7 @@ import raisa.domain.samples.Sample;
 		arrowDisplayPanel = new HeadingArrowDisplayPanel();
 		this.add(arrowDisplayPanel, BorderLayout.CENTER);
 		
-		Panel valuesContiner = new Panel();
+		JPanel valuesContiner = new JPanel();
 		this.add(valuesContiner, BorderLayout.SOUTH);
 		valuesContiner.setLayout(new GridLayout(1, 2));
 
