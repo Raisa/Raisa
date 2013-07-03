@@ -35,7 +35,7 @@ public class SimpleRobotMovementEstimator implements RobotMovementEstimator {
 		robot.setPositionLeftTrack(positionLeftTrack);
 		robot.setPositionRightTrack(positionRightTrack);
 		
-		if (VisualizerConfig.getInstance().getUseCompass()) {
+		if (VisualizerConfig.getInstance().getUseCompass() && !usingParticleFilter) {
 			h = sample.getCompassDirection();
 		} else {
 			h += (leftTrackTrip - rightTrackTrip) / Robot.ROBOT_WIDTH;
