@@ -47,7 +47,7 @@ public class ReplayController extends Controller {
 							sendMessage(controlMessage);
 						}
 					} catch (Exception e) {
-						e.printStackTrace();
+						log.error("Failed to handle replay control message", e);
 					}
 				}
 				log.info("Replay finished");

@@ -4,7 +4,6 @@ import static java.lang.Math.round;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
 
 import org.apache.commons.math3.distribution.NormalDistribution;
 import org.slf4j.Logger;
@@ -13,11 +12,11 @@ import org.slf4j.LoggerFactory;
 import raisa.comms.Communicator;
 import raisa.comms.ControlMessage;
 import raisa.comms.SensorListener;
-import raisa.config.InputOutputTargetEnum;
 import raisa.config.VisualizerConfig;
 import raisa.config.VisualizerConfigListener;
 import raisa.domain.WorldModel;
 import raisa.domain.robot.Robot;
+import raisa.util.RandomUtil;
 import raisa.util.Vector2D;
 import raisa.util.Vector3D;
 
@@ -44,9 +43,9 @@ public class RobotSimulator implements SimulatorState, ServoScanListener, Commun
 	private final long startTime = System.currentTimeMillis();
 	private int messageNumber = 1;
 
-	private NormalDistribution sensorDirectionNoise = new NormalDistribution(0.0d, 2.0d);
-	private NormalDistribution headingNoise = new NormalDistribution(0.0d, 2.0d);
-	private NormalDistribution odometerNoise = new NormalDistribution(0.0d, 1.0d);
+	private NormalDistribution sensorDirectionNoise = RandomUtil.normalDistribution(0.0d, 2.0d);
+	private NormalDistribution headingNoise = RandomUtil.normalDistribution(0.0d, 2.0d);
+	private NormalDistribution odometerNoise = RandomUtil.normalDistribution(0.0d, 1.0d);
 
 	private Thread simulatorThread;
 	private boolean simulatorActive = false;
@@ -139,18 +138,17 @@ public class RobotSimulator implements SimulatorState, ServoScanListener, Commun
 		reading.setCompassHeading(360-round(heading - (int)headingNoise.sample()));
 		reading.setTimestamp(System.currentTimeMillis() - startTime).setMessageNumber(messageNumber++);
 		
-		Random random = new Random();
 		Vector3D gyro = new Vector3D();
 		reading.setGyro(gyro);
-		gyro.setX((float) random.nextGaussian());
-		gyro.setY((float) random.nextGaussian());
-		gyro.setZ((float) random.nextGaussian());
+		gyro.setX((float) RandomUtil.nextGaussian());
+		gyro.setY((float) RandomUtil.nextGaussian());
+		gyro.setZ((float) RandomUtil.nextGaussian());
 
 		Vector3D acceleration = new Vector3D();
 		reading.setAcceleration(acceleration);
-		acceleration.setX((float) random.nextGaussian());
-		acceleration.setY((float)(-9.81 + random.nextGaussian()));
-		acceleration.setZ((float) random.nextGaussian());
+		acceleration.setX((float) RandomUtil.nextGaussian());
+		acceleration.setY((float)(-9.81 + RandomUtil.nextGaussian()));
+		acceleration.setZ((float) RandomUtil.nextGaussian());
 		
 		reading.setRightEncoder(driveSystem.readRightWheelEncoderTicks() + (int)odometerNoise.sample());
 		reading.setLeftEncoder(driveSystem.readLeftWheelEncoderTicks() + (int)odometerNoise.sample());

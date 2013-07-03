@@ -14,6 +14,7 @@ import raisa.domain.robot.RobotState;
 import raisa.domain.robot.SimpleRobotMovementEstimator;
 import raisa.domain.samples.Sample;
 import raisa.util.CollectionUtil;
+import raisa.util.RandomUtil;
 import raisa.util.Vector2D;
 
 public class ParticleFilter {
@@ -48,11 +49,11 @@ public class ParticleFilter {
 		boolean ok = false;
 		Particle particle = new Particle();
 		while (!ok) {
-			float x = (float) Math.random() * width - 0.5f * width;
-			float y = (float) Math.random() * height - 0.5f * height;
+			float x = (float) RandomUtil.random() * width - 0.5f * width;
+			float y = (float) RandomUtil.random() * height - 0.5f * height;
 			Vector2D position = new Vector2D(x, y);
 			if (world.isClear(position)) {
-				float heading = (float) Math.random() * (float) Math.PI * 2.0f;
+				float heading = (float) RandomUtil.random() * (float) Math.PI * 2.0f;
 				RobotState robot = new RobotState(position, heading);
 				particle.addState(robot);
 				ok = true;
@@ -110,7 +111,7 @@ public class ParticleFilter {
 	private void executeMakeResampling(Map<Particle, Float> weights,
 			List<Particle> newParticles) {
 		for (int i = 0; i < particles.size(); ++i) {
-			float r = (float) Math.random();
+			float r = (float) RandomUtil.random();
 			float s = 0.0f;
 			Particle selectedParticle = null;
 			for (Particle particle : weights.keySet()) {
@@ -133,10 +134,10 @@ public class ParticleFilter {
 			// this may happen when particle filter has just started
 			return;
 		}
-		int index = (int)Math.random() * particles.size();
+		int index = (int)RandomUtil.random() * particles.size();
 		float beta = 0.0f;
 		for (int i = 0; i < particles.size(); i++) {
-			beta += Math.random() * 2.0 * maxWeight;
+			beta += RandomUtil.random() * 2.0 * maxWeight;
 			float weight = weights.get(particles.get(index));
 			while (beta > weight) {
 				beta -= weight;

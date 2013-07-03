@@ -36,6 +36,7 @@ public class HexToBinaryUtil {
 		FileOutputStream fow = new FileOutputStream("testi.jpg");
 		fow.write(hexStringToByteArray(picHex.toString()));
 		fow.close();
+		buf.close();
 	}
 
 }

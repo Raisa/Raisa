@@ -14,6 +14,7 @@ import org.apache.commons.math3.linear.RealVector;
 
 import raisa.domain.landmarks.Landmark;
 import raisa.domain.robot.RobotState;
+import raisa.util.RandomUtil;
 import raisa.util.Vector2D;
 
 /**
@@ -33,10 +34,10 @@ public class SlamManager {
 		I2 = new Array2DRowRealMatrix(new double[][] { { 1.0d, 0.0d }, { 0.0d, 1.0d }});		
 		I3 = new Array2DRowRealMatrix(new double[][] { { 1.0d, 0.0d, 0.0d }, { 0.0d, 1.0d, 0.0d }, { 0.0d, 0.0d, 1.0d } });		
 		sigma = new Array2DRowRealMatrix(new double[][] { { 1.0d, 0.0d, 0.0d }, { 0.0d, 1.0d, 0.0d }, { 0.0d, 0.0d, 1.0d } });		
-		odometryNoise = new NormalDistribution(0.0d, 0.1d);
-		headingNoise = new NormalDistribution(0.0d, 0.05d);
-		sensorRangeNoise = new NormalDistribution(0.0d, 1.0d);
-		sensorDirectionNoise = new NormalDistribution(0.0d, 0.3d);
+		odometryNoise = RandomUtil.normalDistribution(0.0d, 0.1d);
+		headingNoise = RandomUtil.normalDistribution(0.0d, 0.05d);
+		sensorRangeNoise = RandomUtil.normalDistribution(0.0d, 1.0d);
+		sensorDirectionNoise = RandomUtil.normalDistribution(0.0d, 0.3d);
 		
 		previousState = new RobotState(new Vector2D(0.0f, 0.0f), 0.0f);
 	}
