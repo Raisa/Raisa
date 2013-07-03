@@ -28,7 +28,7 @@ Servo tiltServo;
 
 // cool blue leds
 const int blueLedPin = 13;
-boolean blueLedOn = true;
+boolean blueLedOn = false;
 
 // ultrasonic sensors
 const int pingPinForward = 6;
@@ -107,6 +107,9 @@ void configureGyro() {
 
 void setup() 
 { 
+  pinMode(blueLedPin, OUTPUT);
+  digitalWrite(blueLedPin, LOW);   
+  
   Serial.begin(serialSpeed);
   cameraSerial.begin(cameraSerialSpeed);
   
@@ -130,10 +133,10 @@ void setup()
   //imuReadEvent = t.every(10, measureCompassAndAccelerometer);
   //readSoundEvent = t.every(20, readSoundIntensity);
   
-  pinMode(blueLedPin, OUTPUT);
-  blink(1);
-  delay(2000);
+  delay(1000);
   sendCameraResetCmd();
+  delay(1000);
+  blink(1);
 } 
 
 void blink(int times) {
