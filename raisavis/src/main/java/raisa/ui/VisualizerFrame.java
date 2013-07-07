@@ -104,7 +104,7 @@ public class VisualizerFrame extends JFrame {
 
 		sessionWriter = new SessionWriter(sessionDirectory, "data");
 
-		communicator = new FailoverCommunicator(new SerialCommunicator().addSensorListener(worldModel), new ConsoleCommunicator(), sessionWriter);		
+		communicator = new FailoverCommunicator(new SerialCommunicator().addSensorListener(worldModel), sessionWriter);		
 		communicator.connect();
 		
 		fileBasedSimulation = new FileBasedSimulation(worldModel);

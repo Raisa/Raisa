@@ -19,6 +19,8 @@ import raisa.util.Vector2D;
 
 public class PidController extends Controller implements RobotStateListener {
 
+	private static final float HALF_PI = (float)(Math.PI / 2.0d);
+	
 	private WorldModel world;
 	private BasicController basicController;
 	private List<Communicator> communicators = new ArrayList<Communicator>();
@@ -32,6 +34,8 @@ public class PidController extends Controller implements RobotStateListener {
 	
 	private float prevError = 0.0f;
 	private float accError = 0.0f;
+	private boolean moveForward = true;
+	private Vector2D currentWaypoint = null;
 	
 	private int stateCounter = 0;
 	
@@ -95,15 +99,65 @@ public class PidController extends Controller implements RobotStateListener {
 
 	@Override
 	public void robotStateChanged(Robot newRobot) {
-		if (ControllerTypeEnum.PID_CONTROLLER != VisualizerConfig.getInstance().getControllerType()) {
-			return;
-		}
-		if (stateCounter++ % 10 != 0) {
+		if (ControllerTypeEnum.PID_CONTROLLER != VisualizerConfig.getInstance().getControllerType() ||
+				stateCounter++ % 5 != 0) {
 			return;
 		}
 		RobotState robotState = newRobot.getMeasuredState();
-		Vector2D waypointPosition = null;
-
+		Vector2D waypointPosition = getNextWaypoint(robotState);
+		if (waypointPosition == null) {
+			leftSpeed = 0;
+			rightSpeed = 0;
+			accError = 0.0f;
+			prevError = 0.0f;
+			sendPackage();
+			return;
+		}
+		if (currentWaypoint != waypointPosition) {
+			currentWaypoint = waypointPosition;
+			accError = 0.0f;
+			prevError = 0.0f;			
+		}
+		
+		float robotHeading = GeometryUtil.headingToAtan2Angle(robotState.getHeading());
+		float waypointHeading = (float)Math.atan2(
+				(float)(waypointPosition.y - robotState.getPosition().y),
+				(float)(waypointPosition.x - robotState.getPosition().x));
+		float error = GeometryUtil.differenceBetweenAngles(robotHeading, waypointHeading);
+		
+		if (moveForward && (Math.abs(error) > HALF_PI)) {
+			moveForward = false;
+			error = error>0.0?-(float)Math.PI:(float)Math.PI + error;
+			accError = 0.0f;
+			prevError = 0.0f;
+		} else if (!moveForward) {
+			if (Math.abs(error) < HALF_PI) {
+				moveForward = true;
+				accError = 0.0f;	
+				prevError = 0.0f;
+			} else {
+				error = error>0.0?-(float)Math.PI:(float)Math.PI + error;
+			}
+		}
+		float errorDot = error - prevError;
+		accError = accError + error;
+		
+		float control = Kp * error + Kd * errorDot + Ki * accError;
+		int gearChange;
+		if (control > HALF_PI) {
+			gearChange = 3;
+		} else if (control < -HALF_PI) {
+			gearChange = -3;
+		} else {
+			gearChange = (int)(3 * control / HALF_PI);
+		}
+		leftSpeed = 2 * (moveForward?1:-1) + gearChange;
+		rightSpeed = 2 * (moveForward?1:-1) - gearChange;				
+		sendPackage();
+	}
+	
+	private Vector2D getNextWaypoint(RobotState robotState) {
+		Vector2D ret = null;
 		MotionPlan motionPlan = world.getMotionPlan();
 		Route route = motionPlan.getSelectedRoute();
 		boolean foundNextWaypoint = false;
@@ -112,46 +166,15 @@ public class PidController extends Controller implements RobotStateListener {
 			if (nextWaypoint == null) {
 				break;
 			}
-			waypointPosition = nextWaypoint.getPosition();
-			if (waypointPosition.distance(robotState.getPosition()) < 10.0f) {
+			ret = nextWaypoint.getPosition();
+			if (ret.distance(robotState.getPosition()) < 5.0f) {
 				route.moveToNextWaypoint();
 				nextWaypoint.setReached(true);
 			} else {
 				foundNextWaypoint = true;
 			}
 		}
-		if (!foundNextWaypoint) {
-			leftSpeed = 0;
-			rightSpeed = 0;
-			sendPackage();
-			return;
-		}
-		
-		float robotHeading = GeometryUtil.headingToAtan2Angle(robotState.getHeading());
-		float waypointHeading = (float)Math.atan2(
-				(float)(waypointPosition.y - robotState.getPosition().y),
-				(float)(waypointPosition.x - robotState.getPosition().x));
-		
-		float error = GeometryUtil.differenceBetweenAngles(robotHeading, waypointHeading);
-		float errorDot = error - prevError;
-		accError = accError + error;
-		
-		float control = Kp * error + Kd * errorDot + Ki * accError;
-		int gearChange;
-		if (control > Math.PI) {
-			gearChange = 3;
-		} else if (control < -Math.PI) {
-			gearChange = -3;
-		} else {
-			gearChange = (int)(3 * control / Math.PI);
-		}
-		
-		leftSpeed = 2 + gearChange;
-		rightSpeed = 2 - gearChange;		
-		
-		System.out.println("control: " + control +  ", left: " + leftSpeed + ", right: " + rightSpeed);
-		
-		sendPackage();
+		return ret;
 	}
 
 }
