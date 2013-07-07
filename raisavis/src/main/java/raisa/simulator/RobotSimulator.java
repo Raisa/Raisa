@@ -16,6 +16,7 @@ import raisa.config.VisualizerConfig;
 import raisa.config.VisualizerConfigListener;
 import raisa.domain.WorldModel;
 import raisa.domain.robot.Robot;
+import raisa.domain.robot.RobotState;
 import raisa.util.RandomUtil;
 import raisa.util.Vector2D;
 import raisa.util.Vector3D;
@@ -27,7 +28,7 @@ import raisa.util.Vector3D;
 public class RobotSimulator implements SimulatorState, ServoScanListener, Communicator, VisualizerConfigListener, Runnable {
 	
 	private static final Logger log = LoggerFactory.getLogger(RobotSimulator.class);
-	private static final float SPEED_PER_GEAR = 0.02f;
+	private static final float SPEED_PER_GEAR = 0.04f;
 
 	/** degrees */
 	private float heading;
@@ -43,9 +44,9 @@ public class RobotSimulator implements SimulatorState, ServoScanListener, Commun
 	private final long startTime = System.currentTimeMillis();
 	private int messageNumber = 1;
 
-	private NormalDistribution sensorDirectionNoise = RandomUtil.normalDistribution(0.0d, 2.0d);
-	private NormalDistribution headingNoise = RandomUtil.normalDistribution(0.0d, 2.0d);
-	private NormalDistribution odometerNoise = RandomUtil.normalDistribution(0.0d, 1.0d);
+	private NormalDistribution sensorDirectionNoise = RandomUtil.normalDistribution(0.0d, 0.5d);
+	private NormalDistribution headingNoise = RandomUtil.normalDistribution(0.0d, 0.5d);
+	private NormalDistribution odometerNoise = RandomUtil.normalDistribution(0.0d, 0.01d);
 
 	private Thread simulatorThread;
 	private boolean simulatorActive = false;
@@ -163,7 +164,7 @@ public class RobotSimulator implements SimulatorState, ServoScanListener, Commun
 			sensorListener.sampleReceived(sensorReading.toString());
 		}
 	}
-
+	
 	/**
 	 * Called when simulator receives a control message
 	 */
@@ -225,6 +226,9 @@ public class RobotSimulator implements SimulatorState, ServoScanListener, Commun
 		case REALTIME_SIMULATOR:
 			if (!simulatorActive) {
 				simulatorActive = true;
+				RobotState state = worldModel.getLatestState().getMeasuredState();
+				setPosition(new Vector2D(state.getPosition().x, state.getPosition().y));
+				setHeading(360-(float)Math.toDegrees(state.getHeading()));
 				simulatorThread = new Thread(this);				
 				simulatorThread.start();
 			}

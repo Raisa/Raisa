@@ -14,7 +14,7 @@ public class RobotState {
 	private float odometer;
 
 	public RobotState() {
-		this(new Vector2D(), (float) Math.PI);
+		this(new Vector2D(), 0.0f);
 	}
 
 	public RobotState(Vector2D position, float heading) {
