@@ -6,9 +6,9 @@ import static org.apache.commons.lang3.builder.HashCodeBuilder.reflectionHashCod
 import com.google.gson.Gson;
 
 public class ControlMessage {
-	private static final byte[] speedPowerMap = new byte[] { (byte) 0,
-			(byte) 100, (byte) 115, (byte) 135, (byte) 160, (byte) 195 };
-
+	private static final int[] speedPowerMap = new int[] { 0, 100, 115, 135, 160, 195 };
+	private static int speedPowerCorrection = 4;
+	
 	public static final int SPEED_STEPS = speedPowerMap.length;
 	
 	private static int idSequence = 0;
@@ -21,12 +21,13 @@ public class ControlMessage {
 	private final boolean lights;
 	private final boolean takePicture;
 	private final boolean servos;
+	private final boolean rawValues;
 
 	private long timestamp;
 
 	public ControlMessage(int leftSpeed, int rightSpeed,
 			boolean lights, int panServoAngle, int tiltServoAngle,
-			boolean takePicture, boolean servos) {
+			boolean takePicture, boolean servos, boolean rawValues) {
 		this.id = getNextId();
 		this.leftSpeed = leftSpeed;
 		this.rightSpeed = rightSpeed;
@@ -35,10 +36,15 @@ public class ControlMessage {
 		this.tiltServoAngle = tiltServoAngle;
 		this.takePicture = takePicture;
 		this.servos = servos;
+		this.rawValues = rawValues;
 	}
-	
+
 	private synchronized static int getNextId() {
 		return idSequence++;
+	}
+
+	public static int[] getSpeedPowerMap() {
+		return speedPowerMap;
 	}
 	
 	public static ControlMessage fromJson(String json) {
@@ -47,9 +53,9 @@ public class ControlMessage {
 
 	public byte[] toSerialMessage() {
 		byte[] bytes = new byte[] { 'R', 'a',
-				speedPowerMap[Math.abs(leftSpeed)],
+				getLeftMotorControl(),
 				(byte) (leftSpeed >= 0 ? 'F' : 'B'),
-				speedPowerMap[Math.abs(rightSpeed)],
+				getRightMotorControl(),
 				(byte) (rightSpeed >= 0 ? 'F' : 'B'), 
 				(byte) (panServoAngle & 0xFF),
 				(byte) (tiltServoAngle & 0xFF),
@@ -58,7 +64,33 @@ public class ControlMessage {
 				'i', 's', };
 		return bytes;
 	}
+	
+	private byte getLeftMotorControl() {
+		int result;
+		if (rawValues) {
+			result = Math.abs(leftSpeed);	
+		} else {
+			result = speedPowerMap[Math.abs(leftSpeed)];
+		}
+		if (result != 0) {
+			result -= speedPowerCorrection;
+		}
+		return (byte)result;
+	}
 
+	private byte getRightMotorControl() {
+		int result;
+		if (rawValues) {
+			result = Math.abs(rightSpeed);	
+		} else {
+			result = speedPowerMap[Math.abs(rightSpeed)];
+		}
+		if (result != 0) {
+			result += speedPowerCorrection;
+		}
+		return (byte)result;
+	}
+	
 	public long getTimestamp() {
 		return timestamp;
 	}
@@ -83,6 +115,10 @@ public class ControlMessage {
 	
 	public boolean isLights() {
 		return lights;
+	}
+	
+	public boolean isRawValues() {
+		return rawValues;
 	}
 	
 	public int getLeftSpeed() {

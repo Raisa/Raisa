@@ -171,13 +171,24 @@ public class RobotSimulator implements SimulatorState, ServoScanListener, Commun
 	@Override
 	public void sendPackage(ControlMessage message) {
 		if (simulatorActive) {
-			driveSystem.setLeftWheelSpeed(convertControlSpeed(message.getLeftSpeed()));
-			driveSystem.setRightWheelSpeed(convertControlSpeed(message.getRightSpeed()));
+			driveSystem.setLeftWheelSpeed(convertControlSpeed(message.getLeftSpeed(), message.isRawValues()));
+			driveSystem.setRightWheelSpeed(convertControlSpeed(message.getRightSpeed(), message.isRawValues()));
 		}
 	}
 
-	private float convertControlSpeed(int controlSpeed) {
-		return SPEED_PER_GEAR * controlSpeed;
+	private float convertControlSpeed(int controlSpeed, boolean rawValue) {
+		if (rawValue) {
+			int[] speedPowerMap = ControlMessage.getSpeedPowerMap();
+			int absoluteSpeed = Math.abs(controlSpeed);			
+			for (int i=1; i < speedPowerMap.length; i++) {
+				if ((int)speedPowerMap[i] > absoluteSpeed) {
+					return ( controlSpeed > 0 ? 1 : -1 ) * SPEED_PER_GEAR * ( (i-1) + ( ((float)( absoluteSpeed - speedPowerMap[i-1] )) / ((float)( speedPowerMap[i] - speedPowerMap[i-1] )) ) );
+				}
+			}
+			return ( controlSpeed > 0 ? 1 : -1 ) * SPEED_PER_GEAR * ( speedPowerMap.length - 1);
+		} else {
+			return SPEED_PER_GEAR * controlSpeed;
+		}
 	}
 	
 	

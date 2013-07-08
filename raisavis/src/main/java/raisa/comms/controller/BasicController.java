@@ -44,7 +44,7 @@ public class BasicController extends Controller {
 		if(sessionStartTimestamp  < 0) {
 			resetSession();
 		}
-		return new ControlMessage(leftSpeed, rightSpeed, lights, panServoAngle, tiltServoAngle, takePicture, servos);
+		return new ControlMessage(leftSpeed, rightSpeed, lights, panServoAngle, tiltServoAngle, takePicture, servos, false);
 	}
 
 	public void sendForward() {

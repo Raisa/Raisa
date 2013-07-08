@@ -29,12 +29,12 @@ public class PidController extends Controller implements RobotStateListener {
 	private int rightSpeed;
 	
 	private static final float Kp = 1.0f;
-	private static final float Ki = 0.2f;
+	private static final float Ki = 0.1f;
 	private static final float Kd = 1.0f;
 	
 	private float prevError = 0.0f;
 	private float accError = 0.0f;
-	private boolean moveForward = true;
+	private boolean movingForward = true;
 	private Vector2D currentWaypoint = null;
 	
 	private int stateCounter = 0;
@@ -88,7 +88,8 @@ public class PidController extends Controller implements RobotStateListener {
 				basicController.getPanServoAngle(), 
 				basicController.getTiltServoAngle(), 
 				false, 
-				basicController.getServos());
+				basicController.getServos(),
+				true);
 	}
 
 	
@@ -119,41 +120,49 @@ public class PidController extends Controller implements RobotStateListener {
 			prevError = 0.0f;			
 		}
 		
-		float robotHeading = GeometryUtil.headingToAtan2Angle(robotState.getHeading());
+		float error = calculateError(robotState, waypointPosition);
+		if (Math.abs(error) > HALF_PI) {
+			movingForward = !movingForward;
+			error = calculateError(robotState, waypointPosition);
+			accError = 0.0f;
+			prevError = 0.0f;
+		} 
+		float errorDot = 0.0f;
+		if (prevError != 0.0f) {
+			errorDot = error - prevError;
+		}
+		prevError = error;
+		accError = accError + error;
+
+		float control = Kp * error + Kd * errorDot + Ki * accError;
+		int[] speedPowerMap = ControlMessage.getSpeedPowerMap();		
+		int baseSpeed = (int)speedPowerMap[3];
+		int gearChange;
+		if (control > HALF_PI) {
+			baseSpeed = 0;
+			gearChange = speedPowerMap[1];
+		} else if (control < -HALF_PI) {
+			baseSpeed = 0;
+			gearChange = -speedPowerMap[1];
+		} else {
+			gearChange = (int)((float)(speedPowerMap[4] - speedPowerMap[3]) * control / HALF_PI);
+		}
+		leftSpeed = baseSpeed * (movingForward?1:-1) + gearChange;
+		rightSpeed = baseSpeed * (movingForward?1:-1) - gearChange;		
+		sendPackage();
+	}
+	
+	private float calculateError(RobotState robotState, Vector2D waypointPosition) {
+		float movementConvertedHeading = robotState.getHeading();
+		if (!movingForward) {
+			movementConvertedHeading = (float)((movementConvertedHeading + Math.PI) % (2 * Math.PI));
+		}
+		float robotHeading = GeometryUtil.headingToAtan2Angle(movementConvertedHeading);
 		float waypointHeading = (float)Math.atan2(
 				(float)(waypointPosition.y - robotState.getPosition().y),
 				(float)(waypointPosition.x - robotState.getPosition().x));
 		float error = GeometryUtil.differenceBetweenAngles(robotHeading, waypointHeading);
-		
-		if (moveForward && (Math.abs(error) > HALF_PI)) {
-			moveForward = false;
-			error = error>0.0?-(float)Math.PI:(float)Math.PI + error;
-			accError = 0.0f;
-			prevError = 0.0f;
-		} else if (!moveForward) {
-			if (Math.abs(error) < HALF_PI) {
-				moveForward = true;
-				accError = 0.0f;	
-				prevError = 0.0f;
-			} else {
-				error = error>0.0?-(float)Math.PI:(float)Math.PI + error;
-			}
-		}
-		float errorDot = error - prevError;
-		accError = accError + error;
-		
-		float control = Kp * error + Kd * errorDot + Ki * accError;
-		int gearChange;
-		if (control > HALF_PI) {
-			gearChange = 3;
-		} else if (control < -HALF_PI) {
-			gearChange = -3;
-		} else {
-			gearChange = (int)(3 * control / HALF_PI);
-		}
-		leftSpeed = 2 * (moveForward?1:-1) + gearChange;
-		rightSpeed = 2 * (moveForward?1:-1) - gearChange;				
-		sendPackage();
+		return error;
 	}
 	
 	private Vector2D getNextWaypoint(RobotState robotState) {
@@ -167,7 +176,7 @@ public class PidController extends Controller implements RobotStateListener {
 				break;
 			}
 			ret = nextWaypoint.getPosition();
-			if (ret.distance(robotState.getPosition()) < 5.0f) {
+			if (ret.distance(robotState.getPosition()) < 10.0f) {
 				route.moveToNextWaypoint();
 				nextWaypoint.setReached(true);
 			} else {

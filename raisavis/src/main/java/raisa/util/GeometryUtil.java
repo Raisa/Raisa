@@ -16,7 +16,7 @@ public class GeometryUtil {
 		if (heading < 3 * Math.PI / 2.0d) {
 			return (float)(heading - Math.PI / 2.0d);
 		} else {
-			return (float)(heading - 2.5 * Math.PI);
+			return (float)(heading - 2.5d * Math.PI);
 		}
 	}
 	
