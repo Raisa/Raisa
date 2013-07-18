@@ -88,9 +88,9 @@ public class DifferentialDrive implements DriveSystem {
 
 	private int getErrorTicks(int ticks) {
 		double rnd = RandomUtil.random();
-		if (rnd < 0.01d * ticks) {
+		if (rnd < 0.005d * ticks) {
 			return -1;
-		} else if (rnd < 0.02d * ticks) {
+		} else if (rnd < 0.01d * ticks) {
 			return 1;
 		}
 		return 0;

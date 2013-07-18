@@ -46,7 +46,6 @@ public class RobotSimulator implements SimulatorState, ServoScanListener, Commun
 
 	private NormalDistribution sensorDirectionNoise = RandomUtil.normalDistribution(0.0d, 0.5d);
 	private NormalDistribution headingNoise = RandomUtil.normalDistribution(0.0d, 0.5d);
-	private NormalDistribution odometerNoise = RandomUtil.normalDistribution(0.0d, 0.01d);
 
 	private Thread simulatorThread;
 	private boolean simulatorActive = false;
@@ -151,8 +150,8 @@ public class RobotSimulator implements SimulatorState, ServoScanListener, Commun
 		acceleration.setY((float)(-9.81 + RandomUtil.nextGaussian()));
 		acceleration.setZ((float) RandomUtil.nextGaussian());
 		
-		reading.setRightEncoder(driveSystem.readRightWheelEncoderTicks() + (int)odometerNoise.sample());
-		reading.setLeftEncoder(driveSystem.readLeftWheelEncoderTicks() + (int)odometerNoise.sample());
+		reading.setRightEncoder(driveSystem.readRightWheelEncoderTicks());
+		reading.setLeftEncoder(driveSystem.readLeftWheelEncoderTicks());
 
 		sendSendorReading(reading);
 	}
