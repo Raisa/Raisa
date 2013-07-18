@@ -25,6 +25,7 @@ import raisa.comms.controller.PidController;
 import raisa.config.VisualizerConfig;
 import raisa.domain.WorldModel;
 import raisa.ui.VisualizerFrame;
+import raisa.ui.controls.sixaxis.SixaxisInput;
 
 public class MovementPanel extends ControlSubPanel {
 	private static final long serialVersionUID = 1L;
@@ -156,6 +157,8 @@ public class MovementPanel extends ControlSubPanel {
 				rightSpeedLabel.setText(""+controller.getRightSpeed());
 			}
 		});
+		
+		SixaxisInput.getInstance().registerDirectionButtons(forwardButton, backButton, leftButton, rightButton);
 	}
 	
 	@Override

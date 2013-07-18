@@ -46,6 +46,7 @@ import raisa.domain.samples.Sample;
 import raisa.session.SessionWriter;
 import raisa.simulator.RobotSimulator;
 import raisa.ui.controls.ControlPanel;
+import raisa.ui.controls.sixaxis.SixaxisInput;
 import raisa.ui.measurements.MeasurementsPanel;
 import raisa.ui.options.VisualizationOptionsDialog;
 import raisa.ui.tool.DrawTool;
@@ -77,7 +78,6 @@ public class VisualizerFrame extends JFrame {
 	private RobotSimulator robotSimulator;
 	private FileBasedSimulation fileBasedSimulation;
 	private VisualizationOptionsDialog visualizationOptionsDialog;
-	
 	
 	private FileNameExtensionFilter mapFileFilter = new FileNameExtensionFilter("Map file (png)", "png");
 	private FileNameExtensionFilter sensorFileFilter = new FileNameExtensionFilter("Sensor file", "sensor");
@@ -131,6 +131,8 @@ public class VisualizerFrame extends JFrame {
 		getContentPane().add(measurementsPanel, BorderLayout.EAST);
 		setJMenuBar(menuBar);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		
+		SixaxisInput.getInstance().activate();
 	}
 
 	private void createKeyboardShortCuts() {
