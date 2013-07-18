@@ -90,7 +90,7 @@ public class DifferentialDrive implements DriveSystem {
 		double rnd = RandomUtil.random();
 		if (rnd < 0.01d * ticks) {
 			return -1;
-		} else if (rnd < 0.15d * ticks) {
+		} else if (rnd < 0.02d * ticks) {
 			return 1;
 		}
 		return 0;
