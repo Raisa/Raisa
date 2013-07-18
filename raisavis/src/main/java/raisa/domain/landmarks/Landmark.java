@@ -53,4 +53,6 @@ public abstract class Landmark extends Vector2D {
     
     public abstract boolean isTrusted();
     
+    public abstract float getAssociationThreshold();    
+    
 }

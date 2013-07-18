@@ -38,6 +38,9 @@ public class SpikeExtractor  {
 						spikeDetected = true;
 					}
 				}
+				if (!previousSample.isInfrared1MeasurementValid() || !nextSample.isInfrared1MeasurementValid()) {
+					spikeDetected = true;
+				}
 				if (spikeDetected) {
 					RobotState state = states.get(i).getEstimatedState();
 					float pointX = (float)(state.getPosition().getX() + Math.sin(state.getHeading() + currentSample.getInfrared1Angle()) * currentSample.getInfrared1Distance());
@@ -64,6 +67,9 @@ public class SpikeExtractor  {
 						spikeDetected = true;
 					}
 				}
+				if (!previousSample.isInfrared2MeasurementValid() || !nextSample.isInfrared2MeasurementValid()) {
+					spikeDetected = true;
+				}				
 				if (spikeDetected) {
 					RobotState state = states.get(i).getEstimatedState();
 					float pointX = (float)(state.getPosition().getX() + Math.sin(state.getHeading() + currentSample.getInfrared2Angle()) * currentSample.getInfrared2Distance());

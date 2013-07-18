@@ -16,10 +16,8 @@ public class LandmarkManager {
 	private static final int RANSAC_SAMPLES = 200;
 	private static final int SPIKE_SAMPLES = 50;
 	
-	private static final int RECALCULATE_INTERVAL = 200;
-	
-	private static final float ASSOCIATION_THRESHOLD = 60.0f;
-	
+	private static final int RECALCULATE_INTERVAL = 50;
+		
 	private List<Landmark> landmarks = new ArrayList<Landmark>();
 	
 	private List<Vector2D> dataPoints = new ArrayList<Vector2D>();
@@ -94,7 +92,7 @@ public class LandmarkManager {
 				for (Landmark anotherProspect : mergedProspects) {
 					if (prospect != anotherProspect) {
 						if (prospect.isSubtypeSame(anotherProspect) &&
-							prospect.getPosition().distance(anotherProspect.getPosition()) < ASSOCIATION_THRESHOLD) {
+							prospect.getPosition().distance(anotherProspect.getPosition()) < prospect.getAssociationThreshold()) {
 							m1 = prospect;
 							m2 = anotherProspect;
 							foundMerge = true;
@@ -115,10 +113,9 @@ public class LandmarkManager {
 		// merge prospects with existing landmarks
 		for (Landmark prospect : mergedProspects) {
 			Landmark bestAssociation = null;
-			float distanceToBestAssociation = ASSOCIATION_THRESHOLD;
+			float distanceToBestAssociation = prospect.getAssociationThreshold();
 			for (Landmark existingLandmark : landmarks) {
-				if ((prospect instanceof LineLandmark && existingLandmark instanceof LineLandmark) || 
-					(prospect instanceof SpikeLandmark && existingLandmark instanceof SpikeLandmark)) {
+				if (prospect.isSubtypeSame(existingLandmark)) {
 					if (distanceToBestAssociation > prospect.getPosition().distance(existingLandmark.getPosition())) {
 						bestAssociation = existingLandmark;
 						distanceToBestAssociation = (float) prospect.getPosition().distance(existingLandmark);

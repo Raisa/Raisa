@@ -51,5 +51,10 @@ public class LineLandmark extends Landmark {
 	public boolean isTrusted() {
 		return life > 1;
 	}
+	
+	@Override
+	public float getAssociationThreshold() {
+		return 50.0f;
+	}
 
 }

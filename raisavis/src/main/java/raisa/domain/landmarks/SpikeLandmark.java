@@ -28,7 +28,12 @@ public class SpikeLandmark extends Landmark {
 
 	@Override
 	public boolean isTrusted() {
-		return life > 2;
+		return life > 3;
+	}
+	
+	@Override
+	public float getAssociationThreshold() {
+		return 30.0f;
 	}
 	
 }

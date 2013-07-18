@@ -22,13 +22,13 @@ public class RansacExtractor {
 	private final static int MAX_SAMPLE = 2; 
 
 	/* if less than 40 points left don't bother trying to find consensus (stop algorithm) */
-	private final static int MIN_LINEPOINTS = 40;
+	private final static int MIN_LINEPOINTS = 50;
 
 	/* if point is within x distance of line its part of line */
-	private final static float RANSAC_TOLERANCE = 1.5f; 
+	private final static float RANSAC_TOLERANCE = 1.0f; 
 
 	/* at least votes required to determine if a line */
-	private final static int RANSAC_CONSENSUS = 35;
+	private final static int RANSAC_CONSENSUS = 50;
 	
 	public static List<Vector2D> allPoints = new ArrayList<Vector2D>();
 	
