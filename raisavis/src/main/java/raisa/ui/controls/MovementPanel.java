@@ -158,7 +158,7 @@ public class MovementPanel extends ControlSubPanel {
 			}
 		});
 		
-		SixaxisInput.getInstance().registerDirectionButtons(forwardButton, backButton, leftButton, rightButton);
+		SixaxisInput.getInstance().registerMovementButtons(forwardButton, backButton, leftButton, rightButton, stopButton);
 	}
 	
 	@Override

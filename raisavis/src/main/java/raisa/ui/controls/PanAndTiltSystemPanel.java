@@ -14,6 +14,7 @@ import javax.swing.border.TitledBorder;
 import raisa.comms.ControllerListener;
 import raisa.comms.controller.BasicController;
 import raisa.comms.controller.Controller;
+import raisa.ui.controls.sixaxis.SixaxisInput;
 
 public class PanAndTiltSystemPanel extends ControlSubPanel {
 
@@ -84,6 +85,8 @@ public class PanAndTiltSystemPanel extends ControlSubPanel {
 				tiltAngleLabel.setText(""+controller.getTiltServoAngle());
 			}		
 		});
+		
+		SixaxisInput.getInstance().registerPanAndTiltButtons(tiltUpButton, tiltDownButton, panLeftButton, panRightButton, centerButton);
 	}
 	
 	@Override

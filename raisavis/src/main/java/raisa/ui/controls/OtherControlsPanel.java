@@ -25,6 +25,7 @@ import raisa.config.InputOutputTargetEnum;
 import raisa.config.VisualizerConfig;
 import raisa.session.SessionWriter;
 import raisa.simulator.RobotSimulator;
+import raisa.ui.controls.sixaxis.SixaxisInput;
 
 public class OtherControlsPanel extends ControlSubPanel {
 	private static final long serialVersionUID = 1L;
@@ -61,6 +62,7 @@ public class OtherControlsPanel extends ControlSubPanel {
 		add(buttonPanel);
 		
 		createInputOutputTargetControl();
+		SixaxisInput.getInstance().registerActionButtons(lightsButton, takePictureButton, servosButton);
 	}
 	
 	private void createCompassControl() {
