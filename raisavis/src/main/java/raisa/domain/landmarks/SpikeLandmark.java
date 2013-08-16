@@ -28,7 +28,7 @@ public class SpikeLandmark extends Landmark {
 
 	@Override
 	public boolean isTrusted() {
-		return life > 3;
+		return life > 2;
 	}
 	
 	@Override

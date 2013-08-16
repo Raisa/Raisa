@@ -14,7 +14,7 @@ public class LineLandmark extends Landmark {
 	
 	@Override
 	public Vector2D getPosition() {
-		// closest point of origin in line
+		// closest point to the origin in line
 		float apx = 0.0f - segment.x1;
 		float apy = 0.0f - segment.y1;
 		float abx = segment.x2 - segment.x1;

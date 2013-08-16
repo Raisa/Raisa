@@ -204,7 +204,7 @@ public class WorldModel implements Serializable, SensorListener {
 		grid.resetUserImage();
 	}
 
-	public Image getUserImage() {
+	public BufferedImage getUserImage() {
 		return grid.getUserImage();
 	}
 
@@ -249,5 +249,13 @@ public class WorldModel implements Serializable, SensorListener {
 	
 	public boolean isClear(Vector2D position) {
 		return grid.isClear(position);
+	}
+	
+	public float getCellSize() {
+		return grid.getCellSize();
+	}
+
+	public boolean isClear(Vector2D position, float epsilon) {
+		return grid.isClear(position, epsilon);
 	}
 }

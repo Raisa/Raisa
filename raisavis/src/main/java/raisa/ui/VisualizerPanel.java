@@ -191,7 +191,16 @@ public class VisualizerPanel extends JPanel implements SampleListener, Visualize
 		int linePointOffset = 3;
 		for (Waypoint waypoint : route.getWaypoints()) {
 			Vector2D position = this.toScreen(waypoint.getPosition());
-			g2.drawString("x", (int)position.getX(), (int)position.getY());
+			g2.drawLine(
+					(int)position.x - linePointOffset, 
+					(int)position.y - linePointOffset, 
+					(int)position.x + linePointOffset, 
+					(int)position.y + linePointOffset);
+			g2.drawLine(
+					(int)position.x - linePointOffset, 
+					(int)position.y + linePointOffset, 
+					(int)position.x + linePointOffset, 
+					(int)position.y - linePointOffset);
 			if (prevPosition != null) {
 				if (waypoint.isReached()) {
 					g2.setStroke(reachedLineStroke);
@@ -199,10 +208,10 @@ public class VisualizerPanel extends JPanel implements SampleListener, Visualize
 					g2.setStroke(unreachedLineStroke);
 				}
 				g2.drawLine(
-					(int)prevPosition.x + linePointOffset, 
-					(int)prevPosition.y - linePointOffset, 
-					(int)position.x + linePointOffset, 
-					(int)position.y - linePointOffset);
+					(int)prevPosition.x, 
+					(int)prevPosition.y, 
+					(int)position.x, 
+					(int)position.y);
 			}
 			prevPosition = position;
 		}

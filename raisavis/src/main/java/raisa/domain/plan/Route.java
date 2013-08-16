@@ -31,5 +31,13 @@ public class Route {
 	public void moveToNextWaypoint() {
 		currentWaypointIndex++;
 	}
+
+	public void removeLastWaypoint() {
+		waypoints.remove(waypoints.size() - 1);
+	}
+
+	public boolean isEmpty() {
+		return waypoints.isEmpty();
+	}
 	
 }

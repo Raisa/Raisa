@@ -10,7 +10,7 @@ import raisa.util.Vector2D;
 
 public class Grid {
 	public static final int CELL_SIZE = 8;
-	public static final int GRID_SIZE = 400;
+	public static final int GRID_SIZE = 401;
 	public static final int MAX_UNDO_LEVELS = 10;
 	private static final Color transparentColor = new Color(1.0f, 0.0f, 1.0f, 0.0f);
 	private static final Color blockedColor = new Color(0.5f, 0.6f, 0.7f, 1.0f);
@@ -160,6 +160,22 @@ public class Grid {
 
 	public boolean isClear(Vector2D position) {
 		BufferedImage userImage = getUserImage();
-		return !isBlocked(position.x / CELL_SIZE + GRID_SIZE * 0.5f, position.y / CELL_SIZE + GRID_SIZE * 0.5f, userImage);
+		return !isBlocked(position.x / CELL_SIZE + GRID_SIZE * 0.5f - 0.5f, position.y / CELL_SIZE + GRID_SIZE * 0.5f - 0.5f, userImage);
+	}
+	
+	public boolean isClear(Vector2D position, float epsilon) {
+		boolean clear = true;
+		for (float dy = -epsilon; dy <= epsilon; dy += CELL_SIZE) {
+			for (float dx = -epsilon; dx <= epsilon; dx += CELL_SIZE) {
+				if (!isClear(new Vector2D(position.x + dx, position.y + dy))) {
+					return false;
+				}
+			}
+		}
+		return clear;
+	}
+	
+	public float getCellSize() {
+		return CELL_SIZE;
 	}
 }
