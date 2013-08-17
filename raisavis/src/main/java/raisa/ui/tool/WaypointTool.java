@@ -120,7 +120,8 @@ public class WaypointTool extends BasicTool {
 						double x = cs.x + dx * step;
 						if (!world.isClear(new Vector2D((float)x, (float)y))) continue;
 						double weight = 1.0;
-						if (!world.isClear(new Vector2D((float)x, (float)y), 8.0f)) weight = 5.0;
+						if (!world.isClear(new Vector2D((float)x, (float)y), 8.0f)) weight = 8.0;
+						else if (!world.isClear(new Vector2D((float)x, (float)y), 16.0f)) weight = 2.0;
 						double newCost = cs.costSoFar + weight * Math.sqrt(dx * dx * step * step + dy * dy * step * step);
 						AStarGridSearchState newState = new AStarGridSearchState(x, y, newCost, heuristic(x, y), cs);
 						neighbors.add(newState);
