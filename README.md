@@ -3,9 +3,9 @@
 Raisa project aims to develop an autonomous vehicle based on [DFRobotshop Rover V2 XBee](http://www.robotshop.com/eu/dfrobotshop-rover-tracked-robot-xbee-kit-4.html) platform and lessons learned from the AI. The visualization and the AI is implemented in Java programming language.
 
 AI algorithms that might be implemented:
-* Localization (particle filter) 
-* Path planning (A* search)
-* Localization and mapping (SLAM)
+* Localization (particle filter, done) 
+* Path planning (A* search, done)
+* Localization and mapping (SLAM, in progress)
 * etc
 
 Sensors that are used:
