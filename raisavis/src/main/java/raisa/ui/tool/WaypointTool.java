@@ -29,15 +29,15 @@ public class WaypointTool extends BasicTool {
 		this.world = world;
 	}
 
-	private static class ImageSearchState implements SearchState {
+	private static class AStarGridSearchState implements SearchState {
 		private double x;
 		private double y;
 		private double costSoFar;
 		private double heuristic;
-		private ImageSearchState previousState;
+		private AStarGridSearchState previousState;
 
-		public ImageSearchState(double x, double y, double costSoFar, double heuristic,
-				ImageSearchState previousState) {
+		public AStarGridSearchState(double x, double y, double costSoFar, double heuristic,
+				AStarGridSearchState previousState) {
 			this.x = x;
 			this.y = y;
 			this.costSoFar = costSoFar;
@@ -47,7 +47,7 @@ public class WaypointTool extends BasicTool {
 
 		@Override
 		public int compareTo(SearchState o) {
-			ImageSearchState s = (ImageSearchState)o;
+			AStarGridSearchState s = (AStarGridSearchState)o;
 			return Double.compare(costSoFar + heuristic, s.costSoFar + s.heuristic);
 		}
 
@@ -58,7 +58,7 @@ public class WaypointTool extends BasicTool {
 
 		@Override
 		public String toString() {
-			return "ImageSearchState [totalCost="+(costSoFar+heuristic)+", x=" + x + ", y=" + y + ", costSoFar="
+			return "AStarGridSearchState [totalCost="+(costSoFar+heuristic)+", x=" + x + ", y=" + y + ", costSoFar="
 					+ costSoFar + ", heuristic=" + heuristic + "]";
 		}
 	}
@@ -85,7 +85,7 @@ public class WaypointTool extends BasicTool {
 			public SearchState getInitialState() {
 				double x = initialState.getPosition().x;
 				double y = initialState.getPosition().y;
-				return new ImageSearchState(x, y, 0, heuristic(x, y), null);
+				return new AStarGridSearchState(x, y, 0, heuristic(x, y), null);
 			}
 
 			private double heuristic(double x, double y) {
@@ -98,29 +98,31 @@ public class WaypointTool extends BasicTool {
 
 			@Override
 			public boolean isGoalState(SearchState currentState) {
-				ImageSearchState cs = (ImageSearchState)currentState;
+				AStarGridSearchState cs = (AStarGridSearchState)currentState;
 				return heuristic(cs.x, cs.y) < world.getCellSize();
 			}
 
 			@Override
 			public boolean shouldContinueSearch(SearchState currentState) {
-				ImageSearchState cs = (ImageSearchState)currentState;
+				AStarGridSearchState cs = (AStarGridSearchState)currentState;
 				return cs.costSoFar < MAXIMUM_DISTANCE_TO_SEARCH;
 			}
 
 			@Override
 			public Collection<SearchState> getNeighbors(SearchState currentState) {
 				List<SearchState> neighbors = new ArrayList<SearchState>();
-				ImageSearchState cs = (ImageSearchState)currentState;
+				AStarGridSearchState cs = (AStarGridSearchState)currentState;
 				double step = world.getCellSize();
 				for (int dy = -1; dy <= 1; ++dy) {
 					double y = cs.y + dy * step;
 					for (int dx = -1; dx <= 1; ++dx) {
 						if (dx == 0 && dy == 0) continue;
 						double x = cs.x + dx * step;
-						if (!world.isClear(new Vector2D((float)x, (float)y), 8.0f)) continue;
-						double newCost = cs.costSoFar + Math.sqrt(dx * dx * step * step + dy * dy * step * step);
-						ImageSearchState newState = new ImageSearchState(x, y, newCost, heuristic(x, y), cs);
+						if (!world.isClear(new Vector2D((float)x, (float)y))) continue;
+						double weight = 1.0;
+						if (!world.isClear(new Vector2D((float)x, (float)y), 8.0f)) weight = 5.0;
+						double newCost = cs.costSoFar + weight * Math.sqrt(dx * dx * step * step + dy * dy * step * step);
+						AStarGridSearchState newState = new AStarGridSearchState(x, y, newCost, heuristic(x, y), cs);
 						neighbors.add(newState);
 					}
 				}
@@ -130,13 +132,13 @@ public class WaypointTool extends BasicTool {
 
 			@Override
 			public boolean isVisitedAlready(SearchState currentState) {
-				ImageSearchState cs = (ImageSearchState)currentState;
+				AStarGridSearchState cs = (AStarGridSearchState)currentState;
 				return visitedSet.contains(cs.x + "_" + cs.y);
 			}
 
 			@Override
 			public void visit(SearchState currentState) {
-				ImageSearchState cs = (ImageSearchState)currentState;
+				AStarGridSearchState cs = (AStarGridSearchState)currentState;
 				visitedSet.add(cs.x + "_" + cs.y);
 			}
 			
@@ -149,7 +151,7 @@ public class WaypointTool extends BasicTool {
 		LinkedList<Waypoint> newWaypoints = new LinkedList<Waypoint>();
 		
 		while (currentState != null) {
-			ImageSearchState cs = (ImageSearchState)currentState;
+			AStarGridSearchState cs = (AStarGridSearchState)currentState;
 			newWaypoints.addFirst(new Waypoint(new Vector2D((float)cs.x, (float)cs.y)));
 			currentState = cs.getPreviousState();
 		}
