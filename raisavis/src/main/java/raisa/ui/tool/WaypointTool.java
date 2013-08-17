@@ -8,8 +8,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
-import javax.swing.JDialog;
-
 import raisa.domain.WorldModel;
 import raisa.domain.plan.MotionPlan;
 import raisa.domain.plan.Route;

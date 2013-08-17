@@ -16,7 +16,6 @@ import javax.swing.event.ChangeListener;
 
 import raisa.config.VisualizerConfig;
 import raisa.ui.MapAreaElementEnum;
-import raisa.ui.controls.ControlTypeEnum;
 
 class MapAreaOptions extends JPanel {		
 	private static final long serialVersionUID = 1L;		

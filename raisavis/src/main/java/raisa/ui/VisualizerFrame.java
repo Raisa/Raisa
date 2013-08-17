@@ -30,7 +30,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import raisa.comms.Communicator;
-import raisa.comms.ConsoleCommunicator;
 import raisa.comms.ControlMessage;
 import raisa.comms.FailoverCommunicator;
 import raisa.comms.SampleParser;

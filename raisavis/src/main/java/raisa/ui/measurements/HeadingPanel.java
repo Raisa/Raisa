@@ -5,7 +5,6 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.GridLayout;
-import java.awt.Panel;
 import java.text.DecimalFormat;
 
 import javax.swing.JLabel;
