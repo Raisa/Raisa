@@ -5,7 +5,7 @@ import static org.junit.Assert.assertEquals;
 import org.junit.Test;
 
 public class ControlMessageTest {
-	private ControlMessage controlMessage = new ControlMessage(5, -4, true, 42, 10, false, true);
+	private ControlMessage controlMessage = new ControlMessage(5, -4, true, 42, 10, false, true, false);
 	{
 		controlMessage.setTimestamp(10l);
 	}
