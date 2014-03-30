@@ -5,9 +5,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import raisa.domain.WorldModel;
 import raisa.domain.robot.RobotMovementEstimator;
 import raisa.domain.robot.RobotState;
@@ -19,9 +16,7 @@ import raisa.util.Vector2D;
 
 public class ParticleFilter {
 
-	private static final Logger log = LoggerFactory.getLogger(ParticleFilter.class);
-			
-	private WorldModel world;
+	private final WorldModel world;
 	private List<Particle> particles;
 	private List<Sample> samples = new ArrayList<Sample>();
 
@@ -29,7 +24,7 @@ public class ParticleFilter {
 		this.world = world;
 		randomizeParticles(nparticles);
 	}
-	
+
 	public synchronized void reset() {
 		randomizeParticles(particles.size());
 		samples = new ArrayList<Sample>();
@@ -95,9 +90,9 @@ public class ParticleFilter {
 			}
 			// sample new particles with replacement
 			List<Particle> newParticles = new ArrayList<Particle>();
-			
+
 			//executeMakeResampling(weights, newParticles);
-			executeThrunResampling(weights, maxWeight, newParticles);		
+			executeThrunResampling(weights, maxWeight, newParticles);
 
 			// add a few random particles to avoid local maxima
 			for (int i = 0; i < particles.size() / 7; ++i) {
@@ -108,25 +103,25 @@ public class ParticleFilter {
 		}
 	}
 
-	private void executeMakeResampling(Map<Particle, Float> weights,
-			List<Particle> newParticles) {
-		for (int i = 0; i < particles.size(); ++i) {
-			float r = (float) RandomUtil.random();
-			float s = 0.0f;
-			Particle selectedParticle = null;
-			for (Particle particle : weights.keySet()) {
-				float weight = weights.get(particle);
-				s += weight;
-				if (r <= s) {
-					selectedParticle = particle;
-					break;
-				}
-			}
-			if (selectedParticle != null) {
-				newParticles.add(selectedParticle.copy());
-			}
-		}
-	}
+//	private void executeMakeResampling(Map<Particle, Float> weights,
+//			List<Particle> newParticles) {
+//		for (int i = 0; i < particles.size(); ++i) {
+//			float r = (float) RandomUtil.random();
+//			float s = 0.0f;
+//			Particle selectedParticle = null;
+//			for (Particle particle : weights.keySet()) {
+//				float weight = weights.get(particle);
+//				s += weight;
+//				if (r <= s) {
+//					selectedParticle = particle;
+//					break;
+//				}
+//			}
+//			if (selectedParticle != null) {
+//				newParticles.add(selectedParticle.copy());
+//			}
+//		}
+//	}
 
 	private void executeThrunResampling(Map<Particle, Float> weights,
 			float maxWeight, List<Particle> newParticles) {

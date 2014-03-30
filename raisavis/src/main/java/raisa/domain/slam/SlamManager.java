@@ -25,7 +25,7 @@ public class SlamManager {
 
 	private RobotState previousState;
 	private RealMatrix I2, I3, sigma;
-	private NormalDistribution odometryNoise, headingNoise, sensorRangeNoise, sensorDirectionNoise;
+	private NormalDistribution odometryNoise, headingNoise; //, sensorRangeNoise, sensorDirectionNoise;
 	private RealVector X;
 	private int slamIdSeq = 0;
 	
@@ -36,9 +36,9 @@ public class SlamManager {
 		sigma = new Array2DRowRealMatrix(new double[][] { { 1.0d, 0.0d, 0.0d }, { 0.0d, 1.0d, 0.0d }, { 0.0d, 0.0d, 1.0d } });		
 		odometryNoise = RandomUtil.normalDistribution(0.0d, 0.1d);
 		headingNoise = RandomUtil.normalDistribution(0.0d, 0.05d);
-		sensorRangeNoise = RandomUtil.normalDistribution(0.0d, 1.0d);
-		sensorDirectionNoise = RandomUtil.normalDistribution(0.0d, 0.3d);
-		
+//		sensorRangeNoise = RandomUtil.normalDistribution(0.0d, 1.0d);
+//		sensorDirectionNoise = RandomUtil.normalDistribution(0.0d, 0.3d);
+
 		previousState = new RobotState(new Vector2D(0.0f, 0.0f), 0.0f);
 	}
 	

@@ -12,8 +12,6 @@ import javax.swing.JPanel;
 import javax.swing.border.TitledBorder;
 
 import org.apache.commons.math3.geometry.euclidean.twod.Vector2D;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import raisa.domain.WorldModel;
 import raisa.domain.samples.Sample;
@@ -23,7 +21,6 @@ import raisa.domain.samples.Sample;
  */
 /* package */ class HeadingPanel extends MeasurementSubPanel {
 	private static final long serialVersionUID = 1L;
-	private static final Logger logger = LoggerFactory.getLogger(HeadingPanel.class);
 	private JLabel headingMeasuredField;
 	private JLabel headingEstimatedField;		
 	private HeadingArrowDisplayPanel arrowDisplayPanel;

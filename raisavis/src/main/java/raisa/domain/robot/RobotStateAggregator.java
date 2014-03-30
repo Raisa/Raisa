@@ -4,9 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import raisa.config.VisualizerConfig;
 import raisa.domain.AlgorithmTypeEnum;
 import raisa.domain.WorldModel;
@@ -20,8 +17,6 @@ import raisa.util.CollectionUtil;
 import raisa.util.Vector2D;
 
 public class RobotStateAggregator implements SampleListener {
-
-	private static final Logger log = LoggerFactory.getLogger(RobotStateAggregator.class);
 	
 	private SimpleRobotMovementEstimator simpleRobotMovementEstimator;
 	private ClusteringRobotStateEstimator clusteringRobotStateEstimator;

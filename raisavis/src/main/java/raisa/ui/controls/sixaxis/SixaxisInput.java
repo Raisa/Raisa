@@ -29,9 +29,9 @@ public class SixaxisInput {
 	private static SixaxisInput instance;
 	private SixaxisDeviceReader deviceReader;
 	private Thread deviceReaderThread;
-	private Map<DirectionPad, AbstractButton> movementButtons = new HashMap<DirectionPad, AbstractButton>();
-	private Map<ButtonPad, AbstractButton> actionButtons = new HashMap<ButtonPad, AbstractButton>();
-	private Map<String, AbstractButton> panAndTiltButtons = new HashMap<String, AbstractButton>();
+	private final Map<DirectionPad, AbstractButton> movementButtons = new HashMap<DirectionPad, AbstractButton>();
+	private final Map<ButtonPad, AbstractButton> actionButtons = new HashMap<ButtonPad, AbstractButton>();
+	private final Map<String, AbstractButton> panAndTiltButtons = new HashMap<String, AbstractButton>();
 
 	public static SixaxisInput getInstance() {
 		if (instance == null) {
@@ -63,7 +63,7 @@ public class SixaxisInput {
 			return fieldNo;
 		}
 	}
-	
+
 	enum ButtonPad {
 		LEFT2(0x01),
 		RIGHT2(0x02),
@@ -73,7 +73,7 @@ public class SixaxisInput {
 		CIRCLE(0x20),
 		CROSS(0x40),
 		SQUARE(0x80);
-		private int code;
+		private final int code;
 		private ButtonPad(int code) {
 			this.code = code;
 			buttonPadLookup.put(Integer.valueOf(code), this);
@@ -92,7 +92,7 @@ public class SixaxisInput {
 		RIGHT(0x20),
 		DOWN(0x40),
 		LEFT(0x80);
-		private int code;
+		private final int code;
 		private DirectionPad(int code) {
 			this.code = code;
 			directionPadLookup.put(Integer.valueOf(code), this);
@@ -100,8 +100,8 @@ public class SixaxisInput {
 		public int getCode() {
 			return code;
 		}
-	}	
-	
+	}
+
 	public void activate() {
 		if (!nativeLibLoaded) {
 			return;
@@ -142,28 +142,28 @@ public class SixaxisInput {
 		panAndTiltButtons.put("DOWN", down);
 		panAndTiltButtons.put("LEFT", left);
 		panAndTiltButtons.put("RIGHT", right);
-		movementButtons.put(DirectionPad.BTN_R3, center);		
-	}	
-	
-	protected void handleInput(int[] buf) {		
+		movementButtons.put(DirectionPad.BTN_R3, center);
+	}
+
+	protected void handleInput(int[] buf) {
 		doClick(movementButtons.get(directionPadLookup.get(Integer.valueOf(buf[DIRECTION_PAD.getFieldNo()]))));
 		doClick(actionButtons.get(buttonPadLookup.get(Integer.valueOf(buf[BUTTON_PAD.getFieldNo()]))));
-		
+
 		// crappy handling for pan & tilt servos below
 		int joystickRightX = buf[PayloadField.JOYSTICK_RIGHT_X.getFieldNo()];
 		if (joystickRightX < 100) {
 			doClick(panAndTiltButtons.get("LEFT"));
 		} else if (joystickRightX > 155) {
-			doClick(panAndTiltButtons.get("RIGHT"));			
+			doClick(panAndTiltButtons.get("RIGHT"));
 		}
 		int joystickRightY = buf[PayloadField.JOYSTICK_RIGHT_Y.getFieldNo()];
 		if (joystickRightY < 100) {
 			doClick(panAndTiltButtons.get("UP"));
 		} else if (joystickRightY > 155) {
-			doClick(panAndTiltButtons.get("DOWN"));			
-		}	
+			doClick(panAndTiltButtons.get("DOWN"));
+		}
 	}
-	
+
 	private void doClick(AbstractButton button) {
 		if (button != null) {
 			button.doClick();
@@ -177,9 +177,9 @@ public class SixaxisInput {
 		private static final int INPUT_BUFFER_LENGTH = 64;
 
 		private boolean running = false;
-		private HIDDevice dev;
-		private HIDManager hidMgr;
-		private SixaxisInput input;
+		private final HIDDevice dev;
+		private final HIDManager hidMgr;
+		private final SixaxisInput input;
 
 		public SixaxisDeviceReader(SixaxisInput input) throws IOException {
 			hidMgr = HIDManager.getInstance();
@@ -191,6 +191,7 @@ public class SixaxisInput {
 			running = false;
 		}
 
+		@Override
 		public void run() {
 			running = true;
 			try {
@@ -198,7 +199,7 @@ public class SixaxisInput {
 				int[] intBuf = new int[INPUT_BUFFER_LENGTH];
 				dev.enableBlocking();
 				while (running) {
-					int n = dev.read(buf);
+					dev.read(buf);
 					//printPayload(buf, n);
 					for (int i=0; i<INPUT_BUFFER_LENGTH; i++) {
 						intBuf[i] = (buf[i]<0) ? buf[i] + 256 : buf[i];
@@ -224,20 +225,20 @@ public class SixaxisInput {
 		}
 
 	}
-	
-	private void printPayload(byte[] buf, int n) {
-		for(int i=0; i<n; i++) {
-			int v = buf[i];
-			if (v<0) {
-				v = v+256;
-			}
-			String hs = Integer.toHexString(v);
-			if (v<16) { 
-				System.err.print("0");
-			}
-			System.err.print(hs + " ");
-		}
-		System.err.println("");
-	}
+
+//	private void printPayload(byte[] buf, int n) {
+//		for(int i=0; i<n; i++) {
+//			int v = buf[i];
+//			if (v<0) {
+//				v = v+256;
+//			}
+//			String hs = Integer.toHexString(v);
+//			if (v<16) {
+//				System.err.print("0");
+//			}
+//			System.err.print(hs + " ");
+//		}
+//		System.err.println("");
+//	}
 
 }

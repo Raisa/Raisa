@@ -45,7 +45,7 @@ public class MovementPanel extends ControlSubPanel {
 		createManualControlPanel(basicController);
 		createPidControlPanel(pidController);
 
-		final JComboBox controllerSelection = new JComboBox();
+		final JComboBox<String> controllerSelection = new JComboBox<>();
 		controllerSelection.addItem("Manual control");
 		controllerSelection.addItem("Pid control");
 		controllerSelection.addItemListener(new ItemListener() {

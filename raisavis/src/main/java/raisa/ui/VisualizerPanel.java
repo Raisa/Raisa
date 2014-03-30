@@ -25,9 +25,6 @@ import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import raisa.config.InputOutputTargetEnum;
 import raisa.config.LocalizationModeEnum;
 import raisa.config.VisualizerConfig;
@@ -36,8 +33,8 @@ import raisa.domain.Grid;
 import raisa.domain.WorldModel;
 import raisa.domain.landmarks.Landmark;
 import raisa.domain.landmarks.LineLandmark;
-import raisa.domain.landmarks.SpikeLandmark;
 import raisa.domain.landmarks.RansacExtractor;
+import raisa.domain.landmarks.SpikeLandmark;
 import raisa.domain.particlefilter.Particle;
 import raisa.domain.plan.MotionPlan;
 import raisa.domain.plan.Route;
@@ -55,9 +52,8 @@ import raisa.util.Vector2D;
 
 public class VisualizerPanel extends JPanel implements SampleListener, VisualizerConfigListener {
 	private static final long serialVersionUID = 1L;
-	private static final Logger log = LoggerFactory.getLogger(VisualizerPanel.class);
 	private Color measurementColor = new Color(0.4f, 0.4f, 0.4f);
-	private Color particleColor = new Color(0.3f, 0.3f, 0.3f);
+//	private Color particleColor = new Color(0.3f, 0.3f, 0.3f);
 	private Color mapMarkerColor = new Color(0.8f, 0.2f, 0.2f);
 	private Color trailMarkerColor = new Color(0.5f, 0.5f, 0.9f);
 	private Vector2D camera = new Vector2D();

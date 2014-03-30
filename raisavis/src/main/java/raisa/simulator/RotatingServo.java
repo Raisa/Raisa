@@ -1,10 +1,7 @@
 package raisa.simulator;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class RotatingServo {
-	private static final Logger log = LoggerFactory.getLogger(RotatingServo.class);
 	private float heading;
 	private float rotatingSpeed = 60.0f / 0.17f;
 	private float minHeading = -90;

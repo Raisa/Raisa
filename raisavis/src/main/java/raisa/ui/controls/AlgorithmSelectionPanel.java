@@ -19,11 +19,11 @@ import raisa.domain.AlgorithmTypeEnum;
 
 public class AlgorithmSelectionPanel extends ControlSubPanel implements VisualizerConfigListener {
 	private static final long serialVersionUID = 1L;
-	
-	private JComboBox localizationModeBox;
-	private AlgorithmSelectionCheckBox ransacBox;
-	private AlgorithmSelectionCheckBox spikesBox;
-	
+
+	private JComboBox<String> localizationModeBox;
+	private final AlgorithmSelectionCheckBox ransacBox;
+	private final AlgorithmSelectionCheckBox spikesBox;
+
 	public AlgorithmSelectionPanel() {
 		setBorder(new TitledBorder("Algorithms"));
 		setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
@@ -38,11 +38,11 @@ public class AlgorithmSelectionPanel extends ControlSubPanel implements Visualiz
 		add(spikesBox);
 		VisualizerConfig.getInstance().addVisualizerConfigListener(this);
 	}
-	
+
 	private void createLocalizationModeControl() {
 		final JLabel label = new JLabel("Localization:");
 		final String[] targets = { "None", "Particle filter", "SLAM" };
-		localizationModeBox = new JComboBox(targets);
+		localizationModeBox = new JComboBox<>(targets);
 		localizationModeBox.setAlignmentX(Component.LEFT_ALIGNMENT);
 		final VisualizerConfig config = VisualizerConfig.getInstance();
 		localizationModeBox.setMaximumSize(new Dimension(150,50));
@@ -62,17 +62,17 @@ public class AlgorithmSelectionPanel extends ControlSubPanel implements Visualiz
 					break;
 				}
 				config.notifyVisualizerConfigListeners();
-			}			
+			}
 		});
 		add(label);
 		add(localizationModeBox);
-	}	
-	
+	}
+
 	private class AlgorithmSelectionCheckBox extends JCheckBox implements ActionListener {
 		private static final long serialVersionUID = 1L;
-		
-		private AlgorithmTypeEnum algorithmType;
-		
+
+		private final AlgorithmTypeEnum algorithmType;
+
 		public AlgorithmSelectionCheckBox(String text, AlgorithmTypeEnum algorithmType) {
 			super(text);
 			this.algorithmType = algorithmType;
@@ -81,7 +81,7 @@ public class AlgorithmSelectionPanel extends ControlSubPanel implements Visualiz
 			this.setAlignmentX(Component.LEFT_ALIGNMENT);
 			this.addActionListener(this);
 		}
-		
+
 		@Override
 		public void actionPerformed(ActionEvent arg0) {
 			VisualizerConfig config = VisualizerConfig.getInstance();
@@ -92,7 +92,7 @@ public class AlgorithmSelectionPanel extends ControlSubPanel implements Visualiz
 			}
 			config.notifyVisualizerConfigListeners();
 		}
-		
+
 	}
 
 	@Override
@@ -105,7 +105,7 @@ public class AlgorithmSelectionPanel extends ControlSubPanel implements Visualiz
 			spikesBox.setSelected(config.getActivatedAlgorithms().contains(AlgorithmTypeEnum.SPIKES_LANDMARK_EXTRACTION));
 		}
 	}
-	
+
 	@Override
 	public ControlTypeEnum getControlSubPanelType() {
 		return ControlTypeEnum.ALGORITHM_SELECTION;

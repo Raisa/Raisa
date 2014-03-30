@@ -30,7 +30,7 @@ import raisa.ui.controls.sixaxis.SixaxisInput;
 public class OtherControlsPanel extends ControlSubPanel {
 	private static final long serialVersionUID = 1L;
 	private static final Logger log = LoggerFactory.getLogger(OtherControlsPanel.class);
-	
+
 	final JToggleButton lightsButton = new JToggleButton("Lights");
 	final JToggleButton takePictureButton = new JToggleButton("Take pic");
 	final JToggleButton servosButton = new JToggleButton("Servos");
@@ -43,7 +43,7 @@ public class OtherControlsPanel extends ControlSubPanel {
 		setAlignmentX(Component.CENTER_ALIGNMENT);
 		setPreferredSize(new Dimension(190, 170));
 		setMaximumSize(getPreferredSize());
-		
+
 		createLightsControl(controller);
 		createServosControl(controller);
 		createTakePictureControl(controller);
@@ -60,11 +60,11 @@ public class OtherControlsPanel extends ControlSubPanel {
 		buttonPanel.add(dataCaptureButton);
 		buttonPanel.add(compassButton);
 		add(buttonPanel);
-		
+
 		createInputOutputTargetControl();
 		SixaxisInput.getInstance().registerActionButtons(lightsButton, takePictureButton, servosButton);
 	}
-	
+
 	private void createCompassControl() {
 		compassButton.addActionListener(new ActionListener() {
 			@Override
@@ -89,21 +89,21 @@ public class OtherControlsPanel extends ControlSubPanel {
 				} catch (IOException e) {
 					log.error("", e);
 				}
-			}			
+			}
 		});
 	}
 
 	private void createInputOutputTargetControl() {
 		final JLabel label = new JLabel("Input/Output:");
 		final String[] targets = { "Simulation file", "Raisa actual", "Simulator" };
-		final JComboBox box = new JComboBox(targets);		
+		final JComboBox<String> box = new JComboBox<>(targets);
 		final VisualizerConfig config = VisualizerConfig.getInstance();
 		box.setMaximumSize(new Dimension(150,50));
 		box.setSelectedIndex(config.getInputOutputTarget().getIndex());
 		box.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				VisualizerConfig config = VisualizerConfig.getInstance();				
+				VisualizerConfig config = VisualizerConfig.getInstance();
 				switch (box.getSelectedIndex()) {
 				case 0:
 					config.setInputOutputTarget(InputOutputTargetEnum.FILE_SIMULATION);
@@ -113,15 +113,15 @@ public class OtherControlsPanel extends ControlSubPanel {
 					break;
 				default:
 					config.setInputOutputTarget(InputOutputTargetEnum.REALTIME_SIMULATOR);
-					break;	
+					break;
 				}
 				config.notifyVisualizerConfigListeners();
-			}			
+			}
 		});
 		add(label);
 		add(box);
 	}
-	
+
 	private void createLightsControl(final BasicController controller) {
 		lightsButton.setSelected(controller.getLights());
 		lightsButton.addActionListener(new ActionListener() {
@@ -152,8 +152,8 @@ public class OtherControlsPanel extends ControlSubPanel {
 				servosButton.setSelected(controller.getServos());
 			}
 		});
-	}	
-	
+	}
+
 	private void createTakePictureControl(final BasicController controller) {
 		takePictureButton.addActionListener(new ActionListener() {
 			@Override
@@ -163,13 +163,13 @@ public class OtherControlsPanel extends ControlSubPanel {
 			}
 		});
 		takePictureButton.setPreferredSize(new Dimension(10,10));
-	}	
-	
+	}
+
 	protected void add(JComponent component) {
 		component.setAlignmentX(LEFT_ALIGNMENT);
-		super.add(component);		
+		super.add(component);
 	}
-	
+
 	@Override
 	public ControlTypeEnum getControlSubPanelType() {
 		return ControlTypeEnum.OTHER;
