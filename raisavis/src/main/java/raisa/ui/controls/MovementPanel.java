@@ -1,7 +1,6 @@
 package raisa.ui.controls;
 
 import java.awt.Component;
-import java.awt.Dimension;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -32,9 +31,9 @@ public class MovementPanel extends ControlSubPanel {
 
 	private final VisualizerFrame frame;
 	private final WorldModel world;
-	private JPanel controllerOptions = new JPanel();
-	private JPanel manualControl = new JPanel();
-	private JPanel pidControl = new JPanel();
+	private final JPanel controllerOptions = new JPanel();
+	private final JPanel manualControl = new JPanel();
+	private final JPanel pidControl = new JPanel();
 
 	public MovementPanel(final VisualizerFrame frame, final WorldModel world, final BasicController basicController, final PidController pidController) {
 		this.frame = frame;
@@ -70,7 +69,7 @@ public class MovementPanel extends ControlSubPanel {
 		controllerOptions.add(manualControl);
 		add(controllerOptions);
 	}
-	
+
 	private void createPidControlPanel(final PidController controller) {
 		pidControl.setLayout(new BoxLayout(pidControl, BoxLayout.Y_AXIS));
 		JToggleButton addWaypoint = new JToggleButton("Add waypoint");
@@ -91,7 +90,7 @@ public class MovementPanel extends ControlSubPanel {
 			}
 		});
 		clearWaypoints.setAlignmentX(Component.LEFT_ALIGNMENT);
-		pidControl.add(clearWaypoints);		
+		pidControl.add(clearWaypoints);
 		pidControl.add(addWaypoint);
 	}
 
@@ -101,37 +100,37 @@ public class MovementPanel extends ControlSubPanel {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				controller.sendForward();
-			}			
+			}
 		});
 		JButton stopButton = new JButton("S");
 		stopButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				controller.sendStop();
-			}			
+			}
 		});
 		JButton backButton = new JButton("B");
 		backButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				controller.sendBack();
-			}			
+			}
 		});
 		JButton leftButton = new JButton("L");
 		leftButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				controller.sendLeft();
-			}			
+			}
 		});
 		JButton rightButton = new JButton("R");
 		rightButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				controller.sendRight();
-			}			
+			}
 		});
-		
+
 		manualControl.setLayout(new GridLayout(3, 3));
 		final JLabel leftSpeedLabel = new JLabel("0", JLabel.CENTER);
 		final JLabel rightSpeedLabel = new JLabel("0", JLabel.CENTER);
@@ -144,11 +143,6 @@ public class MovementPanel extends ControlSubPanel {
 		manualControl.add(new JSeparator());
 		manualControl.add(backButton);
 		manualControl.add(new JSeparator());
-		
-		manualControl.setPreferredSize(new Dimension(100, 90));
-		manualControl.setMaximumSize(new Dimension(100, 90));
-		setPreferredSize(new Dimension(190, 150));
-		setMaximumSize(new Dimension(190, 150));
 
 		controller.addContolListener(new ControllerListener() {
 			@Override
@@ -157,10 +151,10 @@ public class MovementPanel extends ControlSubPanel {
 				rightSpeedLabel.setText(""+controller.getRightSpeed());
 			}
 		});
-		
+
 		SixaxisInput.getInstance().registerMovementButtons(forwardButton, backButton, leftButton, rightButton, stopButton);
 	}
-	
+
 	@Override
 	public ControlTypeEnum getControlSubPanelType() {
 		return ControlTypeEnum.MOVEMENT;

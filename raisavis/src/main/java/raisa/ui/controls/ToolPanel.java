@@ -1,12 +1,10 @@
 package raisa.ui.controls;
 
 import java.awt.Component;
-import java.awt.Dimension;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
-import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JPanel;
 import javax.swing.JToggleButton;
@@ -20,14 +18,9 @@ public class ToolPanel extends ControlSubPanel {
 
 	public ToolPanel(final VisualizerFrame frame) {
 		setBorder(new TitledBorder("Map tools"));
-		setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
-		setPreferredSize(new Dimension(190, 85));
-		setMaximumSize(getPreferredSize());
 
 		JPanel buttonPanel = new JPanel();
 		buttonPanel.setLayout(new GridLayout(2, 2));
-		buttonPanel.setPreferredSize(new Dimension(180, 70));
-		buttonPanel.setMaximumSize(buttonPanel.getPreferredSize());
 
 		JToggleButton measure = new JToggleButton("Measure");
 		measure.setAlignmentX(Component.CENTER_ALIGNMENT);
@@ -51,7 +44,7 @@ public class ToolPanel extends ControlSubPanel {
 		buttonPanel.add(draw);
 		addToolButton(measure);
 		addToolButton(draw);
-		
+
 		final JButton undo = new JButton("Undo");
 		undo.setEnabled(false);
 		undo.addActionListener(new ActionListener() {
@@ -59,7 +52,7 @@ public class ToolPanel extends ControlSubPanel {
 			public void actionPerformed(ActionEvent event) {
 				frame.popUserEditUndoLevel();
 				frame.repaint();
-			}			
+			}
 		});
 		buttonPanel.add(undo);
 		final JButton redo = new JButton("Redo");
@@ -69,7 +62,7 @@ public class ToolPanel extends ControlSubPanel {
 			public void actionPerformed(ActionEvent event) {
 				frame.redoUserEditUndoLevel();
 				frame.repaint();
-			}			
+			}
 		});
 		buttonPanel.add(redo);
 		frame.addUserEditUndoListener(new UserEditUndoListener() {

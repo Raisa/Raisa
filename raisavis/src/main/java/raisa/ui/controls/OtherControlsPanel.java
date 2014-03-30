@@ -1,7 +1,6 @@
 package raisa.ui.controls;
 
 import java.awt.Component;
-import java.awt.Dimension;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -41,8 +40,6 @@ public class OtherControlsPanel extends ControlSubPanel {
 		setBorder(new TitledBorder("Other"));
 		setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
 		setAlignmentX(Component.CENTER_ALIGNMENT);
-		setPreferredSize(new Dimension(190, 170));
-		setMaximumSize(getPreferredSize());
 
 		createLightsControl(controller);
 		createServosControl(controller);
@@ -51,8 +48,6 @@ public class OtherControlsPanel extends ControlSubPanel {
 		createCompassControl();
 
 		JPanel buttonPanel = new JPanel();
-		buttonPanel.setPreferredSize(new Dimension(180, 80));
-		buttonPanel.setMaximumSize(buttonPanel.getPreferredSize());
 		buttonPanel.setLayout(new GridLayout(3, 2));
 		buttonPanel.add(lightsButton);
 		buttonPanel.add(servosButton);
@@ -98,7 +93,6 @@ public class OtherControlsPanel extends ControlSubPanel {
 		final String[] targets = { "Simulation file", "Raisa actual", "Simulator" };
 		final JComboBox<String> box = new JComboBox<>(targets);
 		final VisualizerConfig config = VisualizerConfig.getInstance();
-		box.setMaximumSize(new Dimension(150,50));
 		box.setSelectedIndex(config.getInputOutputTarget().getIndex());
 		box.addActionListener(new ActionListener() {
 			@Override
@@ -162,7 +156,6 @@ public class OtherControlsPanel extends ControlSubPanel {
 				takePictureButton.setSelected(false);
 			}
 		});
-		takePictureButton.setPreferredSize(new Dimension(10,10));
 	}
 
 	protected void add(JComponent component) {

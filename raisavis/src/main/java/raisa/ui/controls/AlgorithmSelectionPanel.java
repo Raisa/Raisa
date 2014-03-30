@@ -1,7 +1,6 @@
 package raisa.ui.controls;
 
 import java.awt.Component;
-import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
@@ -28,8 +27,6 @@ public class AlgorithmSelectionPanel extends ControlSubPanel implements Visualiz
 		setBorder(new TitledBorder("Algorithms"));
 		setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
 		setAlignmentX(Component.CENTER_ALIGNMENT);
-		setPreferredSize(new Dimension(190, 130));
-		setMaximumSize(getPreferredSize());
 
 		createLocalizationModeControl();
 		ransacBox = new AlgorithmSelectionCheckBox("RANSAC", AlgorithmTypeEnum.RANSAC_LANDMARK_EXTRACTION);
@@ -45,7 +42,6 @@ public class AlgorithmSelectionPanel extends ControlSubPanel implements Visualiz
 		localizationModeBox = new JComboBox<>(targets);
 		localizationModeBox.setAlignmentX(Component.LEFT_ALIGNMENT);
 		final VisualizerConfig config = VisualizerConfig.getInstance();
-		localizationModeBox.setMaximumSize(new Dimension(150,50));
 		localizationModeBox.setSelectedIndex(config.getLocalizationMode().getIndex());
 		localizationModeBox.addActionListener(new ActionListener() {
 			@Override
