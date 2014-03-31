@@ -69,16 +69,16 @@ public class ControlPanel extends JPanel implements VisualizerConfigListener {
 		GridBagConstraints c = new GridBagConstraints();
 		c.weightx = 1.0;
 		c.gridwidth = GridBagConstraints.REMAINDER;
-        c.fill = GridBagConstraints.HORIZONTAL;
-        c.insets = new Insets(2, 2, 2, 2);
+		c.fill = GridBagConstraints.HORIZONTAL;
+		c.insets = new Insets(2, 2, 2, 2);
 		for (ControlSubPanel subpanel : subpanels) {
 			if (subpanel.isDisplayed()) {
 				this.add(subpanel, c);
 			}
 		}
-        JLabel padding = new JLabel();
-        c.weighty = 1.0;
-        this.add(padding, c);
+		JLabel padding = new JLabel();
+		c.weighty = 1.0;
+		this.add(padding, c);
 	}
 
 }
