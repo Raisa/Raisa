@@ -33,7 +33,6 @@ import raisa.domain.Grid;
 import raisa.domain.WorldModel;
 import raisa.domain.landmarks.Landmark;
 import raisa.domain.landmarks.LineLandmark;
-import raisa.domain.landmarks.RansacExtractor;
 import raisa.domain.landmarks.SpikeLandmark;
 import raisa.domain.particlefilter.Particle;
 import raisa.domain.plan.MotionPlan;
@@ -49,13 +48,15 @@ import raisa.util.GeometryUtil;
 import raisa.util.GraphicsUtil;
 import raisa.util.Segment2D;
 import raisa.util.Vector2D;
+import edu.umd.cs.findbugs.annotations.SuppressWarnings;
 
+@SuppressWarnings(value="SE_BAD_FIELD", justification="VisualizerPanel needs not to be serializable")
 public class VisualizerPanel extends JPanel implements SampleListener, VisualizerConfigListener {
 	private static final long serialVersionUID = 1L;
-	private Color measurementColor = new Color(0.4f, 0.4f, 0.4f);
+	private final Color measurementColor = new Color(0.4f, 0.4f, 0.4f);
 //	private Color particleColor = new Color(0.3f, 0.3f, 0.3f);
-	private Color mapMarkerColor = new Color(0.8f, 0.2f, 0.2f);
-	private Color trailMarkerColor = new Color(0.5f, 0.5f, 0.9f);
+	private final Color mapMarkerColor = new Color(0.8f, 0.2f, 0.2f);
+	private final Color trailMarkerColor = new Color(0.5f, 0.5f, 0.9f);
 	private Vector2D camera = new Vector2D();
 	private Vector2D mouse = new Vector2D();
 	private Vector2D mouseDownPosition = new Vector2D();
@@ -64,14 +65,14 @@ public class VisualizerPanel extends JPanel implements SampleListener, Visualize
 	private float scale = 1.0f;
 	private List<Sample> latestIR = new ArrayList<Sample>();
 	private List<Sample> latestSR = new ArrayList<Sample>();
-	private Stroke dashed;
-	private Stroke arrow;
-	private VisualizerFrame visualizerFrame;
-	private WorldModel worldModel;
-	private RobotSimulator robotSimulator;
+	private final Stroke dashed;
+	private final Stroke arrow;
+	private final VisualizerFrame visualizerFrame;
+	private final WorldModel worldModel;
+	private final RobotSimulator robotSimulator;
 	private BufferedImage currentImage;
-	private PopupMenu popupMenu = new PopupMenu();
-	
+	private final PopupMenu popupMenu = new PopupMenu();
+
 	public void reset() {
 		worldModel.reset();
 		camera = new Vector2D();
@@ -88,7 +89,7 @@ public class VisualizerPanel extends JPanel implements SampleListener, Visualize
 	public void visualizerConfigChanged(VisualizerConfig config) {
 		repaint();
 	}
-	
+
 	public VisualizerPanel(VisualizerFrame frame, WorldModel worldModel, RobotSimulator robotSimulator) {
 		this.visualizerFrame = frame;
 		this.worldModel = worldModel;
@@ -115,7 +116,7 @@ public class VisualizerPanel extends JPanel implements SampleListener, Visualize
 		if (sample.isInfrared2MeasurementValid()) {
 			Vector2D spotPosition = GeometryUtil.calculatePosition(latestState.getPosition(), latestState.getHeading() + sample.getInfrared2Angle(), sample.getInfrared2Distance());
 			worldModel.setGridPosition(spotPosition, true);
-		}		
+		}
 		if (sample.isInfrared1MeasurementValid() || sample.isInfrared2MeasurementValid()) {
 			latestIR.add(sample);
 			latestIR = CollectionUtil.takeLast(latestIR, 10);
@@ -177,7 +178,7 @@ public class VisualizerPanel extends JPanel implements SampleListener, Visualize
 
 	private void drawRobotWaypoints(Graphics2D g2) {
 		MotionPlan motionPlan = worldModel.getMotionPlan();
-		Route route = motionPlan.getSelectedRoute();			
+		Route route = motionPlan.getSelectedRoute();
 		Color defaultColor = g2.getColor();
 		Stroke defaultStroke = g2.getStroke();
 		Stroke reachedLineStroke = new BasicStroke(2.0f, BasicStroke.CAP_BUTT, BasicStroke.JOIN_MITER, 1.0f, new float[] { 10.0f }, 0.0f);
@@ -188,14 +189,14 @@ public class VisualizerPanel extends JPanel implements SampleListener, Visualize
 		for (Waypoint waypoint : route.getWaypoints()) {
 			Vector2D position = this.toScreen(waypoint.getPosition());
 			g2.drawLine(
-					(int)position.x - linePointOffset, 
-					(int)position.y - linePointOffset, 
-					(int)position.x + linePointOffset, 
+					(int)position.x - linePointOffset,
+					(int)position.y - linePointOffset,
+					(int)position.x + linePointOffset,
 					(int)position.y + linePointOffset);
 			g2.drawLine(
-					(int)position.x - linePointOffset, 
-					(int)position.y + linePointOffset, 
-					(int)position.x + linePointOffset, 
+					(int)position.x - linePointOffset,
+					(int)position.y + linePointOffset,
+					(int)position.x + linePointOffset,
 					(int)position.y - linePointOffset);
 			if (prevPosition != null) {
 				if (waypoint.isReached()) {
@@ -204,9 +205,9 @@ public class VisualizerPanel extends JPanel implements SampleListener, Visualize
 					g2.setStroke(unreachedLineStroke);
 				}
 				g2.drawLine(
-					(int)prevPosition.x, 
-					(int)prevPosition.y, 
-					(int)position.x, 
+					(int)prevPosition.x,
+					(int)prevPosition.y,
+					(int)position.x,
 					(int)position.y);
 			}
 			prevPosition = position;
@@ -218,7 +219,7 @@ public class VisualizerPanel extends JPanel implements SampleListener, Visualize
 	private void drawLandmarks(Graphics2D g2) {
 		List<Landmark> landmarks = worldModel.getLandmarks();
 		g2.setStroke(new BasicStroke(3.0f));
-		for (Vector2D v : RansacExtractor.allPoints) {
+		for (Vector2D v : worldModel.getLandmarkManager().getRansacExtractor().getAllPoints()) {
 			g2.setColor(Color.pink);
 			Vector2D s = toScreen(v);
 			g2.drawRect((int)s.x, (int)s.y, 1, 1);
@@ -235,11 +236,11 @@ public class VisualizerPanel extends JPanel implements SampleListener, Visualize
 				Vector2D startPoint = toScreen(segment.x1, segment.y1);
 				Vector2D endPoint = toScreen(segment.x2, segment.y2);
 				g2.drawLine((int)startPoint.x, (int)startPoint.y, (int)endPoint.x, (int)endPoint.y);
-				
+
 				g2.setStroke(new BasicStroke(8.0f));
 				Vector2D s = toScreen(landmark.getPosition());
 				g2.drawRect((int)s.x, (int)s.y, 1, 1);
-				
+
 				if (landmark.getDetectedLandmark()!=null) {
 					g2.setColor(Color.blue);
 					s = toScreen(landmark.getDetectedLandmark().getPosition());
@@ -250,7 +251,7 @@ public class VisualizerPanel extends JPanel implements SampleListener, Visualize
 					s = toScreen(landmark.getAdjustedPosition());
 					g2.drawRect((int)s.x, (int)s.y, 1, 1);
 				}
-			} 
+			}
 		}
 		for (Landmark landmark : landmarks) {
 			if (landmark instanceof SpikeLandmark && landmark.isTrusted()) {
@@ -263,15 +264,15 @@ public class VisualizerPanel extends JPanel implements SampleListener, Visualize
 				Vector2D s = toScreen(landmark);
 				g2.drawRect((int)s.x, (int)s.y, 1, 1);
 			}
-		}		
+		}
 	}
-	
+
 	private void drawCurrentImage(Graphics2D g2) {
 		if (currentImage != null) {
 			g2.drawImage(currentImage, 0, 0, null);
 		}
 	}
-	
+
 	private void drawOriginArrows(Graphics2D g2) {
 		Vector2D origin = toScreen(0, 0);
 		g2.setColor(mapMarkerColor);
@@ -279,7 +280,7 @@ public class VisualizerPanel extends JPanel implements SampleListener, Visualize
 		g2.drawLine((int)origin.x, (int)origin.y, (int)origin.x, (int)origin.y + length);
 		g2.drawLine((int)origin.x-5, (int)origin.y + length - 10, (int)origin.x, (int)origin.y + length);
 		g2.drawLine((int)origin.x+5, (int)origin.y + length - 10, (int)origin.x, (int)origin.y + length);
-		
+
 		g2.drawLine((int)origin.x, (int)origin.y, (int)origin.x + length, (int)origin.y);
 		g2.drawLine((int)origin.x + length - 10, (int)origin.y-5, (int)origin.x + length, (int)origin.y);
 		g2.drawLine((int)origin.x + length - 10, (int)origin.y+5, (int)origin.x + length, (int)origin.y);
@@ -307,7 +308,7 @@ public class VisualizerPanel extends JPanel implements SampleListener, Visualize
 		g2.drawString(angleString, (int) (p1.x - 15.0f), (int) (p1.y + 20.0f));
 		float start = 90;
 		g2.drawArc((int)(p1.x - 0.3f * l), (int)(p1.y - 0.3f * l), (int)(0.6f * l), (int)(0.6f * l), (int)start, (int)(start - angleInDegrees - 90));
-		
+
 	}
 
 	private void drawParticles(Graphics2D g2) {
@@ -379,7 +380,7 @@ public class VisualizerPanel extends JPanel implements SampleListener, Visualize
 		g2.drawImage(worldModel.getUserImage(), (int)screen.x, (int)screen.y, screenSize, screenSize, null);
 		g2.drawImage(worldModel.getBlockedImage(), (int)screen.x, (int)screen.y, screenSize, screenSize, null);
 	}
-	
+
 	private void drawIrResults(Graphics2D g2) {
 		if (!latestIR.isEmpty()) {
 			List<Sample> irs = new ArrayList<Sample>(latestIR);
@@ -418,7 +419,7 @@ public class VisualizerPanel extends JPanel implements SampleListener, Visualize
 			g2.setStroke(stroke);
 		}
 	}
-	
+
 	private void drawUltrasoundResults(Graphics g) {
 		RobotState robot = worldModel.getLatestState().getEstimatedState();
 		if (!latestSR.isEmpty()) {
@@ -472,10 +473,10 @@ public class VisualizerPanel extends JPanel implements SampleListener, Visualize
 		g2.setColor(new Color(0.7f, 0.7f, 0.9f));
 		g2.draw(p);
 	}
-	
+
 	private void drawRobot(Graphics2D g2) {
-		RobotState robot = worldModel.getLatestState().getEstimatedState();	
-		
+		RobotState robot = worldModel.getLatestState().getEstimatedState();
+
 		g2.setColor(Color.gray);
 		Vector2D robotScreen = toScreen(robot.getPosition());
 		float widthScreen = toScreen(11.0f);
@@ -505,7 +506,7 @@ public class VisualizerPanel extends JPanel implements SampleListener, Visualize
 		wheelLeft.transform(AffineTransform.getRotateInstance(robot.getHeading()));
 		wheelLeft.transform(AffineTransform.getTranslateInstance(wheelLeftScreen.x, wheelLeftScreen.y));
 		g2.setColor(Color.orange);
-		g2.fill(wheelLeft);			
+		g2.fill(wheelLeft);
 
 		Vector2D wheelRightScreen = toScreen(robot.getPositionRightTrack());
 		Path2D.Float wheelRight = new Path2D.Float();
@@ -517,7 +518,7 @@ public class VisualizerPanel extends JPanel implements SampleListener, Visualize
 		wheelRight.transform(AffineTransform.getRotateInstance(robot.getHeading()));
 		wheelRight.transform(AffineTransform.getTranslateInstance(wheelRightScreen.x, wheelRightScreen.y));
 		g2.setColor(Color.RED);
-		g2.fill(wheelRight);			
+		g2.fill(wheelRight);
 	}
 
 	private void drawRobotDirectionArrow(Graphics2D g2) {
@@ -576,7 +577,7 @@ public class VisualizerPanel extends JPanel implements SampleListener, Visualize
 	public float toWorld(float screenDistance) {
 		return screenDistance / scale;
 	}
-	
+
 	public Vector2D toWorld(Vector2D screen) {
 		int screenWidth = getBounds().width;
 		int screenHeight = getBounds().height;
@@ -592,7 +593,7 @@ public class VisualizerPanel extends JPanel implements SampleListener, Visualize
 	public Vector2D toScreen(Vector2D v) {
 		return toScreen(v.x, v.y);
 	}
-	
+
 	public Vector2D toScreen(float x, float y) {
 		int screenWidth = getBounds().width;
 		int screenHeight = getBounds().height;
@@ -601,7 +602,7 @@ public class VisualizerPanel extends JPanel implements SampleListener, Visualize
 		Vector2D f = new Vector2D(x1, y1);
 		return f;
 	}
-	
+
 	private final class PanelSizeHandler implements HierarchyBoundsListener {
 		@Override
 		public void ancestorResized(HierarchyEvent arg0) {
@@ -643,7 +644,7 @@ public class VisualizerPanel extends JPanel implements SampleListener, Visualize
 		@Override
 		public void mouseWheelMoved(MouseWheelEvent event) {
 			if (event.isShiftDown() || event.isMetaDown() || event.isControlDown() || event.isAltGraphDown() || event.isPopupTrigger()) {
-				camera.x += event.getWheelRotation() * 10.0f / scale;				
+				camera.x += event.getWheelRotation() * 10.0f / scale;
 				VisualizerPanel.this.repaint();
 			} else {
 				camera.y += event.getWheelRotation() * 10.0f / scale;
@@ -651,12 +652,12 @@ public class VisualizerPanel extends JPanel implements SampleListener, Visualize
 			}
 		}
 	}
-	
+
 	private final class MouseHandler extends MouseAdapter {
 		@Override
 		public void mousePressed(MouseEvent mouseEvent) {
 			mouseDragStart.x = mouseEvent.getX();
-			mouseDragStart.y = mouseEvent.getY();			
+			mouseDragStart.y = mouseEvent.getY();
 			mouseDownPosition.x = mouseEvent.getX();
 			mouseDownPosition.y = mouseEvent.getY();
 			mouseDragging = true;
@@ -677,18 +678,18 @@ public class VisualizerPanel extends JPanel implements SampleListener, Visualize
 			}
 		}
 	}
-	
+
 	private final class PopupMenu extends JPopupMenu {
 		private static final long serialVersionUID = 1L;
 		JMenuItem placeRobot = new JMenuItem("Place robot here");
 		JMenuItem placeSimulator = new JMenuItem("Place simulator here");
-		
+
 		public PopupMenu() {
 			placeRobot.addActionListener(new ActionListener() {
 				@Override
 				public void actionPerformed(ActionEvent arg0) {
 					RobotState s = new RobotState(toWorld(new Vector2D(mouse.x, mouse.y)), 0);
-					worldModel.addState(new Robot(s, s));	
+					worldModel.addState(new Robot(s, s));
 					redraw();
 				}
 			});
@@ -714,7 +715,7 @@ public class VisualizerPanel extends JPanel implements SampleListener, Visualize
 	public void redraw() {
 		repaint();
 	}
-	
+
 	public void zoomIn() {
 		scale *= 1.25f;
 		repaint();
@@ -724,7 +725,7 @@ public class VisualizerPanel extends JPanel implements SampleListener, Visualize
 		scale *= 0.8f;
 		repaint();
 	}
-	
+
 	public void clear() {
 		worldModel.clearSamples();
 		repaint();
@@ -743,5 +744,5 @@ public class VisualizerPanel extends JPanel implements SampleListener, Visualize
 		camera.x += dx;
 		camera.y += dy;
 	}
-	
+
 }

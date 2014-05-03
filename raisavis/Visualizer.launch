@@ -15,4 +15,5 @@
 <stringAttribute key="org.eclipse.jdt.launching.PROGRAM_ARGUMENTS" value="-randomseed 42"/>
 <stringAttribute key="org.eclipse.jdt.launching.PROJECT_ATTR" value="raisavis"/>
 <stringAttribute key="org.eclipse.jdt.launching.SOURCE_PATH_PROVIDER" value="org.eclipse.m2e.launchconfig.sourcepathProvider"/>
+<stringAttribute key="org.eclipse.jdt.launching.VM_ARGUMENTS" value="-Djava.library.path=/home/eputtone/Tools/java/jdk1.7.0_17/lib/ext"/>
 </launchConfiguration>

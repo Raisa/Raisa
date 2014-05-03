@@ -4,7 +4,6 @@ import java.awt.Image;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -28,65 +27,64 @@ import raisa.util.CollectionUtil;
 import raisa.util.Vector2D;
 
 
-public class WorldModel implements Serializable, SensorListener {
-	private static final long serialVersionUID = 1L;
+public class WorldModel implements SensorListener {
 	private static final Logger log = LoggerFactory.getLogger(WorldModel.class);
 	private List<Sample> samples = new ArrayList<Sample>();
-	private List<SampleFixer> sampleFixers = new ArrayList<SampleFixer>();
-	private List<SampleListener> sampleListeners = new ArrayList<SampleListener>();
+	private final List<SampleFixer> sampleFixers = new ArrayList<SampleFixer>();
+	private final List<SampleListener> sampleListeners = new ArrayList<SampleListener>();
 
 	private Grid grid = new Grid();
-	private LandmarkManager landmarkManager = new LandmarkManager();
+	private final LandmarkManager landmarkManager = new LandmarkManager();
 	private String latestMapFilename;
 
 	private List<Robot> states = new ArrayList<Robot>();
-	private List<RobotStateListener> stateListeners = new ArrayList<RobotStateListener>();
-	
-	private MotionPlan motionPlan = new MotionPlan();
-	
+	private final List<RobotStateListener> stateListeners = new ArrayList<RobotStateListener>();
+
+	private final MotionPlan motionPlan = new MotionPlan();
+
 	public WorldModel() {
 		addState(new Robot());
 		sampleFixers.add(new AveragingSampleFixer(5, 40.0f));
 	}
-	
+
 	public List<Sample> getSamples() {
 		return samples;
 	}
-	
-	public List<Robot> getStates() {		
+
+	public List<Robot> getStates() {
 		List<Robot> copy = new ArrayList<Robot>();
 		synchronized(states) {
 			copy.addAll(states);
 		}
 		return copy;
 	}
-	
+
 	public MotionPlan getMotionPlan() {
 		return this.motionPlan;
 	}
-	
+
 	public List<Landmark> getLandmarks() {
 		return this.landmarkManager.getLandmarks();
 	}
-	
+
 	public LandmarkManager getLandmarkManager() {
 		return this.landmarkManager;
 	}
-		
+
 	@Override
-	public synchronized void sampleReceived(String message) {		
+	public synchronized void sampleReceived(String message) {
 		Sample sample = new SampleParser().parse(message);
 		for (SampleFixer fixer : sampleFixers) {
 		 sample = fixer.fix(sample);
 		}
 		addSample(sample);
 	}
-	
+
 	public void addSample(Sample sample) {
-		samples.add(sample);	
+		samples.add(sample);
 		notifySampleListeners(sample);
 	}
-	
+
 	public void addRobotStateListener(RobotStateListener listener) {
 		stateListeners.add(listener);
 	}
@@ -99,7 +97,7 @@ public class WorldModel implements Serializable, SensorListener {
 			}
 		}
 	}
-	
+
 	public Robot getLatestState() {
 		synchronized (states) {
 			if (states.size() == 0) {
@@ -117,8 +115,8 @@ public class WorldModel implements Serializable, SensorListener {
 			return null;
 		}
 		return samples.get(samples.size() - 1);
-	}	
-	
+	}
+
 	public void reset() {
 		samples = new ArrayList<Sample>();
 		states = new ArrayList<Robot>();
@@ -132,31 +130,31 @@ public class WorldModel implements Serializable, SensorListener {
 		addState(new Robot());
 		landmarkManager.reset();
 	}
-		
+
 	public void removeOldSamples(int preserveLength) {
 		samples = CollectionUtil.takeLast(samples, preserveLength);
 	}
-	
+
 	public void clearSamples() {
-		samples = new ArrayList<Sample>();		
+		samples = new ArrayList<Sample>();
 	}
-	
+
 	public List<Sample> getLastSamples(int numberOfSamples) {
 		return CollectionUtil.takeLast(samples, numberOfSamples);
 	}
 
 	public void setGridPosition(Vector2D position, boolean isBlocked) {
 		grid.setGridPosition(position, isBlocked);
-	}	
-	
+	}
+
 	public void setUserPosition(Vector2D position, boolean isBlocked) {
 		grid.setUserPosition(position, isBlocked);
 	}
-	
+
 	public void pushUserEditUndoLevel() {
 		grid.pushUserUndoLevel();
 	}
-	
+
 	public void popUserEditUndoLevel() {
 		grid.popUserUndoLevel();
 	}
@@ -211,7 +209,7 @@ public class WorldModel implements Serializable, SensorListener {
 	public Image getBlockedImage() {
 		return grid.getBlockedImage();
 	}
-	
+
 	public float traceRay(Vector2D from, float angle) {
 		return grid.traceRay(from, angle);
 	}
@@ -232,13 +230,13 @@ public class WorldModel implements Serializable, SensorListener {
 			this.sampleListeners.add(listener);
 		}
 	}
-	
+
 	public void removeSampleListener(SampleListener listener) {
 		synchronized (sampleListeners) {
 			this.sampleListeners.remove(listener);
 		}
-	}	
-	
+	}
+
 	private void notifySampleListeners(Sample sample) {
 		synchronized (sampleListeners) {
 			for (SampleListener listener : sampleListeners) {
@@ -246,11 +244,11 @@ public class WorldModel implements Serializable, SensorListener {
 			}
 		}
 	}
-	
+
 	public boolean isClear(Vector2D position) {
 		return grid.isClear(position);
 	}
-	
+
 	public float getCellSize() {
 		return grid.getCellSize();
 	}

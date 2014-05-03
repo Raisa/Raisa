@@ -1,5 +1,7 @@
 package raisa.util;
 
+import static java.nio.charset.StandardCharsets.US_ASCII;
+
 import java.io.BufferedReader;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -19,14 +21,14 @@ public class HexToBinaryUtil {
 	    }
 	    return data;
 	}
-	
-	
+
+
 	/**
 	 * @param args
 	 */
 	public static void main(String[] args) throws Exception {
 		FileInputStream fis = new FileInputStream("testi.txt");
-		BufferedReader buf = new BufferedReader(new InputStreamReader(fis));
+		BufferedReader buf = new BufferedReader(new InputStreamReader(fis, US_ASCII));
 		String line = buf.readLine();
 		StringBuffer picHex = new StringBuffer();
 		while (line != null) {

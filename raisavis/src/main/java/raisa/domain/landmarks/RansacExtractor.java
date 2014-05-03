@@ -10,42 +10,45 @@ import raisa.util.Segment2D;
 import raisa.util.Vector2D;
 
 /**
- * Adapted from "SLAM for dummies" 
+ * Adapted from "SLAM for dummies"
  * http://ocw.mit.edu/courses/aeronautics-and-astronautics/16-412j-cognitive-robotics-spring-2005/projects/1aslam_blas_repo.pdf
  */
 public class RansacExtractor {
-	
+
 	/* max times to run algorithm */
-	private final static int MAX_TRIALS = 1000; 
-    
+	private final static int MAX_TRIALS = 1000;
+
 	/* randomly select X points */
-	private final static int MAX_SAMPLE = 2; 
+	private final static int MAX_SAMPLE = 2;
 
 	/* if less than 40 points left don't bother trying to find consensus (stop algorithm) */
 	private final static int MIN_LINEPOINTS = 50;
 
 	/* if point is within x distance of line its part of line */
-	private final static float RANSAC_TOLERANCE = 1.0f; 
+	private final static float RANSAC_TOLERANCE = 1.0f;
 
 	/* at least votes required to determine if a line */
 	private final static int RANSAC_CONSENSUS = 50;
-	
-	public static List<Vector2D> allPoints = new ArrayList<Vector2D>();
-	
+
+	private List<Vector2D> allPoints = new ArrayList<Vector2D>();
+
 	public void reset() {
-		allPoints = new ArrayList<Vector2D>();
+		allPoints.clear();
 	}
-	
+
+	public List<Vector2D> getAllPoints() {
+		return new ArrayList<Vector2D>(allPoints);
+	}
+
 	public List<Landmark> extractLandmarks(List<Vector2D> dataPoints) {
 	    int noTrials = 0;
-	    List<Vector2D> allPoints = new ArrayList<Vector2D>(dataPoints);
-	    RansacExtractor.allPoints = allPoints;
+	    allPoints = new ArrayList<Vector2D>(dataPoints);
 	    List<Segment2D> foundLines = new ArrayList<Segment2D>();
-	    
+
 	    while (noTrials < MAX_TRIALS && allPoints.size() > MIN_LINEPOINTS) {
 	    	List<Vector2D> newAllPoints = new ArrayList<Vector2D>();
 	    	List<Vector2D> consensusPoints = new ArrayList<Vector2D>();
-	    	
+
 	    	// randomly select line points and check how many remaining points fit into it
 	    	List<Vector2D> rndSelectedPoints = getRandomLinePoints(allPoints);
 	    	Segment2D estimatedLine = leastSquaresLineEstimate(rndSelectedPoints);
@@ -57,7 +60,7 @@ public class RansacExtractor {
 	        		newAllPoints.add(point);
 	        	}
 	        }
-	        
+
 	        // remove points that are far from the average consensus point
 	        float avgX = 0.0f;
 	        float avgY = 0.0f;
@@ -67,14 +70,14 @@ public class RansacExtractor {
 	        }
 	        avgX /= consensusPoints.size();
 	        avgY /= consensusPoints.size();
-	        
+
 	        List<Vector2D> tmpConsensusPoints = new ArrayList<Vector2D>(consensusPoints);
 	        consensusPoints.clear();
 	        for (Vector2D point : tmpConsensusPoints) {
 	        	if (Math.sqrt(Math.pow(avgX - point.x, 2.0f) + Math.pow(avgY - point.y, 2.0f)) < 400.0f) {
 	        		consensusPoints.add(point);
 	        	} else {
-	        		newAllPoints.add(point);	        		
+	        		newAllPoints.add(point);
 	        	}
 	        }
 
@@ -86,12 +89,12 @@ public class RansacExtractor {
 	        	noTrials = 0;
 	        } else {
 	        	noTrials++;
-	        }      
+	        }
 	    }
-	    
+
 		return convertToLandmarks(foundLines);
 	}
-	
+
 	private List<Landmark> convertToLandmarks(List<Segment2D> foundLines) {
 		List<Landmark> landmarks = new ArrayList<Landmark>();
 		for (Segment2D segment : foundLines) {
@@ -127,7 +130,7 @@ public class RansacExtractor {
 		SimpleRegression r = new SimpleRegression();
 		r.addData(pointArray);
 		return new Segment2D(
-				(float)r.getSlope(), 
+				(float)r.getSlope(),
 				(float)r.getIntercept(),
 				(float)minX,
 				(float)minY,

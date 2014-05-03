@@ -1,9 +1,12 @@
 package raisa.comms;
 
+import static java.nio.charset.StandardCharsets.US_ASCII;
 import gnu.io.CommPortIdentifier;
+import gnu.io.PortInUseException;
 import gnu.io.SerialPort;
 import gnu.io.SerialPortEvent;
 import gnu.io.SerialPortEventListener;
+import gnu.io.UnsupportedCommOperationException;
 
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -11,6 +14,7 @@ import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
+import java.util.TooManyListenersException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,30 +23,28 @@ public class SerialCommunicator implements SerialPortEventListener, Communicator
 	private static final Logger log = LoggerFactory.getLogger(SerialCommunicator.class);
 	/** The port we're normally going to use. */
 	private SerialPort serialPort;
-	private static final String PORT_NAMES[] = { "/dev/tty.usbserial-A9007UX1", // Mac
-																				// OS
-																				// X
-			"/dev/tty.usbmodemfa131", "/dev/tty.usbmodemfd111", "/dev/ttys0", "/dev/ttys000", "/dev/tty001", "/dev/ttyUSB0", // Linux
+	private static final String PORT_NAMES[] = { "/dev/tty.usbserial-A9007UX1", // Mac OS/X
+			"/dev/tty.usbmodemfa131", "/dev/tty.usbmodemfd111", "/dev/ttys0", "/dev/ttys000", "/dev/tty001", "/dev/ttyUSB0", "/dev/ttyS0", // Linux
 			"COM3", // Windows
 	};
 	/** Buffered input stream from the port */
 	private InputStreamReader input;
-	
+
 	/** Thread for sending control messages to serial */
 	private Thread serialWriterThread;
 	private SerialWriter serialWriter;
-	
+
 	/** Milliseconds to block while waiting for port open */
 	private static final int TIME_OUT = 2000;
 	/** Default bits per second for COM port. */
 	private static final int DATA_RATE = 111111;
-	private static final String ACK_STR = "ACK";	
-	
-	private List<SensorListener> sensorListeners = new ArrayList<SensorListener>();
+	private static final String ACK_STR = "ACK";
+
+	private final List<SensorListener> sensorListeners = new ArrayList<SensorListener>();
 	private CommPortIdentifier portId = null;
 	private boolean active = false;
 	private String unfinishedSample = "";
-	
+
 	@Override
 	public boolean connect() {
 		Enumeration<?> portEnum = CommPortIdentifier.getPortIdentifiers();
@@ -70,8 +72,8 @@ public class SerialCommunicator implements SerialPortEventListener, Communicator
 			serialPort.setSerialPortParams(DATA_RATE, SerialPort.DATABITS_8, SerialPort.STOPBITS_1, SerialPort.PARITY_NONE);
 
 			// open the streams
-			input = new InputStreamReader(serialPort.getInputStream());
-			
+			input = new InputStreamReader(serialPort.getInputStream(), US_ASCII);
+
 			serialWriter = new SerialWriter(serialPort.getOutputStream());
 			serialWriterThread = new Thread(serialWriter);
 			serialWriterThread.start();
@@ -79,14 +81,14 @@ public class SerialCommunicator implements SerialPortEventListener, Communicator
 			// add event listeners
 			serialPort.addEventListener(this);
 			serialPort.notifyOnDataAvailable(true);
-		} catch (Exception e) {
+		} catch (TooManyListenersException | PortInUseException | UnsupportedCommOperationException | IOException e) {
 			System.err.println(e.toString());
 			return false;
 		}
 
 		return true;
 	}
-	
+
 	/**
 	 * This should be called when you stop using the port. This will prevent
 	 * port locking on platforms like Linux.
@@ -111,7 +113,7 @@ public class SerialCommunicator implements SerialPortEventListener, Communicator
 			return;
 		}
 		if (oEvent.getEventType() == SerialPortEvent.DATA_AVAILABLE) {
-			try {			
+			try {
 				SampleParser parser = new SampleParser();
 				int tmp;
 				while ((tmp = input.read()) != -1 && active) {
@@ -139,7 +141,7 @@ public class SerialCommunicator implements SerialPortEventListener, Communicator
 					}
 					unfinishedSample = "";
 				}
-			} catch (Exception e) {
+			} catch (IOException e) {
 				log.error("Error in processing serial event", e);
 			}
 		}
@@ -175,7 +177,7 @@ public class SerialCommunicator implements SerialPortEventListener, Communicator
 		}
 		return this;
 	}
-	
+
 	@Override
 	public String toString() {
 		StringBuilder builder = new StringBuilder(this.getClass().getSimpleName());
@@ -199,30 +201,30 @@ public class SerialCommunicator implements SerialPortEventListener, Communicator
 class SerialWriter implements Runnable {
 
 	private static final Logger log = LoggerFactory.getLogger(SerialWriter.class);
-	
+
 	private static final long RETRANSMISSION_DELAY = 500L;
-	
-	private OutputStream output;
+
+	private final OutputStream output;
 	private ControlMessage latestMessage;
 	private int ackId = -1;
 	private boolean running = true;
-	
+
 	public SerialWriter(OutputStream output) {
 		this.output = output;
 	}
-	
+
 	public void setAckReceived(int id) {
 		this.ackId = id;
 	}
-	
+
 	public void sendMessage(ControlMessage message) {
 		this.latestMessage = message;
 	}
-	
+
 	public void close() {
 		this.running = false;
 	}
-	
+
 	@Override
 	public void run() {
 		while (running)	{
@@ -242,6 +244,6 @@ class SerialWriter implements Runnable {
 			}
 		}
 	}
-		
+
 }
 

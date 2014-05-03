@@ -25,7 +25,10 @@ import raisa.config.VisualizerConfig;
 import raisa.domain.WorldModel;
 import raisa.ui.VisualizerFrame;
 import raisa.ui.controls.sixaxis.SixaxisInput;
+import edu.umd.cs.findbugs.annotations.SuppressWarnings;
 
+@SuppressWarnings(value = { "SE_BAD_FIELD", "SIC_INNER_SHOULD_BE_STATIC_ANON" },
+	justification="MovementPanel needs not to be serializable and non-static action listeners are not a problem here")
 public class MovementPanel extends ControlSubPanel {
 	private static final long serialVersionUID = 1L;
 

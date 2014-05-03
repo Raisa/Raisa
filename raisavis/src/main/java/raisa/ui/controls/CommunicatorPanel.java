@@ -7,7 +7,9 @@ import javax.swing.JButton;
 import javax.swing.border.TitledBorder;
 
 import raisa.comms.Communicator;
+import edu.umd.cs.findbugs.annotations.SuppressWarnings;
 
+@SuppressWarnings(value="SE_BAD_FIELD", justification="CommunicatorPanel needs not to be serializable")
 public class CommunicatorPanel extends ControlSubPanel {
 	private static final long serialVersionUID = 1L;
 

@@ -53,61 +53,63 @@ import raisa.ui.tool.MeasureTool;
 import raisa.ui.tool.Tool;
 import raisa.ui.tool.WaypointTool;
 import raisa.util.Vector2D;
+import edu.umd.cs.findbugs.annotations.SuppressWarnings;
 
+@SuppressWarnings(value="SE_BAD_FIELD", justification="VisualizerFrame needs not to be serializable")
 public class VisualizerFrame extends JFrame {
 	private static final Logger log = LoggerFactory.getLogger(VisualizerFrame.class);
 	private static final long serialVersionUID = 1L;
-	private int nparticles = 1000;
-	private VisualizerPanel visualizerPanel;
+	private final int nparticles = 1000;
+	private final VisualizerPanel visualizerPanel;
 	private final File currentDirectory = new File(".");
 	private File defaultDirectory = new File(currentDirectory, "data");
 	private final File sessionDirectory = new File(currentDirectory, "sessions");
 	private final WorldModel worldModel;
 	private Tool currentTool;
-	private DrawTool drawTool = new DrawTool(this);
-	private MeasureTool measureTool = new MeasureTool(this);
-	private WaypointTool waypointTool;
-	private List<UserEditUndoListener> userEditUndoListeners = new ArrayList<UserEditUndoListener>();
+	private final DrawTool drawTool = new DrawTool(this);
+	private final MeasureTool measureTool = new MeasureTool(this);
+	private final WaypointTool waypointTool;
+	private final List<UserEditUndoListener> userEditUndoListeners = new ArrayList<UserEditUndoListener>();
 	private final Communicator communicator;
 	private final BasicController basicController;
 	private final PidController pidController;
-	private RobotStateAggregator robotStateAggregator;	
-	private ParticleFilter particleFilter;
-	private SessionWriter sessionWriter;
-	private RobotSimulator robotSimulator;
-	private FileBasedSimulation fileBasedSimulation;
-	private VisualizationOptionsDialog visualizationOptionsDialog;
-	
-	private FileNameExtensionFilter mapFileFilter = new FileNameExtensionFilter("Map file (png)", "png");
-	private FileNameExtensionFilter sensorFileFilter = new FileNameExtensionFilter("Sensor file", "sensor");
-	private FileNameExtensionFilter controlFileFilter = new FileNameExtensionFilter("Control file", "control");
-	
+	private final RobotStateAggregator robotStateAggregator;
+	private final ParticleFilter particleFilter;
+	private final SessionWriter sessionWriter;
+	private final RobotSimulator robotSimulator;
+	private final FileBasedSimulation fileBasedSimulation;
+	private final VisualizationOptionsDialog visualizationOptionsDialog;
+
+	private final FileNameExtensionFilter mapFileFilter = new FileNameExtensionFilter("Map file (png)", "png");
+	private final FileNameExtensionFilter sensorFileFilter = new FileNameExtensionFilter("Sensor file", "sensor");
+	private final FileNameExtensionFilter controlFileFilter = new FileNameExtensionFilter("Control file", "control");
+
 	public VisualizerFrame(final WorldModel worldModel) {
 		addIcon();
 		this.worldModel = worldModel;
 		this.particleFilter = new ParticleFilter(worldModel, nparticles);
 		this.robotStateAggregator = new RobotStateAggregator(worldModel, particleFilter, worldModel.getLandmarkManager());
 		worldModel.addSampleListener(robotStateAggregator);
-		
+
 		robotSimulator = RobotSimulator.createRaisaInstance(new Vector2D(0, 0), 0, worldModel);
-		
+
 		visualizerPanel = new VisualizerPanel(this, worldModel, robotSimulator);
 		VisualizerConfig.getInstance().addVisualizerConfigListener(visualizerPanel);
 		visualizationOptionsDialog = new VisualizationOptionsDialog(this);
-		
+
 		MeasurementsPanel measurementsPanel = new MeasurementsPanel(worldModel);
 		JMenuBar menuBar = new JMenuBar();
 		createMainMenu(worldModel, menuBar);
-		
+
 		createViewMenu(menuBar);
 
 		sessionWriter = new SessionWriter(sessionDirectory, "data");
 
-		communicator = new FailoverCommunicator(new SerialCommunicator().addSensorListener(worldModel), sessionWriter);		
+		communicator = new FailoverCommunicator(new SerialCommunicator().addSensorListener(worldModel), sessionWriter);
 		communicator.connect();
-		
+
 		fileBasedSimulation = new FileBasedSimulation(worldModel);
-		
+
 		robotSimulator.addSensorListener(sessionWriter, worldModel);
 		basicController = new BasicController(communicator, sessionWriter, robotSimulator);
 		pidController = new PidController(worldModel, basicController, communicator, sessionWriter, robotSimulator);
@@ -122,7 +124,7 @@ public class VisualizerFrame extends JFrame {
 				IOUtils.closeQuietly(sessionWriter);
 			}
 		});
-				
+
 		createKeyboardShortCuts();
 
 		getContentPane().add(visualizerPanel, BorderLayout.CENTER);
@@ -130,7 +132,7 @@ public class VisualizerFrame extends JFrame {
 		getContentPane().add(measurementsPanel, BorderLayout.EAST);
 		setJMenuBar(menuBar);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		
+
 		SixaxisInput.getInstance().activate();
 	}
 
@@ -325,7 +327,7 @@ public class VisualizerFrame extends JFrame {
 			}
 		});
 		zoomOut.setMnemonic('o');
-		
+
 		JMenuItem visualizationOptions = new JMenuItem("Options");
 		visualizationOptions.addActionListener(new ActionListener() {
 			@Override
@@ -338,7 +340,7 @@ public class VisualizerFrame extends JFrame {
 		viewMenu.add(zoomOut);
 		viewMenu.addSeparator();
 		viewMenu.add(visualizationOptions);
-		
+
 		menuBar.add(viewMenu);
 	}
 
@@ -425,13 +427,13 @@ public class VisualizerFrame extends JFrame {
 		menuBar.add(mainMenu);
 		return mainMenu;
 	}
-	
+
 	public void open() {
 		updateTitle();
 		setSize(600, 400);
 		setVisible(true);
 		setLocationRelativeTo(null);
-		setExtendedState(JFrame.MAXIMIZED_BOTH);		
+		setExtendedState(JFrame.MAXIMIZED_BOTH);
 	}
 
 	public void loadMap(String fileName) {
@@ -626,7 +628,7 @@ public class VisualizerFrame extends JFrame {
 		spawnSimulationThread(sampleStrings, delayed);
 	}
 
-	
+
 	public void reset() {
 		visualizerPanel.reset();
 		robotSimulator.reset();
@@ -680,7 +682,7 @@ public class VisualizerFrame extends JFrame {
 	public void selectedWaypointTool() {
 		setCurrentTool(waypointTool);
 	}
-	
+
 	public void selectedMeasureTool() {
 		setCurrentTool(measureTool);
 	}
@@ -761,7 +763,7 @@ public class VisualizerFrame extends JFrame {
 	public ParticleFilter getParticleFilter() {
 		return particleFilter;
 	}
-	
+
 	public RobotSimulator getRobotSimulator() {
 		return robotSimulator;
 	}

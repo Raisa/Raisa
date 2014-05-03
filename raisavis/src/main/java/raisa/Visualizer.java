@@ -27,7 +27,7 @@ import raisa.util.RandomUtil;
  * See http://arduino.cc/playground/Interfacing/Java for RXTX library setup
  */
 public class Visualizer {
-	private static Logger log = LoggerFactory.getLogger(Visualizer.class); 
+	private static Logger log = LoggerFactory.getLogger(Visualizer.class);
 
 	private static final String OPTION_LOCALIZATION = "localization";
 	private static final String OPTION_HELP = "help";
@@ -53,7 +53,7 @@ public class Visualizer {
 			for (int i = 0; i < 25; ++i) {
 				x = -200 + (o * 25 + i) * 0.2f;
 				float angleDegrees = -90.0f + (o % 7) + (i / 24.0f) * 180.0f;
-				if (o % 2 == 1) {
+				if (o % 2 != 0) {
 					angleDegrees = 0.0f - angleDegrees;
 				}
 				float angle = (float)Math.toRadians(angleDegrees);
@@ -63,7 +63,7 @@ public class Visualizer {
 			}
 		}
 	}
-	
+
 	private static Options createCmdLineOptions() {
 		Options options = new Options();
 		options.addOption(OPTION_HELP, false, "print this help text");
@@ -77,12 +77,12 @@ public class Visualizer {
 	}
 
 	public static void main(String[] args) throws Exception {
-		Options options = createCmdLineOptions();		
+		Options options = createCmdLineOptions();
 	    CommandLineParser parser = new PosixParser();
-	 
+
 		// initialize configuration based on command line arguments
 	    try {
-		    CommandLine line = parser.parse(options, args);			
+		    CommandLine line = parser.parse(options, args);
 		    if (line.hasOption(OPTION_HELP)) {
 			    HelpFormatter formatter = new HelpFormatter();
 				formatter.printHelp( "Visualizer", options );
@@ -95,9 +95,9 @@ public class Visualizer {
 				log.info("Setting random seed to {}", seed);
 				RandomUtil.setSeed(seed);
 			}
-			
+
 			VisualizerConfig config = VisualizerConfig.getInstance();
-			
+
 			if (line.hasOption(OPTION_LOCALIZATION)) {
 				String val = line.getOptionValue(OPTION_LOCALIZATION);
 				if ("none".equalsIgnoreCase(val)) {
@@ -110,27 +110,27 @@ public class Visualizer {
 					throw new ParseException("Invalid localization \"" + val + "\"");
 				}
 			} else {
-				config.setLocalizationMode(LocalizationModeEnum.NONE);				
+				config.setLocalizationMode(LocalizationModeEnum.NONE);
 			}
-			
+
 			if (line.hasOption(OPTION_IOMODE)) {
 				String val = line.getOptionValue(OPTION_IOMODE);
 				if ("simfile".equals(val)) {
 					config.setInputOutputTarget(InputOutputTargetEnum.FILE_SIMULATION);
 				} else if ("simulator".equals(val)) {
-					config.setInputOutputTarget(InputOutputTargetEnum.REALTIME_SIMULATOR);			
+					config.setInputOutputTarget(InputOutputTargetEnum.REALTIME_SIMULATOR);
 				} else if ("serial".equals(val)) {
-					config.setInputOutputTarget(InputOutputTargetEnum.RAISA_ACTUAL);			
+					config.setInputOutputTarget(InputOutputTargetEnum.RAISA_ACTUAL);
 				} else {
 					throw new ParseException("Invalid iomode \"" + val + "\"");
 				}
 			} else {
-				config.setInputOutputTarget(InputOutputTargetEnum.FILE_SIMULATION);				
+				config.setInputOutputTarget(InputOutputTargetEnum.FILE_SIMULATION);
 			}
-			
+
 			final WorldModel worldModel = new WorldModel();
-			final VisualizerFrame frame = new VisualizerFrame(worldModel);	
-			
+			final VisualizerFrame frame = new VisualizerFrame(worldModel);
+
 			if (line.hasOption(OPTION_SAMPLEFILE)) {
 				String val = line.getOptionValue(OPTION_SAMPLEFILE);
 				if ("example".equals(val)) {
@@ -138,23 +138,23 @@ public class Visualizer {
 				} else {
 					frame.loadSensorSamples(val);
 				}
-			} 
+			}
 
 			if (line.hasOption(OPTION_CONTROLFILE)) {
 				String val = line.getOptionValue(OPTION_CONTROLFILE);
 				frame.loadReplay(val);
-			} 
-			
+			}
+
 			if (line.hasOption(OPTION_MAP)) {
 				String val = line.getOptionValue(OPTION_MAP);
 				frame.loadMap(val);
-			} 
+			}
 
 			config.setChanged(VisualizerConfigItemEnum.ALL_CONFIG_ITEMS);
-			config.notifyVisualizerConfigListeners();			
-			
+			config.notifyVisualizerConfigListeners();
+
 			frame.open();
-	    } catch (Exception pex) {
+	    } catch (RuntimeException pex) {
 	        System.err.println( "Parsing failed.  Reason: " + pex.getMessage() );
 	    	HelpFormatter formatter = new HelpFormatter();
 			formatter.printHelp( "Visualizer", options );

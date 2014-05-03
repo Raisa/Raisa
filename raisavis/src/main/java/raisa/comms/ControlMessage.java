@@ -3,16 +3,18 @@ package raisa.comms;
 import static org.apache.commons.lang3.builder.EqualsBuilder.reflectionEquals;
 import static org.apache.commons.lang3.builder.HashCodeBuilder.reflectionHashCode;
 
+import java.util.Arrays;
+
 import com.google.gson.Gson;
 
 public class ControlMessage {
 	private static final int[] speedPowerMap = new int[] { 0, 100, 115, 135, 160, 195 };
 	private static int speedPowerCorrection = 4;
-	
+
 	public static final int SPEED_STEPS = speedPowerMap.length;
-	
+
 	private static int idSequence = 0;
-	
+
 	private final int id;
 	private final int leftSpeed;
 	private final int rightSpeed;
@@ -44,9 +46,9 @@ public class ControlMessage {
 	}
 
 	public static int[] getSpeedPowerMap() {
-		return speedPowerMap;
+		return Arrays.copyOf(speedPowerMap, speedPowerMap.length);
 	}
-	
+
 	public static ControlMessage fromJson(String json) {
 		return new Gson().fromJson(json, ControlMessage.class);
 	}
@@ -56,7 +58,7 @@ public class ControlMessage {
 				getLeftMotorControl(),
 				(byte) (leftSpeed >= 0 ? 'F' : 'B'),
 				getRightMotorControl(),
-				(byte) (rightSpeed >= 0 ? 'F' : 'B'), 
+				(byte) (rightSpeed >= 0 ? 'F' : 'B'),
 				(byte) (panServoAngle & 0xFF),
 				(byte) (tiltServoAngle & 0xFF),
 				(byte) ((lights ? 2 : 1) | (takePicture ? 4 : 0) | (servos ? 0 : 8)),
@@ -64,11 +66,11 @@ public class ControlMessage {
 				'i', 's', };
 		return bytes;
 	}
-	
+
 	private byte getLeftMotorControl() {
 		int result;
 		if (rawValues) {
-			result = Math.abs(leftSpeed);	
+			result = Math.abs(leftSpeed);
 		} else {
 			result = speedPowerMap[Math.abs(leftSpeed)];
 		}
@@ -81,7 +83,7 @@ public class ControlMessage {
 	private byte getRightMotorControl() {
 		int result;
 		if (rawValues) {
-			result = Math.abs(rightSpeed);	
+			result = Math.abs(rightSpeed);
 		} else {
 			result = speedPowerMap[Math.abs(rightSpeed)];
 		}
@@ -90,7 +92,7 @@ public class ControlMessage {
 		}
 		return (byte)result;
 	}
-	
+
 	public long getTimestamp() {
 		return timestamp;
 	}
@@ -104,7 +106,7 @@ public class ControlMessage {
 	public String toJson() {
 		return new Gson().toJson(this);
 	}
-	
+
 	public int getId() {
 		return id;
 	}
@@ -112,15 +114,15 @@ public class ControlMessage {
 	public boolean isServos() {
 		return servos;
 	}
-	
+
 	public boolean isLights() {
 		return lights;
 	}
-	
+
 	public boolean isRawValues() {
 		return rawValues;
 	}
-	
+
 	public int getLeftSpeed() {
 		return leftSpeed;
 	}
@@ -128,14 +130,14 @@ public class ControlMessage {
 	public int getRightSpeed() {
 		return rightSpeed;
 	}
-	
+
 	public int getPanServoAngle() {
 		return panServoAngle;
-	}	
+	}
 
 	public int getTiltServoAngle() {
 		return tiltServoAngle;
-	}	
+	}
 
 	@Override
 	public boolean equals(Object obj) {
