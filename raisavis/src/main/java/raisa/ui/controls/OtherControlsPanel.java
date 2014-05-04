@@ -25,7 +25,9 @@ import raisa.config.VisualizerConfig;
 import raisa.session.SessionWriter;
 import raisa.simulator.RobotSimulator;
 import raisa.ui.controls.sixaxis.SixaxisInput;
+import edu.umd.cs.findbugs.annotations.SuppressWarnings;
 
+@SuppressWarnings(value = "SIC_INNER_SHOULD_BE_STATIC_ANON", justification="Non-static action listeners are not a problem here")
 public class OtherControlsPanel extends ControlSubPanel {
 	private static final long serialVersionUID = 1L;
 	private static final Logger log = LoggerFactory.getLogger(OtherControlsPanel.class);

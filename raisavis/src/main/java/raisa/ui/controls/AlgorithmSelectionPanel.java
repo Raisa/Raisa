@@ -15,7 +15,9 @@ import raisa.config.VisualizerConfig;
 import raisa.config.VisualizerConfigItemEnum;
 import raisa.config.VisualizerConfigListener;
 import raisa.domain.AlgorithmTypeEnum;
+import edu.umd.cs.findbugs.annotations.SuppressWarnings;
 
+@SuppressWarnings(value = "SIC_INNER_SHOULD_BE_STATIC", justification="Non-static action listeners are not a problem here")
 public class AlgorithmSelectionPanel extends ControlSubPanel implements VisualizerConfigListener {
 	private static final long serialVersionUID = 1L;
 

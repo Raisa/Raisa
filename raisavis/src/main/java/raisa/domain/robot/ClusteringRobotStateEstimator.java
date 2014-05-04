@@ -1,5 +1,6 @@
 package raisa.domain.robot;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -13,7 +14,7 @@ import raisa.util.Vector2D;
 public class ClusteringRobotStateEstimator implements RobotStateEstimator {
 	private final static class KMeansClustering {
 		private List<Vector2D> clusterCenters = new ArrayList<Vector2D>();
-		private Map<RobotState, Integer> clusterOfRobot = new HashMap<RobotState, Integer>();
+		private final Map<RobotState, Integer> clusterOfRobot = new HashMap<RobotState, Integer>();
 
 		public boolean iterate(int k) {
 			// assign robots to clusters
@@ -82,12 +83,7 @@ public class ClusteringRobotStateEstimator implements RobotStateEstimator {
 				}
 			}
 			// return in descending size order
-			Collections.sort(clusters, new Comparator<List<RobotState>>() {
-				@Override
-				public int compare(List<RobotState> cluster1, List<RobotState> cluster2) {
-					return cluster2.size() - cluster1.size();
-				}
-			});
+			Collections.sort(clusters, new ClusterSizeComparator());
 			return clusters;
 		}
 
@@ -105,7 +101,7 @@ public class ClusteringRobotStateEstimator implements RobotStateEstimator {
 		}
 	}
 
-	private AveragingRobotStateEstimator averagingRobotStateEstimator = new AveragingRobotStateEstimator();
+	private final AveragingRobotStateEstimator averagingRobotStateEstimator = new AveragingRobotStateEstimator();
 
 	@Override
 	public RobotState estimateState(List<RobotState> states) {
@@ -115,4 +111,14 @@ public class ClusteringRobotStateEstimator implements RobotStateEstimator {
 
 		return averagingRobotStateEstimator.estimateState(largestCluster);
 	}
+
+	private static class ClusterSizeComparator implements Comparator<List<RobotState>>, Serializable {
+		private static final long serialVersionUID = 1L;
+
+		@Override
+		public int compare(List<RobotState> cluster1, List<RobotState> cluster2) {
+			return cluster2.size() - cluster1.size();
+		}
+	}
+
 }

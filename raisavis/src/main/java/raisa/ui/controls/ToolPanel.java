@@ -12,7 +12,9 @@ import javax.swing.border.TitledBorder;
 
 import raisa.ui.UserEditUndoListener;
 import raisa.ui.VisualizerFrame;
+import edu.umd.cs.findbugs.annotations.SuppressWarnings;
 
+@SuppressWarnings(value = "SIC_INNER_SHOULD_BE_STATIC_ANON", justification="Non-static action listeners are not a problem here")
 public class ToolPanel extends ControlSubPanel {
 	private static final long serialVersionUID = 1L;
 

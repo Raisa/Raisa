@@ -35,15 +35,19 @@ public class SixaxisInput {
 
 	public static SixaxisInput getInstance() {
 		if (instance == null) {
-			try {
-		        System.loadLibrary("hidapi-jni");
-		        nativeLibLoaded = true;
-		    } catch(UnsatisfiedLinkError uex) {
-		    	log.info("Failed to find hidapi-jni library for sixaxis");
-		    } catch(Exception ex) {
-		    	log.info("Failed to load library hidapi-jni", ex);
-		    }
-			instance = new SixaxisInput();
+			synchronized(SixaxisInput.class) {
+				if (instance == null) {
+					try {
+				        System.loadLibrary("hidapi-jni");
+				        nativeLibLoaded = true;
+				    } catch(UnsatisfiedLinkError uex) {
+				    	log.info("Failed to find hidapi-jni library for sixaxis");
+				    } catch(Exception ex) {
+				    	log.info("Failed to load library hidapi-jni", ex);
+				    }
+					instance = new SixaxisInput();
+				}
+			}
 		}
 		return instance;
 	}
@@ -220,7 +224,7 @@ public class SixaxisInput {
 					log.error("Error in closing sixaxis controller", e);
 				}
 				hidMgr.release();
-				System.gc();
+				//System.gc();
 			}
 		}
 

@@ -582,18 +582,18 @@ public class VisualizerFrame extends JFrame {
 
 	private void internalLoadReplay(String fileName) throws FileNotFoundException, IOException {
 		log.debug("Loading replay file {}", fileName);
-		BufferedReader fr = new BufferedReader(new FileReader(fileName));
 		List<ControlMessage> controlMessages = new ArrayList<ControlMessage>();
-		String line = fr.readLine();
-		while (line != null) {
-			// TODO error handling
-			ControlMessage controlMessage = ControlMessage.fromJson(line);
-			if (controlMessage != null) {
-				controlMessages.add(controlMessage);
+		try (BufferedReader fr = new BufferedReader(new FileReader(fileName))) {
+			String line = fr.readLine();
+			while (line != null) {
+				// TODO error handling
+				ControlMessage controlMessage = ControlMessage.fromJson(line);
+				if (controlMessage != null) {
+					controlMessages.add(controlMessage);
+				}
+				line = fr.readLine();
 			}
-			line = fr.readLine();
 		}
-		fr.close();
 		log.info("Replaying {} control messages", controlMessages.size());
 		ReplayController replayController = new ReplayController(controlMessages, communicator, robotSimulator);
 		basicController.copyListenersTo(replayController);
@@ -601,30 +601,31 @@ public class VisualizerFrame extends JFrame {
 	}
 
 	private void internalSaveSensorSamples(String fileName) throws Exception {
-		BufferedWriter writer = new BufferedWriter(new FileWriter(fileName));
-		for (Sample sample : worldModel.getSamples()) {
-			writer.write(sample.getSampleString());
-			writer.newLine();
+		try (BufferedWriter writer = new BufferedWriter(new FileWriter(fileName))) {
+			for (Sample sample : worldModel.getSamples()) {
+				writer.write(sample.getSampleString());
+				writer.newLine();
+			}
 		}
-		writer.close();
 	}
 
 	private void internalLoadSensorSamples(String fileName, boolean delayed) throws FileNotFoundException, IOException {
-		BufferedReader fr = new BufferedReader(new FileReader(fileName));
 		List<String> sampleStrings = new ArrayList<String>();
-		String line = fr.readLine();
 		SampleParser parser = new SampleParser();
-		while (line != null) {
-			if (!parser.isValid(line)) {
-				if(line.length() > 0) {
-					log.warn("Invalid sample! \"{}\"", line);
+
+		try (BufferedReader fr = new BufferedReader(new FileReader(fileName))) {
+			String line = fr.readLine();
+			while (line != null) {
+				if (!parser.isValid(line)) {
+					if(line.length() > 0) {
+						log.warn("Invalid sample! \"{}\"", line);
+					}
+				} else {
+					sampleStrings.add(line);
 				}
-			} else {
-				sampleStrings.add(line);
+				line = fr.readLine();
 			}
-			line = fr.readLine();
 		}
-		fr.close();
 		spawnSimulationThread(sampleStrings, delayed);
 	}
 

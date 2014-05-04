@@ -14,7 +14,9 @@ import raisa.comms.ControllerListener;
 import raisa.comms.controller.BasicController;
 import raisa.comms.controller.Controller;
 import raisa.ui.controls.sixaxis.SixaxisInput;
+import edu.umd.cs.findbugs.annotations.SuppressWarnings;
 
+@SuppressWarnings(value = "SIC_INNER_SHOULD_BE_STATIC_ANON", justification="Non-static action listeners are not a problem here")
 public class PanAndTiltSystemPanel extends ControlSubPanel {
 
 	private static final long serialVersionUID = 1L;
