@@ -1,0 +1,69 @@
+@startuml
+
+repeat
+
+  :Raw sample received/generated
+  * ""SerialCommunicator.serialEvent()""
+  * ""RobotSimulator.run()""
+  * ""FileBasedSimulation.run()"";
+  
+  fork
+  
+    :Write sensor log file (if enabled)
+    * ""SessionWriter.sampleReceived()"";
+  
+  fork again
+  
+    :Notify world model
+    * ""WorldModel.sampleReceived()"";
+  
+    :Parse sample string
+    * ""SampleParser.parse()"";
+  
+    :Clean anomalies using sample fixers
+    * ""AveragingSampleFixer.fix()"";
+    
+    fork
+      :Update gauge visualization (UI)
+      * ""MeasurementPanel.sampleAdded()"";
+  
+    fork again
+      :Update map area visualization (UI)
+      * ""VisualizerPanel.sampleAdded()"";
+  
+    fork again
+      :Start AI logic
+      * ""RobotStateAggregator.sampleAdded()"";
+  
+      :Estimate new robot state
+      * ""SimpleRobotMovementEstimator.moveRobot()"";
+  
+      fork
+        :Extract landmarks (if enabled)
+        * ""LandmarkManager.addData()"";
+  
+        :Execute SLAM (if enabled),
+        mutually exclusive with particle filter
+        * ""SlamManager.update()"";
+  
+      fork again
+        :Execute particle filter (if enabled),
+        mutually exclusive with SLAM
+        * ""ParticleFilter.updateParticles()"";
+      end fork 
+  
+      :Calculate speed
+      * ""RobotStateAggregator.calculateSpeed()"";
+  
+      :Update world state
+      * ""WorldModel.addState()"";
+  
+      :Notify world state listeners 
+      (fork if multiple listeners)
+      * ""PIDController.robotStateChanged()"";
+    
+    end fork
+  end fork
+
+
+@enduml

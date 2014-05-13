@@ -1,0 +1,55 @@
+@startuml
+
+repeat
+
+  :Raw sample received/generated
+  * ""SerialCommunicator.serialEvent()""
+  * ""RobotSimulator.run()""
+  * ""FileBasedSimulation.run()"";
+
+  :Write sensor log file (if enabled)
+  * ""SessionWriter.sampleReceived()"";
+
+  :Notify world model
+  * ""WorldModel.sampleReceived()"";
+
+  :Parse sample string
+  * ""SampleParser.parse()"";
+
+  :Clean anomalies using sample fixers
+  * ""AveragingSampleFixer.fix()"";
+
+  :Update gauge visualization (UI)
+  * ""MeasurementPanel.sampleAdded()"";
+
+  :Update map area visualization (UI)
+  * ""VisualizerPanel.sampleAdded()"";
+
+  :Start AI logic
+  * ""RobotStateAggregator.sampleAdded()"";
+
+  :Estimate new robot state
+  * ""SimpleRobotMovementEstimator.moveRobot()"";
+
+  :Extract landmarks (if enabled)
+  * ""LandmarkManager.addData()"";
+
+  :Execute particle filter (if enabled),
+  mutually exclusive with SLAM
+  * ""ParticleFilter.updateParticles()"";
+
+  :Execute SLAM (if enabled),
+  mutually exclusive with particle filter
+  * ""SlamManager.update()"";
+
+  :Calculate speed
+  * ""RobotStateAggregator.calculateSpeed()"";
+
+  :Update world state
+  * ""WorldModel.addState()"";
+  
+  :Notify world state listeners
+  * ""PIDController.robotStateChanged()"";
+
+
+@enduml
