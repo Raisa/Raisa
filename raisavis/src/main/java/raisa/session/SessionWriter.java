@@ -1,14 +1,20 @@
 package raisa.session;
 
+import static java.nio.charset.StandardCharsets.US_ASCII;
+
 import java.io.BufferedOutputStream;
 import java.io.Closeable;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.Flushable;
 import java.io.IOException;
+import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadFactory;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
@@ -20,6 +26,7 @@ import raisa.comms.ControlMessage;
 import raisa.comms.SampleParser;
 import raisa.comms.SensorListener;
 import raisa.domain.samples.Sample;
+import edu.umd.cs.findbugs.annotations.SuppressWarnings;
 
 public class SessionWriter implements Communicator, SensorListener, Closeable, Flushable {
 	private static final Logger logger = LoggerFactory.getLogger(SessionWriter.class);
@@ -28,13 +35,21 @@ public class SessionWriter implements Communicator, SensorListener, Closeable, F
 	private PrintWriter controlDataOutput;
 	private PrintWriter sensorDataOutput;
 	private long start;
-	private String prefix;
+	private final String prefix;
 	private File sessionDirectory;
-	private File mainDirectory;
+	private final File mainDirectory;
+	private ExecutorService sessionWriterExecutor;
 
+	@SuppressWarnings(value = "SIC_INNER_SHOULD_BE_STATIC_ANON", justification="Static inner class would be overkill for small class")
 	public SessionWriter(File mainDirectory, String prefix) {
 		this.mainDirectory = mainDirectory;
 		this.prefix = prefix;
+		sessionWriterExecutor = Executors.newSingleThreadExecutor(new ThreadFactory() {
+			@Override
+			public Thread newThread(Runnable r) {
+				return new Thread(r, "raisavis-SessionWriter");
+			}
+		});
 	}
 
 	synchronized public void start() throws IOException {
@@ -57,13 +72,23 @@ public class SessionWriter implements Communicator, SensorListener, Closeable, F
 			}
 		}
 
-		controlDataOutput = new PrintWriter(new BufferedOutputStream(new FileOutputStream(controlDataFile)));
-		sensorDataOutput = new PrintWriter(new BufferedOutputStream(new FileOutputStream(sensorDataFile)));
+		controlDataOutput = new PrintWriter(new OutputStreamWriter(new BufferedOutputStream(new FileOutputStream(controlDataFile)), US_ASCII));
+		sensorDataOutput = new PrintWriter(new OutputStreamWriter(new BufferedOutputStream(new FileOutputStream(sensorDataFile)), US_ASCII));
 		start = System.currentTimeMillis();
 	}
 
 	@Override
-	synchronized public void sendPackage(ControlMessage message) {
+	@SuppressWarnings(value = "RV_RETURN_VALUE_IGNORED_BAD_PRACTICE", justification="Future value is uninteresting")
+	public void sendPackage(final ControlMessage message) {
+		sessionWriterExecutor.submit(new Runnable() {
+			@Override
+			public void run() {
+				writeControlMessage(message);
+			}
+		});
+	}
+
+	synchronized private void writeControlMessage(ControlMessage message) {
 		if (!isCapturingData()) {
 			return;
 		}
@@ -74,17 +99,27 @@ public class SessionWriter implements Communicator, SensorListener, Closeable, F
 	}
 
 	@Override
-	synchronized public void sampleReceived(String sample) {
+	@SuppressWarnings(value = "RV_RETURN_VALUE_IGNORED_BAD_PRACTICE", justification="Future value is uninteresting")
+	public void sampleReceived(final String sample) {
+		sessionWriterExecutor.submit(new Runnable() {
+			@Override
+			public void run() {
+				writeSample(sample);
+			}
+		});
+	}
+
+	synchronized private void writeSample(String sample) {
 		if (!isCapturingData()) {
 			return;
 		}
-		// synchronize sensor readings using same clock as control messages 
+		// synchronize sensor readings using same clock as control messages
 		String timestampedSample = sample.replaceAll("TI\\d+", "TI" + getTimestamp());
 		sensorDataOutput.println(timestampedSample);
 		sensorDataOutput.flush();
 		writeImage(sample);
 	}
-	
+
 	private void writeImage(String sample) {
 		SampleParser sampleParser = new SampleParser();
 		// first make a fast check
@@ -114,6 +149,7 @@ public class SessionWriter implements Communicator, SensorListener, Closeable, F
 		return System.currentTimeMillis() - start;
 	}
 
+	@Override
 	synchronized public void close() {
 		IOUtils.closeQuietly(controlDataOutput);
 		IOUtils.closeQuietly(sensorDataOutput);
@@ -127,7 +163,7 @@ public class SessionWriter implements Communicator, SensorListener, Closeable, F
 	}
 
 	@Override
-	public void flush() throws IOException {
+	synchronized public void flush() throws IOException {
 		flush(controlDataOutput);
 		flush(sensorDataOutput);
 	}
@@ -156,7 +192,7 @@ public class SessionWriter implements Communicator, SensorListener, Closeable, F
 
 	@Override
 	public void setActive(boolean active) {
-		;		
+		;
 	}
 
 }
