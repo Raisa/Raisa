@@ -20,6 +20,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
@@ -46,6 +48,7 @@ import raisa.simulator.RobotSimulator;
 import raisa.util.CollectionUtil;
 import raisa.util.GeometryUtil;
 import raisa.util.GraphicsUtil;
+import raisa.util.NamedThreadFactory;
 import raisa.util.Segment2D;
 import raisa.util.Vector2D;
 import edu.umd.cs.findbugs.annotations.SuppressWarnings;
@@ -72,6 +75,7 @@ public class VisualizerPanel extends JPanel implements SampleListener, Visualize
 	private final RobotSimulator robotSimulator;
 	private BufferedImage currentImage;
 	private final PopupMenu popupMenu = new PopupMenu();
+	private final ExecutorService updateExecutor;
 
 	public void reset() {
 		worldModel.reset();
@@ -94,7 +98,6 @@ public class VisualizerPanel extends JPanel implements SampleListener, Visualize
 		this.visualizerFrame = frame;
 		this.worldModel = worldModel;
 		this.robotSimulator = robotSimulator;
-		worldModel.addSampleListener(this);
 		setBackground(Color.gray);
 		setFocusable(true);
 		addHierarchyBoundsListener(new PanelSizeHandler());
@@ -104,10 +107,22 @@ public class VisualizerPanel extends JPanel implements SampleListener, Visualize
 		reset();
 		dashed = new BasicStroke(1.0f, BasicStroke.CAP_BUTT, BasicStroke.JOIN_MITER, 10.0f, new float[] { 15.0f }, 0.0f);
 		arrow = new BasicStroke(2.0f, BasicStroke.CAP_BUTT, BasicStroke.JOIN_MITER, 10.0f);
+		updateExecutor = Executors.newSingleThreadExecutor(new NamedThreadFactory("raisavis-VisualizerPanel"));
+		worldModel.addSampleListener(this);
 	}
 
 	@Override
-	public void sampleAdded(Sample sample) {
+	@SuppressWarnings(value = "RV_RETURN_VALUE_IGNORED_BAD_PRACTICE", justification="Future value is uninteresting")
+	public void sampleAdded(final Sample sample) {
+		updateExecutor.submit(new Runnable() {
+			@Override
+			public void run() {
+				processSample(sample);
+			}
+		});
+	}
+
+	private void processSample(Sample sample) {
 		RobotState latestState = worldModel.getLatestState().getEstimatedState();
 		if (sample.isInfrared1MeasurementValid()) {
 			Vector2D spotPosition = GeometryUtil.calculatePosition(latestState.getPosition(), latestState.getHeading() + sample.getInfrared1Angle(), sample.getInfrared1Distance());
@@ -133,6 +148,7 @@ public class VisualizerPanel extends JPanel implements SampleListener, Visualize
 	}
 
 	@Override
+	@SuppressWarnings(value = "BC_UNCONFIRMED_CAST", justification="Cast required by Java backwards compatibility")
 	public void paintComponent(Graphics g) {
 		Graphics2D g2 = (Graphics2D) g;
 		clearScreen(g);
