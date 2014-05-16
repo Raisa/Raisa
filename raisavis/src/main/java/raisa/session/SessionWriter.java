@@ -14,7 +14,6 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.ThreadFactory;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
@@ -26,6 +25,7 @@ import raisa.comms.ControlMessage;
 import raisa.comms.SampleParser;
 import raisa.comms.SensorListener;
 import raisa.domain.samples.Sample;
+import raisa.util.NamedThreadFactory;
 import edu.umd.cs.findbugs.annotations.SuppressWarnings;
 
 public class SessionWriter implements Communicator, SensorListener, Closeable, Flushable {
@@ -38,18 +38,12 @@ public class SessionWriter implements Communicator, SensorListener, Closeable, F
 	private final String prefix;
 	private File sessionDirectory;
 	private final File mainDirectory;
-	private ExecutorService sessionWriterExecutor;
+	private final ExecutorService sessionWriterExecutor;
 
-	@SuppressWarnings(value = "SIC_INNER_SHOULD_BE_STATIC_ANON", justification="Static inner class would be overkill for small class")
 	public SessionWriter(File mainDirectory, String prefix) {
 		this.mainDirectory = mainDirectory;
 		this.prefix = prefix;
-		sessionWriterExecutor = Executors.newSingleThreadExecutor(new ThreadFactory() {
-			@Override
-			public Thread newThread(Runnable r) {
-				return new Thread(r, "raisavis-SessionWriter");
-			}
-		});
+		sessionWriterExecutor = Executors.newSingleThreadExecutor(new NamedThreadFactory("raisavis-SessionWriter"));
 	}
 
 	synchronized public void start() throws IOException {
