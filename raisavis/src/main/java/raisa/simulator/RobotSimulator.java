@@ -1,6 +1,7 @@
 package raisa.simulator;
 
 import static java.lang.Math.round;
+import static java.lang.System.currentTimeMillis;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -23,40 +24,41 @@ import raisa.util.Vector3D;
 
 /**
  * Simulated Rover.
- * 
+ *
  */
 public class RobotSimulator implements SimulatorState, ServoScanListener, Communicator, VisualizerConfigListener, Runnable {
-	
+
 	private static final Logger log = LoggerFactory.getLogger(RobotSimulator.class);
 	private static final float SPEED_PER_GEAR = 0.04f;
 
 	/** degrees */
 	private float heading;
 	private Vector2D position;
-	private RotatingServo rotatingServo = new RotatingServo(this);
-	private DistanceScanner irScanner1 = new IRDistanceScanner();
-	private DistanceScanner sonarScanner1 = new SonarDistanceScanner();
-	private DistanceScanner irScanner2 = new IRDistanceScanner();
-	private DistanceScanner sonarScanner2 = new SonarDistanceScanner();
-	private DriveSystem driveSystem;
-	private WorldModel worldModel;
-	private List<SensorListener> sensorListeners = new ArrayList<SensorListener>();
+	private final RotatingServo rotatingServo = new RotatingServo(this);
+	private final DistanceScanner irScanner1 = new IRDistanceScanner();
+	private final DistanceScanner sonarScanner1 = new SonarDistanceScanner();
+	private final DistanceScanner irScanner2 = new IRDistanceScanner();
+	private final DistanceScanner sonarScanner2 = new SonarDistanceScanner();
+	private final DriveSystem driveSystem;
+	private final WorldModel worldModel;
+	private final List<SensorListener> sensorListeners = new ArrayList<SensorListener>();
 	private final long startTime = System.currentTimeMillis();
 	private int messageNumber = 1;
 
-	private NormalDistribution sensorDirectionNoise = RandomUtil.normalDistribution(0.0d, 0.5d);
-	private NormalDistribution headingNoise = RandomUtil.normalDistribution(0.0d, 0.5d);
+	private final NormalDistribution sensorDirectionNoise = RandomUtil.normalDistribution(0.0d, 0.5d);
+	private final NormalDistribution headingNoise = RandomUtil.normalDistribution(0.0d, 0.5d);
 
 	private Thread simulatorThread;
 	private boolean simulatorActive = false;
-	
+
+	private final VisualizerConfig config;
+
 	public RobotSimulator(Vector2D position, float heading, DriveSystem driveSystem, WorldModel worldModel) {
-		VisualizerConfig config = VisualizerConfig.getInstance();
-		
 		this.position = position;
 		this.heading = heading;
 		this.driveSystem = driveSystem;
 		this.worldModel = worldModel;
+		config = VisualizerConfig.getInstance();
 		config.addVisualizerConfigListener(this);
 	}
 
@@ -64,13 +66,13 @@ public class RobotSimulator implements SimulatorState, ServoScanListener, Commun
 		DifferentialDrive driveSystem = new DifferentialDrive(Robot.ROBOT_WIDTH, Robot.WHEEL_DIAMETER);
 		return new RobotSimulator(position, heading, driveSystem, worldModel);
 	}
-	
+
 	public RobotSimulator tick(float timestep) {
 		driveSystem.move(this, timestep);
 		rotateScanners(timestep);
 		return this;
 	}
-	
+
 	private void rotateScanners(float timestep) {
 		rotatingServo.rotate(timestep);
 	}
@@ -134,10 +136,10 @@ public class RobotSimulator implements SimulatorState, ServoScanListener, Commun
 			reading.setSonarDistance2(round(sonarDistance2));
 			reading.setSonarDirection2(round(servoHeading) + 90 + 180 + directionNoiseSample);
 		}
-		
+
 		reading.setCompassHeading(360-round(heading - (int)headingNoise.sample()));
 		reading.setTimestamp(System.currentTimeMillis() - startTime).setMessageNumber(messageNumber++);
-		
+
 		Vector3D gyro = new Vector3D();
 		reading.setGyro(gyro);
 		gyro.setX((float) RandomUtil.nextGaussian());
@@ -149,13 +151,13 @@ public class RobotSimulator implements SimulatorState, ServoScanListener, Commun
 		acceleration.setX((float) RandomUtil.nextGaussian());
 		acceleration.setY((float)(-9.81 + RandomUtil.nextGaussian()));
 		acceleration.setZ((float) RandomUtil.nextGaussian());
-		
+
 		reading.setRightEncoder(driveSystem.readRightWheelEncoderTicks());
 		reading.setLeftEncoder(driveSystem.readLeftWheelEncoderTicks());
 
 		sendSendorReading(reading);
 	}
-	
+
 	private void sendSendorReading(SensorReading sensorReading) {
 		log.trace("Sendor reading: {}", sensorReading.toString());
 
@@ -163,7 +165,7 @@ public class RobotSimulator implements SimulatorState, ServoScanListener, Commun
 			sensorListener.sampleReceived(sensorReading.toString());
 		}
 	}
-	
+
 	/**
 	 * Called when simulator receives a control message
 	 */
@@ -178,9 +180,9 @@ public class RobotSimulator implements SimulatorState, ServoScanListener, Commun
 	private float convertControlSpeed(int controlSpeed, boolean rawValue) {
 		if (rawValue) {
 			int[] speedPowerMap = ControlMessage.getSpeedPowerMap();
-			int absoluteSpeed = Math.abs(controlSpeed);			
+			int absoluteSpeed = Math.abs(controlSpeed);
 			for (int i=1; i < speedPowerMap.length; i++) {
-				if ((int)speedPowerMap[i] > absoluteSpeed) {
+				if (speedPowerMap[i] > absoluteSpeed) {
 					return ( controlSpeed > 0 ? 1 : -1 ) * SPEED_PER_GEAR * ( (i-1) + ( ((float)( absoluteSpeed - speedPowerMap[i-1] )) / ((float)( speedPowerMap[i] - speedPowerMap[i-1] )) ) );
 				}
 			}
@@ -189,15 +191,15 @@ public class RobotSimulator implements SimulatorState, ServoScanListener, Commun
 			return SPEED_PER_GEAR * controlSpeed;
 		}
 	}
-	
-	
+
+
 	public void reset() {
 		this.position = new Vector2D(0,0);
 		this.heading = 0;
 		this.driveSystem.setLeftWheelSpeed(0);
 		this.driveSystem.setRightWheelSpeed(0);
 	}
-	
+
 	@Override
 	public boolean connect() {
 		return true;
@@ -206,8 +208,8 @@ public class RobotSimulator implements SimulatorState, ServoScanListener, Commun
 	@Override
 	public void close() {
 		;
-	}	
-	
+	}
+
 	@Override
 	public void setActive(boolean active) {
 		;
@@ -228,10 +230,9 @@ public class RobotSimulator implements SimulatorState, ServoScanListener, Commun
 		}
 		return this;
 	}
-	
+
 	@Override
 	public void visualizerConfigChanged(VisualizerConfig config) {
-		
 		switch(config.getInputOutputTarget()) {
 		case REALTIME_SIMULATOR:
 			if (!simulatorActive) {
@@ -239,7 +240,7 @@ public class RobotSimulator implements SimulatorState, ServoScanListener, Commun
 				RobotState state = worldModel.getLatestState().getMeasuredState();
 				setPosition(new Vector2D(state.getPosition().x, state.getPosition().y));
 				setHeading(360-(float)Math.toDegrees(state.getHeading()));
-				simulatorThread = new Thread(this);				
+				simulatorThread = new Thread(this);
 				simulatorThread.start();
 			}
 			break;
@@ -247,39 +248,38 @@ public class RobotSimulator implements SimulatorState, ServoScanListener, Commun
 			if (simulatorActive) {
 				simulatorActive = false;
 				try {
-					Thread.sleep((int)(getTimeStepLengthInSeconds()*1000));
+					Thread.sleep(getTimeStepLengthInMillis());
 				} catch (InterruptedException e) {
 				}
 			}
 		}
 	}
-	
-	@Override	
+
+	@Override
 	public void run() {
 		log.info("Simulator thread starting");
-		long prevTickDuration = -1;
-		float timeStepLength = getTimeStepLengthInSeconds();
 		while(this.simulatorActive) {
-			try {
-				long maxTime = (long)(timeStepLength * 1000 / 4);
-				long timeToSleep;
-				if(prevTickDuration < 0) {
-					timeToSleep = maxTime;
-				} else {
-					timeToSleep = Math.max(0, maxTime - prevTickDuration);
-				}
-				Thread.sleep(timeToSleep);
-			} catch (InterruptedException e) {
-			}
-			long start = System.currentTimeMillis();
-			tick(timeStepLength);
-			prevTickDuration = System.currentTimeMillis() - start;
+			long start = currentTimeMillis();
+			tick(getTimeStepLengthInSeconds());
+			sleep(getTimeStepLengthInMillis(), currentTimeMillis() - start);
 		}
 		log.info("Simulator thread stopping");
 	}
 
-	private float getTimeStepLengthInSeconds() {
-		return 0.120f;
+	private void sleep(long timeStepLengthMillis, long prevTickDuration) {
+		try {
+			Thread.sleep(Math.max(0, timeStepLengthMillis - prevTickDuration));
+		} catch(InterruptedException iex) {
+			// ok
+		}
 	}
-	
+
+	private float getTimeStepLengthInSeconds() {
+		return 1.0f / config.getSimulatorTicksPerSecond();
+	}
+
+	private long getTimeStepLengthInMillis() {
+		return 1000l / config.getSimulatorTicksPerSecond();
+	}
+
 }
