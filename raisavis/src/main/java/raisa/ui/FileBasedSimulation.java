@@ -13,45 +13,45 @@ import raisa.domain.WorldModel;
 
 public class FileBasedSimulation implements Runnable, VisualizerConfigListener {
 
-	private static final Logger log = LoggerFactory.getLogger(FileBasedSimulation.class);	
-	
+	private static final Logger log = LoggerFactory.getLogger(FileBasedSimulation.class);
+
 	private boolean active = false;
-	private WorldModel world;
+	private final WorldModel world;
 	private Thread simulationThread;
 
 	private int nextSample = 0;
 	private List<String> samples = new ArrayList<String>();
 	private boolean delayed;
 	private boolean stepSimulation;
-	
+
 	public FileBasedSimulation(WorldModel world) {
 		this.world = world;
 		VisualizerConfig.getInstance().addVisualizerConfigListener(this);
 	}
-	
+
 	public void setSamples(List<String> samples, boolean delayed) {
 		this.samples = samples;
 		this.delayed = delayed;
 		this.nextSample = 0;
 	}
-	
+
 	public void setStepSimulation(boolean stepSimulation) {
 		this.stepSimulation = stepSimulation;
 	}
-	
+
 	public void start() {
 		if (active || samples.size()==0) {
 			return;
 		}
 		active = true;
-		simulationThread = new Thread(this);
+		simulationThread = new Thread(this, "raisavis-FileBasedSimulation");
 		simulationThread.start();
 	}
-	
+
 	public void stop() {
 		active = false;
 	}
-	
+
 	public void reset() {
 		active = false;
 		try {
@@ -61,7 +61,7 @@ public class FileBasedSimulation implements Runnable, VisualizerConfigListener {
 		}
 		samples = new ArrayList<String>();
 	}
-	
+
 	@Override
 	public void run() {
 		log.info("Starting simulation");
@@ -95,6 +95,6 @@ public class FileBasedSimulation implements Runnable, VisualizerConfigListener {
 				break;
 			}
 		}
-	}	
-	
+	}
+
 }

@@ -112,7 +112,7 @@ public class SixaxisInput {
 		}
 		try {
 			deviceReader = new SixaxisDeviceReader(this);
-			deviceReaderThread = new Thread(deviceReader);
+			deviceReaderThread = new Thread(deviceReader, "raisavis-SixaxisInput");
 			deviceReaderThread.start();
 			log.info("Sixaxis controller activated");
 		} catch(IOException iox) {

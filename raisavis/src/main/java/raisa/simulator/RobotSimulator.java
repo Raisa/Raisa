@@ -240,7 +240,7 @@ public class RobotSimulator implements SimulatorState, ServoScanListener, Commun
 				RobotState state = worldModel.getLatestState().getMeasuredState();
 				setPosition(new Vector2D(state.getPosition().x, state.getPosition().y));
 				setHeading(360-(float)Math.toDegrees(state.getHeading()));
-				simulatorThread = new Thread(this);
+				simulatorThread = new Thread(this, "raisavis-RobotSimulator");
 				simulatorThread.start();
 			}
 			break;

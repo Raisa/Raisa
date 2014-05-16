@@ -75,7 +75,7 @@ public class SerialCommunicator implements SerialPortEventListener, Communicator
 			input = new InputStreamReader(serialPort.getInputStream(), US_ASCII);
 
 			serialWriter = new SerialWriter(serialPort.getOutputStream());
-			serialWriterThread = new Thread(serialWriter);
+			serialWriterThread = new Thread(serialWriter, "raisavis-SerialCommunicator");
 			serialWriterThread.start();
 
 			// add event listeners
