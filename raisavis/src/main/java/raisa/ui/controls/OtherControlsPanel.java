@@ -4,6 +4,8 @@ import java.awt.Component;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 import java.io.IOException;
 
 import javax.swing.BoxLayout;
@@ -11,6 +13,7 @@ import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JTextField;
 import javax.swing.JToggleButton;
 import javax.swing.border.TitledBorder;
 
@@ -38,7 +41,10 @@ public class OtherControlsPanel extends ControlSubPanel {
 	final JToggleButton dataCaptureButton = new JToggleButton("Capture");
 	final JToggleButton compassButton = new JToggleButton("Compass");
 
+	final VisualizerConfig config;
+
 	public OtherControlsPanel(final BasicController controller, SessionWriter sessionWriter, RobotSimulator robotSimulator) {
+		config = VisualizerConfig.getInstance();
 		setBorder(new TitledBorder("Other"));
 		setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
 		setAlignmentX(Component.CENTER_ALIGNMENT);
@@ -66,7 +72,6 @@ public class OtherControlsPanel extends ControlSubPanel {
 		compassButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				VisualizerConfig config = VisualizerConfig.getInstance();
 				config.setUseCompass(!config.getUseCompass());
 			}
 		});
@@ -91,10 +96,16 @@ public class OtherControlsPanel extends ControlSubPanel {
 	}
 
 	private void createInputOutputTargetControl() {
-		final JLabel label = new JLabel("Input/Output:");
+		final JPanel ioPanel = new JPanel();
+		ioPanel.setLayout(new GridLayout(3, 1));
+		final JLabel ioLabel = new JLabel("Input/Output:");
 		final String[] targets = { "Simulation file", "Raisa actual", "Simulator" };
 		final JComboBox<String> box = new JComboBox<>(targets);
-		final VisualizerConfig config = VisualizerConfig.getInstance();
+		final JPanel tickPanel = new JPanel();
+		final JLabel tickLabel = new JLabel("Ticks / second");
+		final JTextField ticksPerSecondField = new JTextField(Integer.toString(config.getSimulatorTicksPerSecond()), 3);
+		tickPanel.add(tickLabel);
+		tickPanel.add(ticksPerSecondField);
 		box.setSelectedIndex(config.getInputOutputTarget().getIndex());
 		box.addActionListener(new ActionListener() {
 			@Override
@@ -103,19 +114,36 @@ public class OtherControlsPanel extends ControlSubPanel {
 				switch (box.getSelectedIndex()) {
 				case 0:
 					config.setInputOutputTarget(InputOutputTargetEnum.FILE_SIMULATION);
+					ioPanel.remove(tickPanel);
 					break;
 				case 1:
 					config.setInputOutputTarget(InputOutputTargetEnum.RAISA_ACTUAL);
+					ioPanel.remove(tickPanel);
 					break;
 				default:
 					config.setInputOutputTarget(InputOutputTargetEnum.REALTIME_SIMULATOR);
+					ioPanel.add(tickPanel);
 					break;
 				}
 				config.notifyVisualizerConfigListeners();
 			}
 		});
-		add(label);
-		add(box);
+		ticksPerSecondField.addKeyListener(new KeyAdapter() {
+			@Override
+			public void keyReleased(KeyEvent e) {
+				try {
+					int tmp = Integer.parseInt(ticksPerSecondField.getText());
+					if (tmp > 0) {
+						config.setSimulatorTicksPerSecond(tmp);
+					}
+				} catch(NumberFormatException nex) {
+					log.debug("Invalid ticks per second: " + ticksPerSecondField.getText());
+				}
+			}
+		});
+		ioPanel.add(ioLabel);
+		ioPanel.add(box);
+		add(ioPanel);
 	}
 
 	private void createLightsControl(final BasicController controller) {

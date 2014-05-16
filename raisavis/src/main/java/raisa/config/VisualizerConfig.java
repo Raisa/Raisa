@@ -33,6 +33,9 @@ public class VisualizerConfig {
 	// displayed controls subpanels
 	private final Set<ControlTypeEnum> displayedControls = new HashSet<ControlTypeEnum>();
 
+	// simulator settings
+	private int simulatorTicksPerSecond = 10;
+
 	private boolean useCompass = false;
 
 	private VisualizerConfig() {
@@ -187,6 +190,14 @@ public class VisualizerConfig {
 
 	public Set<MapAreaElementEnum> getDisplayedMapAreaElements() {
 		return this.displayedMapAreaElements;
+	}
+
+	public void setSimulatorTicksPerSecond(int ticksPerSecond) {
+		this.simulatorTicksPerSecond = ticksPerSecond;
+	}
+
+	public int getSimulatorTicksPerSecond() {
+		return this.simulatorTicksPerSecond;
 	}
 
 	public void setUseCompass(boolean useCompass) {
