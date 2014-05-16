@@ -35,6 +35,7 @@ public class VisualizerConfig {
 
 	// simulator settings
 	private int simulatorTicksPerSecond = 10;
+	private int simulatorServoDegreesPerSecond = 360;
 
 	private boolean useCompass = false;
 
@@ -198,6 +199,14 @@ public class VisualizerConfig {
 
 	public int getSimulatorTicksPerSecond() {
 		return this.simulatorTicksPerSecond;
+	}
+
+	public void setSimulatorServoDegreesPerSecond(int simulatorServoDegreesPerSecond) {
+		this.simulatorServoDegreesPerSecond = simulatorServoDegreesPerSecond;
+	}
+
+	public int getSimulatorServoDegreesPerSecond() {
+		return this.simulatorServoDegreesPerSecond;
 	}
 
 	public void setUseCompass(boolean useCompass) {

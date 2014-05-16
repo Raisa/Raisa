@@ -102,10 +102,15 @@ public class OtherControlsPanel extends ControlSubPanel {
 		final String[] targets = { "Simulation file", "Raisa actual", "Simulator" };
 		final JComboBox<String> box = new JComboBox<>(targets);
 		final JPanel tickPanel = new JPanel();
-		final JLabel tickLabel = new JLabel("Ticks / second");
+		tickPanel.setLayout(new GridLayout(2, 2));
+		final JLabel tickLabel = new JLabel("Samples / s");
 		final JTextField ticksPerSecondField = new JTextField(Integer.toString(config.getSimulatorTicksPerSecond()), 3);
+		final JLabel servoSpeedLabel = new JLabel("Servo degrees / s");
+		final JTextField servoSpeedField = new JTextField(Integer.toString(config.getSimulatorServoDegreesPerSecond()), 5);
 		tickPanel.add(tickLabel);
 		tickPanel.add(ticksPerSecondField);
+		tickPanel.add(servoSpeedLabel);
+		tickPanel.add(servoSpeedField);
 		box.setSelectedIndex(config.getInputOutputTarget().getIndex());
 		box.addActionListener(new ActionListener() {
 			@Override
@@ -137,7 +142,20 @@ public class OtherControlsPanel extends ControlSubPanel {
 						config.setSimulatorTicksPerSecond(tmp);
 					}
 				} catch(NumberFormatException nex) {
-					log.debug("Invalid ticks per second: " + ticksPerSecondField.getText());
+					log.debug("Invalid samples per second: " + ticksPerSecondField.getText());
+				}
+			}
+		});
+		servoSpeedField.addKeyListener(new KeyAdapter() {
+			@Override
+			public void keyReleased(KeyEvent e) {
+				try {
+					int tmp = Integer.parseInt(servoSpeedField.getText());
+					if (tmp > 0) {
+						config.setSimulatorServoDegreesPerSecond(tmp);
+					}
+				} catch(NumberFormatException nex) {
+					log.debug("Invalid degrees per second: " + servoSpeedField.getText());
 				}
 			}
 		});

@@ -1,9 +1,10 @@
 package raisa.simulator;
 
+import raisa.config.VisualizerConfig;
+
 
 public class RotatingServo {
 	private float heading;
-	private final float rotatingSpeed = 60.0f / 0.17f;
 	private final float minHeading = -90;
 	private final float maxHeading = 90;
 	private static final int LEFT = -1;
@@ -11,13 +12,16 @@ public class RotatingServo {
 	private int direction = RIGHT;
 	private final ServoScanListener servoScanListener;
 
+	VisualizerConfig config;
+
 	public RotatingServo(ServoScanListener servoScanListener) {
 		this.heading = (minHeading + maxHeading) / 2.0f;
 		this.servoScanListener = servoScanListener;
+		this.config = VisualizerConfig.getInstance();
 	}
 
 	public RotatingServo rotate(float timestep) {
-		heading += direction * timestep * rotatingSpeed;
+		heading += direction * timestep * config.getSimulatorServoDegreesPerSecond();
 		scan(heading);
 		int nextDirection = direction;
 		if (heading >= maxHeading) {
