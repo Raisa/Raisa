@@ -20,32 +20,32 @@ import raisa.util.Vector2D;
 public class PidController extends Controller implements RobotStateListener {
 
 	private static final float HALF_PI = (float)(Math.PI / 2.0d);
-	
-	private WorldModel world;
-	private BasicController basicController;
-	private List<Communicator> communicators = new ArrayList<Communicator>();
-	
+
+	private final WorldModel world;
+	private final BasicController basicController;
+	private final List<Communicator> communicators = new ArrayList<Communicator>();
+
 	private int leftSpeed;
 	private int rightSpeed;
-	
-	private static final float Kp = 1.0f;
+
+	private static final float Kp = 5.0f;
 	private static final float Ki = 0.1f;
-	private static final float Kd = 1.0f;
-	
+	private static final float Kd = 0.5f;
+
 	private float prevError = 0.0f;
 	private float accError = 0.0f;
 	private boolean movingForward = true;
 	private Vector2D currentWaypoint = null;
-	
+
 	private int stateCounter = 0;
-	
-	public PidController(WorldModel world, BasicController basicController, Communicator ... communicators) {		
+
+	public PidController(WorldModel world, BasicController basicController, Communicator ... communicators) {
 		this.world = world;
 		this.basicController = basicController;
 		this.communicators.addAll(Arrays.asList(communicators));
 		world.addRobotStateListener(this);
 	}
-	
+
 	@Override
 	public boolean getLights() {
 		return basicController.getLights();
@@ -73,7 +73,7 @@ public class PidController extends Controller implements RobotStateListener {
 		return basicController.getTiltServoAngle();
 	}
 
-	
+
 	private void sendPackage() {
 		for(Communicator communicator : communicators) {
 			communicator.sendPackage(createPackage());
@@ -82,17 +82,17 @@ public class PidController extends Controller implements RobotStateListener {
 
 	private ControlMessage createPackage() {
 		return new ControlMessage(
-				leftSpeed, 
-				rightSpeed, 
-				basicController.getLights(), 
-				basicController.getPanServoAngle(), 
-				basicController.getTiltServoAngle(), 
-				false, 
+				leftSpeed,
+				rightSpeed,
+				basicController.getLights(),
+				basicController.getPanServoAngle(),
+				basicController.getTiltServoAngle(),
+				false,
 				basicController.getServos(),
 				true);
 	}
 
-	
+
 	@Override
 	public boolean getServos() {
 		return basicController.getServos();
@@ -117,16 +117,16 @@ public class PidController extends Controller implements RobotStateListener {
 		if (currentWaypoint != waypointPosition) {
 			currentWaypoint = waypointPosition;
 			accError = 0.0f;
-			prevError = 0.0f;			
+			prevError = 0.0f;
 		}
-		
+
 		float error = calculateError(robotState, waypointPosition);
 		if (Math.abs(error) > HALF_PI) {
 			movingForward = !movingForward;
 			error = calculateError(robotState, waypointPosition);
 			accError = 0.0f;
 			prevError = 0.0f;
-		} 
+		}
 		float errorDot = 0.0f;
 		if (prevError != 0.0f) {
 			errorDot = error - prevError;
@@ -135,8 +135,8 @@ public class PidController extends Controller implements RobotStateListener {
 		accError = accError + error;
 
 		float control = Kp * error + Kd * errorDot + Ki * accError;
-		int[] speedPowerMap = ControlMessage.getSpeedPowerMap();		
-		int baseSpeed = (int)speedPowerMap[3];
+		int[] speedPowerMap = ControlMessage.getSpeedPowerMap();
+		int baseSpeed = speedPowerMap[3];
 		int gearChange;
 		if (control > HALF_PI) {
 			baseSpeed = 0;
@@ -145,13 +145,13 @@ public class PidController extends Controller implements RobotStateListener {
 			baseSpeed = 0;
 			gearChange = -speedPowerMap[1];
 		} else {
-			gearChange = (int)((float)(speedPowerMap[4] - speedPowerMap[3]) * control / HALF_PI);
+			gearChange = (int)((speedPowerMap[4] - speedPowerMap[3]) * control / HALF_PI);
 		}
 		leftSpeed = baseSpeed * (movingForward?1:-1) + gearChange;
-		rightSpeed = baseSpeed * (movingForward?1:-1) - gearChange;		
+		rightSpeed = baseSpeed * (movingForward?1:-1) - gearChange;
 		sendPackage();
 	}
-	
+
 	private float calculateError(RobotState robotState, Vector2D waypointPosition) {
 		float movementConvertedHeading = robotState.getHeading();
 		if (!movingForward) {
@@ -159,24 +159,24 @@ public class PidController extends Controller implements RobotStateListener {
 		}
 		float robotHeading = GeometryUtil.headingToAtan2Angle(movementConvertedHeading);
 		float waypointHeading = (float)Math.atan2(
-				(float)(waypointPosition.y - robotState.getPosition().y),
-				(float)(waypointPosition.x - robotState.getPosition().x));
+				waypointPosition.y - robotState.getPosition().y,
+				waypointPosition.x - robotState.getPosition().x);
 		float error = GeometryUtil.differenceBetweenAngles(robotHeading, waypointHeading);
 		return error;
 	}
-	
+
 	private Vector2D getNextWaypoint(RobotState robotState) {
 		Vector2D ret = null;
 		MotionPlan motionPlan = world.getMotionPlan();
 		Route route = motionPlan.getSelectedRoute();
 		boolean foundNextWaypoint = false;
-		while (!foundNextWaypoint) {		
+		while (!foundNextWaypoint) {
 			Waypoint nextWaypoint = route.getNextWaypoint();
 			if (nextWaypoint == null) {
 				break;
 			}
 			ret = nextWaypoint.getPosition();
-			if (ret.distance(robotState.getPosition()) < 10.0f) {
+			if (ret.distance(robotState.getPosition()) < 5.0f) {
 				route.moveToNextWaypoint();
 				nextWaypoint.setReached(true);
 			} else {
