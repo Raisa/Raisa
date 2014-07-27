@@ -177,6 +177,9 @@ public class RobotSimulator implements SimulatorState, ServoScanListener, Commun
 		}
 	}
 
+	/**
+	 * Maps the control signal back to fractional gear value (e.g. 3,25).
+	 */
 	private float convertControlSpeed(int controlSpeed, boolean rawValue) {
 		if (rawValue) {
 			int[] speedPowerMap = ControlMessage.getSpeedPowerMap();
@@ -267,6 +270,9 @@ public class RobotSimulator implements SimulatorState, ServoScanListener, Commun
 	}
 
 	private void sleep(long timeStepLengthMillis, long prevTickDuration) {
+		if (!config.isSimulatorRealTime()) {
+			return;
+		}
 		try {
 			Thread.sleep(Math.max(0, timeStepLengthMillis - prevTickDuration));
 		} catch(InterruptedException iex) {

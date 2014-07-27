@@ -36,6 +36,7 @@ public class VisualizerConfig {
 	// simulator settings
 	private int simulatorTicksPerSecond = 10;
 	private int simulatorServoDegreesPerSecond = 360;
+	private boolean simulatorRealTime = true;
 
 	private boolean useCompass = false;
 
@@ -207,6 +208,14 @@ public class VisualizerConfig {
 
 	public int getSimulatorServoDegreesPerSecond() {
 		return this.simulatorServoDegreesPerSecond;
+	}
+
+	public boolean isSimulatorRealTime() {
+		return simulatorRealTime;
+	}
+
+	public void setSimulatorRealTime(boolean simulatorRealTime) {
+		this.simulatorRealTime = simulatorRealTime;
 	}
 
 	public void setUseCompass(boolean useCompass) {

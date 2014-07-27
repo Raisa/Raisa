@@ -9,6 +9,7 @@ import java.awt.event.KeyEvent;
 import java.io.IOException;
 
 import javax.swing.BoxLayout;
+import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
@@ -102,15 +103,20 @@ public class OtherControlsPanel extends ControlSubPanel {
 		final String[] targets = { "Simulation file", "Raisa actual", "Simulator" };
 		final JComboBox<String> box = new JComboBox<>(targets);
 		final JPanel tickPanel = new JPanel();
-		tickPanel.setLayout(new GridLayout(2, 2));
-		final JLabel tickLabel = new JLabel("Samples / s");
+		tickPanel.setLayout(new GridLayout(3, 2));
+		final JLabel tickLabel = new JLabel("Ticks / s");
 		final JTextField ticksPerSecondField = new JTextField(Integer.toString(config.getSimulatorTicksPerSecond()), 3);
 		final JLabel servoSpeedLabel = new JLabel("Servo degrees / s");
 		final JTextField servoSpeedField = new JTextField(Integer.toString(config.getSimulatorServoDegreesPerSecond()), 5);
+		final JLabel realtimeLabel = new JLabel("Real time");
+		final JCheckBox realtimeCheckbox = new JCheckBox();
+		realtimeCheckbox.setSelected(config.isSimulatorRealTime());
 		tickPanel.add(tickLabel);
 		tickPanel.add(ticksPerSecondField);
 		tickPanel.add(servoSpeedLabel);
 		tickPanel.add(servoSpeedField);
+		tickPanel.add(realtimeLabel);
+		tickPanel.add(realtimeCheckbox);
 		box.setSelectedIndex(config.getInputOutputTarget().getIndex());
 		box.addActionListener(new ActionListener() {
 			@Override
@@ -157,6 +163,12 @@ public class OtherControlsPanel extends ControlSubPanel {
 				} catch(NumberFormatException nex) {
 					log.debug("Invalid degrees per second: " + servoSpeedField.getText());
 				}
+			}
+		});
+		realtimeCheckbox.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				config.setSimulatorRealTime(realtimeCheckbox.isSelected());
 			}
 		});
 		ioPanel.add(ioLabel);
