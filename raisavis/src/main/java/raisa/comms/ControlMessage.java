@@ -24,6 +24,7 @@ public class ControlMessage {
 	private final boolean takePicture;
 	private final boolean servos;
 	private final boolean rawValues;
+	private transient int retryCounter = 0;  // excluded from json serialization
 
 	private long timestamp;
 
@@ -119,6 +120,10 @@ public class ControlMessage {
 		return lights;
 	}
 
+	public boolean isTakePicture() {
+		return takePicture;
+	}
+
 	public boolean isRawValues() {
 		return rawValues;
 	}
@@ -137,6 +142,10 @@ public class ControlMessage {
 
 	public int getTiltServoAngle() {
 		return tiltServoAngle;
+	}
+
+	public int getAndIncRetryCounter() {
+		return retryCounter++;
 	}
 
 	@Override
