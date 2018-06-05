@@ -45,7 +45,7 @@ class SerialWriter implements Runnable {
 
 	private void writeMessage(ControlMessage msg) {
 		try {
-			output.write(latestMessage.toSerialMessage());
+			output.write(msg.toSerialMessage());
 			output.flush();
 		} catch (IOException e) {
 			log.error("Error sending command to serial", e);

@@ -21,7 +21,7 @@ public abstract class AbstractSerialCommunicator implements Communicator {
 	protected static final int TIME_OUT = 2000;
 	protected static final int DATA_RATE = 111111;
 	protected static final String PORT_NAMES[] = { "/dev/tty.usbserial-A9007UX1", // Mac OS/X
-			"/dev/tty.usbmodemfa131", "/dev/tty.usbmodemfd111", "/dev/ttys0", "/dev/ttys000", "/dev/tty001", "/dev/ttyUSB0", "/dev/ttyS0", "ttyACM0", // Linux
+			"/dev/tty.usbmodemfa131", "/dev/tty.usbmodemfd111", "/dev/ttys0", "/dev/ttys000", "/dev/tty001", "/dev/ttyUSB0", "/dev/ttyS0", "ttyACM0", "ttyACM1", // Linux
 			"COM3", // Windows
 	};
 

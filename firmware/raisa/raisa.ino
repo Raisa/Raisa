@@ -109,7 +109,7 @@ void setup()
 { 
   pinMode(blueLedPin, OUTPUT);
   digitalWrite(blueLedPin, LOW);   
-  
+
   Serial.begin(serialSpeed);
   cameraSerial.begin(cameraSerialSpeed);
   
@@ -135,9 +135,9 @@ void setup()
   
   delay(1000);
   sendCameraResetCmd();
-  delay(1000);
+  delay(2000);
   blink(1);
-} 
+}
 
 void blink(int times) {
   for (int i = 0; i < times; i++) {
@@ -260,6 +260,21 @@ void handleMessage(int leftSpeed, int leftDirection,
       }
       break;
     default: ; 
+  }
+
+  // set camera resolution
+  int resolutionBits = control >> 4;
+  switch(resolutionBits) {
+    case 1:
+      sendCameraResolutionCmd(0x22);  // 160*120
+      break;
+    case 2:
+      sendCameraResolutionCmd(0x11);  // 320*240
+      break;
+    case 3:
+      sendCameraResolutionCmd(0x00);  // 640*480
+      break;
+    default: ; // no change
   }
 
   Serial.print("ACK");
@@ -436,16 +451,19 @@ void scan(int angle, int scanDelay) {
     tmpAccMeasurementX, tmpAccMeasurementY, tmpAccMeasurementZ);
 }
 
+void emptyCameraInput() {
+  // clear stuff that may be waiting in the line
+  while (cameraSerial.available()>0) {
+    cameraSerial.read();
+    delay(1);
+  }
+}
+
 void handleTakeAndSendPicture() {
   blink(3);
 
   analogWrite(motorLeftSpeedPin, 0);
   analogWrite(motorRightSpeedPin, 0);
-  
-  // clear stuff that may be waiting in the line
-  if (cameraSerial.available()>0) {
-    cameraSerial.read();
-  }
   
   sendCameraTakePhotoCmd();
   //delay(500);
@@ -488,9 +506,9 @@ void readAndSendCameraPicture() {
           //Check if the picture is over
           if((a[j-1]==0xFF)&&(a[j]==0xD9)) { 
             cameraReadEndFlag = true;     
-          }          
+          }
           j++;
-	  count++;
+          count++;
         }
       } else {
         delay(1);
@@ -507,7 +525,7 @@ void readAndSendCameraPicture() {
     }
     Serial.flush();
     
-    if ((millis() - timeMillisBefore) > 20000) {
+    if ((millis() - timeMillisBefore) > 40000) {
       cameraReadEndFlag = true;           
     }
   }
@@ -537,17 +555,21 @@ void sendCameraReadDataCmd() {
   cameraSerial.write((byte)0x00);  
   cameraSerial.write((byte)0x0a);
   cameraCurrentReadAddress += 0x20;
+  cameraSerial.flush();
 }
 
 // note: camera requires 2-3 seconds after reset before accepting "take picture"-command
 void sendCameraResetCmd() {
+  emptyCameraInput();
   cameraSerial.write((byte)0x56);
   cameraSerial.write((byte)0x00);
   cameraSerial.write((byte)0x26);
   cameraSerial.write((byte)0x00);
+  cameraSerial.flush();
 }
 
 void sendCameraTakePhotoCmd() {
+  emptyCameraInput();
   cameraSerial.write((byte)0x56);
   cameraSerial.write((byte)0x00);
   cameraSerial.write((byte)0x36);
@@ -571,13 +593,25 @@ void sendCameraTakePhotoCmd() {
 }
 
 void sendCameraStopTakePhotoCmd() {
+  emptyCameraInput();
   cameraSerial.write((byte)0x56);
   cameraSerial.write((byte)0x00);
   cameraSerial.write((byte)0x36);
   cameraSerial.write((byte)0x01);
-  cameraSerial.write((byte)0x03);  
+  cameraSerial.write((byte)0x03);
+  cameraSerial.flush();
 }
 
+// 0x00 = 640x480, 0x11 = 320*240, 0x22 = 160*120
+void sendCameraResolutionCmd(byte newvalue) {
+  emptyCameraInput();
+  cameraSerial.write((byte)0x56);
+  cameraSerial.write((byte)0x00);
+  cameraSerial.write((byte)0x54);
+  cameraSerial.write((byte)0x01);
+  cameraSerial.write(newvalue);
+  cameraSerial.flush();
+}
 
 void loop() { 
   scanOffset ++;

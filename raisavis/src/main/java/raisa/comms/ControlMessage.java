@@ -2,6 +2,7 @@ package raisa.comms;
 
 import static org.apache.commons.lang3.builder.EqualsBuilder.reflectionEquals;
 import static org.apache.commons.lang3.builder.HashCodeBuilder.reflectionHashCode;
+import static raisa.comms.CameraResolution.NOCHANGE;
 
 import java.util.Arrays;
 
@@ -23,6 +24,7 @@ public class ControlMessage {
 	private final boolean lights;
 	private final boolean takePicture;
 	private final boolean servos;
+	private final CameraResolution cameraResolution;
 	private final boolean rawValues;
 	private transient int retryCounter = 0;  // excluded from json serialization
 
@@ -30,7 +32,8 @@ public class ControlMessage {
 
 	public ControlMessage(int leftSpeed, int rightSpeed,
 			boolean lights, int panServoAngle, int tiltServoAngle,
-			boolean takePicture, boolean servos, boolean rawValues) {
+			boolean takePicture, boolean servos, CameraResolution cameraResolution,
+			boolean rawValues) {
 		this.id = getNextId();
 		this.leftSpeed = leftSpeed;
 		this.rightSpeed = rightSpeed;
@@ -39,6 +42,7 @@ public class ControlMessage {
 		this.tiltServoAngle = tiltServoAngle;
 		this.takePicture = takePicture;
 		this.servos = servos;
+		this.cameraResolution = cameraResolution;
 		this.rawValues = rawValues;
 	}
 
@@ -62,10 +66,15 @@ public class ControlMessage {
 				(byte) (rightSpeed >= 0 ? 'F' : 'B'),
 				(byte) (panServoAngle & 0xFF),
 				(byte) (tiltServoAngle & 0xFF),
-				(byte) ((lights ? 2 : 1) | (takePicture ? 4 : 0) | (servos ? 0 : 8)),
+				createControlByte(),
 				(byte) (id % 10),
 				'i', 's', };
 		return bytes;
+	}
+
+	private byte createControlByte() {
+		return (byte) ((lights ? 2 : 1) | (takePicture ? 4 : 0) | (servos ? 0 : 8) |
+				(cameraResolution == NOCHANGE ? 0 : ((byte)cameraResolution.getValue()) << 4));
 	}
 
 	private byte getLeftMotorControl() {
