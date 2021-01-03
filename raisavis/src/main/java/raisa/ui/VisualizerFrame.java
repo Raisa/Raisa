@@ -29,14 +29,15 @@ import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import edu.umd.cs.findbugs.annotations.SuppressWarnings;
 import raisa.comms.Communicator;
 import raisa.comms.ControlMessage;
 import raisa.comms.FailoverCommunicator;
 import raisa.comms.SampleParser;
-import raisa.comms.SerialCommunicator;
 import raisa.comms.controller.BasicController;
 import raisa.comms.controller.PidController;
 import raisa.comms.controller.ReplayController;
+import raisa.comms.serial.JserialSerialCommunicator;
 import raisa.config.VisualizerConfig;
 import raisa.domain.WorldModel;
 import raisa.domain.particlefilter.ParticleFilter;
@@ -53,7 +54,6 @@ import raisa.ui.tool.MeasureTool;
 import raisa.ui.tool.Tool;
 import raisa.ui.tool.WaypointTool;
 import raisa.util.Vector2D;
-import edu.umd.cs.findbugs.annotations.SuppressWarnings;
 
 @SuppressWarnings(value="SE_BAD_FIELD", justification="VisualizerFrame needs not to be serializable")
 public class VisualizerFrame extends JFrame {
@@ -105,7 +105,7 @@ public class VisualizerFrame extends JFrame {
 
 		sessionWriter = new SessionWriter(sessionDirectory, "data");
 
-		communicator = new FailoverCommunicator(new SerialCommunicator().addSensorListener(worldModel), sessionWriter);
+		communicator = new FailoverCommunicator(new JserialSerialCommunicator().addSensorListener(worldModel), sessionWriter);
 		communicator.connect();
 
 		fileBasedSimulation = new FileBasedSimulation(worldModel);

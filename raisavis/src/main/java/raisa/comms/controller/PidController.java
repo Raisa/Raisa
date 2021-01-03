@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import raisa.comms.CameraResolution;
 import raisa.comms.Communicator;
 import raisa.comms.ControlMessage;
 import raisa.config.VisualizerConfig;
@@ -89,6 +90,7 @@ public class PidController extends Controller implements RobotStateListener {
 				basicController.getTiltServoAngle(),
 				false,
 				basicController.getServos(),
+				CameraResolution.NOCHANGE,
 				true);
 	}
 

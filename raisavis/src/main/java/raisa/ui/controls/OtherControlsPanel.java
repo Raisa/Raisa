@@ -1,5 +1,9 @@
 package raisa.ui.controls;
 
+import static raisa.comms.CameraResolution.R160x120;
+import static raisa.comms.CameraResolution.R320x240;
+import static raisa.comms.CameraResolution.R640x480;
+
 import java.awt.Component;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
@@ -21,6 +25,7 @@ import javax.swing.border.TitledBorder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import edu.umd.cs.findbugs.annotations.SuppressWarnings;
 import raisa.comms.ControllerListener;
 import raisa.comms.controller.BasicController;
 import raisa.comms.controller.Controller;
@@ -29,7 +34,6 @@ import raisa.config.VisualizerConfig;
 import raisa.session.SessionWriter;
 import raisa.simulator.RobotSimulator;
 import raisa.ui.controls.sixaxis.SixaxisInput;
-import edu.umd.cs.findbugs.annotations.SuppressWarnings;
 
 @SuppressWarnings(value = "SIC_INNER_SHOULD_BE_STATIC_ANON", justification="Non-static action listeners are not a problem here")
 public class OtherControlsPanel extends ControlSubPanel {
@@ -41,6 +45,7 @@ public class OtherControlsPanel extends ControlSubPanel {
 	final JToggleButton servosButton = new JToggleButton("Servos");
 	final JToggleButton dataCaptureButton = new JToggleButton("Capture");
 	final JToggleButton compassButton = new JToggleButton("Compass");
+	private JComboBox<String> cameraResolutionBox;
 
 	final VisualizerConfig config;
 
@@ -55,14 +60,16 @@ public class OtherControlsPanel extends ControlSubPanel {
 		createTakePictureControl(controller);
 		createDataCaptureControl(sessionWriter);
 		createCompassControl();
+		createCameraResolutionControl(controller);
 
 		JPanel buttonPanel = new JPanel();
 		buttonPanel.setLayout(new GridLayout(3, 2));
 		buttonPanel.add(lightsButton);
 		buttonPanel.add(servosButton);
-		buttonPanel.add(takePictureButton);
 		buttonPanel.add(dataCaptureButton);
 		buttonPanel.add(compassButton);
+		buttonPanel.add(takePictureButton);
+		buttonPanel.add(cameraResolutionBox);
 		add(buttonPanel);
 
 		createInputOutputTargetControl();
@@ -214,6 +221,28 @@ public class OtherControlsPanel extends ControlSubPanel {
 			public void actionPerformed(ActionEvent arg0) {
 				controller.sendTakePicture();
 				takePictureButton.setSelected(false);
+			}
+		});
+	}
+
+	private void createCameraResolutionControl(final BasicController controller) {
+		final String[] targets = { "160x120", "320x240", "640x480" };
+		cameraResolutionBox = new JComboBox<>(targets);
+		cameraResolutionBox.setSelectedIndex(0);
+		cameraResolutionBox.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				switch (cameraResolutionBox.getSelectedIndex()) {
+				case 0:
+					controller.sendCameraResolution(R160x120);
+					break;
+				case 1:
+					controller.sendCameraResolution(R320x240);
+					break;
+				default:
+					controller.sendCameraResolution(R640x480);
+					break;
+				}
 			}
 		});
 	}
